@@ -18,8 +18,10 @@ from backend.app.models.passport import (
     AgentRun,
     AuditLog
 )
+from backend.app.models.user import User
 
 __all__ = [
+    "User",
     "Organization",
     "BrandGuideline",
     "DocumentChunk",

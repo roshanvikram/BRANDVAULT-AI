@@ -35,7 +35,7 @@
 | ClaimDNA | `/claim-dna` | ✅ | Sample test + claim statuses |
 | Visual DNA Inspector | `/visual-dna` | ⛔ | **UI only** — no backend route, no OCR/CV |
 | Agent Control Center | `/agent-control` | ✅ | Real persisted `agent_runs` + stats |
-| Approval Hub | `/approval-hub` | 🟡 | Decision flow works; no auth gate |
+| Approval Hub | `/approval-hub` | ✅ | Decision flow works and is **auth-gated** (Milestone D); UI signs in as demo Reviewer before deciding |
 | Brand Passport | `/brand-passport` | ✅ | List + SHA-256; PDF export = print view |
 | Brand Risk Radar | `/risk-radar` | 🟡 | Aggregates real records |
 | Settings | `/settings` | 🟡 | Config + roadmap display |
@@ -59,9 +59,9 @@
 | RAG / embeddings / vector search | 🟠 | **Milestone C:** real vector-space retrieval — TF-IDF embeddings (L2-normalized, persisted to `document_chunks.embedding_json`), brute-force **cosine** + keyword **hybrid** ranking, org/status isolation, exposed via `POST /rag/search`; analyzer evidence now comes from it (lexical overlap is the fallback). **Honest limit:** statistical TF-IDF, not a neural/transformer embedding; interface is swap-ready for sentence-transformers or pgvector |
 | PostgreSQL / pgvector | ⛔ | SQLite only |
 | LLM provider integration | 🟠 | **Milestone B:** provider abstraction (`services/llm.py`) with a real Anthropic driver (official SDK, default `claude-opus-5-5`). LLM findings are Pydantic-validated, labeled `llm:<provider>`, merged/deduped with heuristics, and carry retrieved (not model-invented) citations. Heuristic engine stays default + automatic fallback on any failure. `/health` exposes live LLM status. **Verified:** validation, merge, dedupe, fallback, labeling. **Not verified here:** a live Anthropic HTTP call (no API key/SDK in this env). OpenAI/Gemini are honest interface stubs (report unavailable) |
-| Authentication / RBAC | ⛔ | Roles are string fields; approval is forgeable |
-| Tenant isolation | 🟠 | `org_id` filter only, no auth enforcement |
-| Secure file upload validation | 🟠 | Upload exists; size/type hardening unverified |
+| Authentication / RBAC | ✅ | **Milestone D:** `users` table, PBKDF2 passwords, HMAC bearer tokens, `/auth/login` + `/auth/me`, 3 roles. `/approval/decide` is gated — only Reviewer/Administrator may approve/reject/request-revision, attribution comes from the authenticated identity (forged names ignored), and tokenless callers (AI agents) cannot approve. Verified by tests |
+| Tenant isolation | ✅ | **Milestone D:** approval enforces caller-org == submission-org; cross-tenant decide → 403 (tested). Reads still use `org_id` filtering |
+| Secure file upload validation | 🟠 | **Milestone D3:** type allowlist (pdf/txt/md) + 15 MB + empty-file checks. Rate limiting still TODO |
 | DOCX / OCR ingestion | ⛔ | pypdf only |
 | Automated tests (unit/integration/E2E) | ⛔ | None present |
 | Labelled evaluation dataset (PART 21E) | ⛔ | Not created |
@@ -71,5 +71,5 @@
 
 ## Data model vs PART 17 spec
 
-Present: `organizations, brand_guidelines, document_chunks, brand_rules, approved_facts, terminology_rules, submissions, findings, claim_verifications, approval_records, revisions, brand_passports, agent_runs, audit_logs`.
-Missing vs spec: `users, memberships, brand_assets, evidence_links, suggestions, tool_audit_logs, governance_insights`.
+Present: `organizations, users, brand_guidelines, document_chunks, brand_rules, approved_facts, terminology_rules, submissions, findings, claim_verifications, approval_records, revisions, brand_passports, agent_runs, audit_logs`.
+Missing vs spec: `memberships, brand_assets, evidence_links, suggestions, tool_audit_logs, governance_insights`. (`users` added in Milestone D — single org per user covers RBAC + tenant isolation; `memberships` for multi-org users is future work.)

@@ -7,7 +7,7 @@ from backend.app.db.base import Base
 from backend.app.db.session import engine, SessionLocal
 from backend.app.db.migrations import run_light_migrations
 from backend.app.api.v1 import api_router
-from backend.app.services.seed import seed_sample_brand, augment_integrity_demo
+from backend.app.services.seed import seed_sample_brand, augment_integrity_demo, seed_demo_users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     try:
         seed_sample_brand(db)
         augment_integrity_demo(db)
+        seed_demo_users(db)
         # Build/refresh RAG vector embeddings for every org's guideline chunks.
         from backend.app.models.brand import Organization
         from backend.app.services.rag import RagRetriever

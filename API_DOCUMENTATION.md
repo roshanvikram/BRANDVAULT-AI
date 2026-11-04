@@ -4,8 +4,15 @@
 
 - **Base URL:** `http://127.0.0.1:8000`
 - **API prefix:** `/api/v1`
-- **Auth:** none yet (see IMPLEMENTATION_ROADMAP.md, Milestone D). All endpoints are currently open.
+- **Auth:** bearer tokens (Milestone D). `/approval/decide` is gated; other endpoints remain open for the demo. Send `Authorization: Bearer <token>` from `/auth/login`.
 - **Default org:** `nova-tech-org-001` (NOVA TECH demo), seeded on startup.
+- **Demo accounts** (judging workspace only, not production): `admin@novatech.demo` / `Admin@2026` (Administrator), `creator@novatech.demo` / `Creator@2026` (Creator), `reviewer@novatech.demo` / `Reviewer@2026` (Reviewer).
+
+## Authentication
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/auth/login` | `{email, password}` → `{access_token, token_type, user}` |
+| GET | `/api/v1/auth/me` | Current user (requires bearer token) |
 
 ---
 
@@ -59,11 +66,11 @@ Each verification carries `evidence_text` + `source_reference` **retrieved from 
 ## Approval (human-in-the-loop)
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/api/v1/approval/decide` | Record Approved / Rejected / Revision Requested (+ comments). On approval, generates a Brand Passport |
+| POST | `/api/v1/approval/decide` | **Requires bearer token.** Record Approved / Rejected / Revision Requested (+ comments). On approval, generates a Brand Passport |
 | GET | `/api/v1/approval/history/{submission_id}` | Decision history |
 | GET | `/api/v1/approval/revisions/{submission_id}` | Revision history |
 
-> ⚠️ No authorisation gate yet — any caller can decide. Milestone D adds role enforcement so only Reviewers can approve.
+> 🔒 **Gated (Milestone D).** `/approval/decide` needs a valid token. Only **Reviewer/Administrator** may issue authoritative decisions (Approved/Rejected/Revision Requested); **Creator** may only submit for review (`Pending Review`). The decision is attributed to the authenticated user (client-supplied names ignored), and the caller's org must match the submission's (cross-tenant → 403). No token → 401.
 
 ## Brand Passport
 | Method | Path | Purpose |

@@ -20,6 +20,7 @@ import {
   applyCorrection,
   fetchSubmissionDetail,
   submitApprovalDecision,
+  ensureDemoLogin,
   Submission,
   Finding
 } from "@/lib/api";
@@ -101,6 +102,7 @@ function ContentIntelligenceContent() {
     if (!submission) return;
     setSubmittingReview(true);
     try {
+      await ensureDemoLogin("Creator");
       const res = await submitApprovalDecision({
         submission_id: submission.id,
         decision: "Pending Review" as any,
@@ -110,8 +112,8 @@ function ContentIntelligenceContent() {
       });
       setSubmission(res);
       setReviewMessage("Campaign successfully routed to Approval Hub for Reviewer audit.");
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setReviewMessage(err?.message || "Submission failed.");
     } finally {
       setSubmittingReview(false);
     }

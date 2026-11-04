@@ -2,8 +2,18 @@ import uuid
 import datetime
 from sqlalchemy.orm import Session
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule, BrandGuideline, DocumentChunk
+from backend.app.models.user import User, ROLE_ADMIN, ROLE_CREATOR, ROLE_REVIEWER
+from backend.app.core.security import hash_password
 
 NOVA_ORG_ID = "nova-tech-org-001"
+
+# Demo accounts for the NOVA TECH workspace (documented in README/DEPLOYMENT).
+# Safe for the judging demo only — not production credentials.
+DEMO_USERS = [
+    {"email": "admin@novatech.demo", "full_name": "NOVA Admin", "role": ROLE_ADMIN, "password": "Admin@2026"},
+    {"email": "creator@novatech.demo", "full_name": "NOVA Creator", "role": ROLE_CREATOR, "password": "Creator@2026"},
+    {"email": "reviewer@novatech.demo", "full_name": "NOVA Reviewer", "role": ROLE_REVIEWER, "password": "Reviewer@2026"},
+]
 
 def seed_sample_brand(db: Session) -> Organization:
     org = db.query(Organization).filter(Organization.id == NOVA_ORG_ID).first()
@@ -262,4 +272,28 @@ def augment_integrity_demo(db: Session) -> None:
             ))
 
     db.commit()
+
+
+def seed_demo_users(db: Session) -> None:
+    """Idempotently create the NOVA TECH demo accounts (Admin/Creator/Reviewer)."""
+    org = db.query(Organization).filter(Organization.id == NOVA_ORG_ID).first()
+    if not org:
+        return
+    created = False
+    for spec in DEMO_USERS:
+        if db.query(User).filter(User.email == spec["email"]).first():
+            continue
+        salt, pwd_hash = hash_password(spec["password"])
+        db.add(User(
+            id=str(uuid.uuid4()),
+            email=spec["email"],
+            full_name=spec["full_name"],
+            role=spec["role"],
+            org_id=NOVA_ORG_ID,
+            salt=salt,
+            password_hash=pwd_hash,
+        ))
+        created = True
+    if created:
+        db.commit()
 

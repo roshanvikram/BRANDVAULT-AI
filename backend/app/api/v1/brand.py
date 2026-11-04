@@ -75,7 +75,18 @@ async def upload_guideline(
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
 
+    # Upload hardening (Milestone D3): restrict type and size.
+    ALLOWED_EXT = (".pdf", ".txt", ".md")
+    MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
+    fname = (file.filename or "").lower()
+    if not fname.endswith(ALLOWED_EXT):
+        raise HTTPException(status_code=400, detail=f"Unsupported file type. Allowed: {', '.join(ALLOWED_EXT)}")
+
     content_bytes = await file.read()
+    if len(content_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File exceeds the 15 MB upload limit.")
+    if len(content_bytes) == 0:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
     raw_text = ""
     total_pages = 1
 

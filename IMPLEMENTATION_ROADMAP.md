@@ -26,7 +26,8 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 - **C2.** Ingestion pipeline: extract → chunk (with page/section metadata) → embed → store, for uploaded PDFs (extend to DOCX/TXT).
 - **C3.** Hybrid retrieval (semantic + keyword) with org + approval-status + version filtering; feed retrieved chunks to findings as true evidence.
 
-## Milestone D — Security & multi-user
+## Milestone D — Security & multi-user  ✅ DONE (D1–D2; D3 partial)
+*Delivered: `core/security.py` (PBKDF2 passwords + HMAC bearer tokens, stdlib), `models/user.py` (`users` table, 3 roles), `api/deps.py` (`get_current_user`, `require_roles`, `ensure_same_org`), `api/v1/auth.py` (`/auth/login`, `/auth/me`), seeded demo accounts. `/approval/decide` gated: Reviewer/Administrator-only for authoritative decisions, authenticated attribution (forged names ignored), cross-tenant 403. Frontend signs in as demo Creator/Reviewer for the submit/approve flows. D3: upload type+size validation. Verified by tests (login, RBAC, forged + cross-tenant approval denied, passport on approve). Remaining D3: rate limiting, broader input sanitisation.*
 - **D1.** Minimal auth (session or JWT) + three roles (Administrator/Creator/Reviewer). **Gate `/approval/decide`** so approval cannot be forged.
 - **D2.** Enforce tenant isolation at the auth layer, then add a cross-tenant access test.
 - **D3.** Harden uploads (size/type validation, private storage path), input sanitisation, rate limiting, safe error envelopes.
