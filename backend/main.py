@@ -40,7 +40,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
+    # Stateless bearer-token API (no cookies), so credentials are off — this
+    # keeps explicit origins valid and avoids the insecure "*"+credentials combo.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

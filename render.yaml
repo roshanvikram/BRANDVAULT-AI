@@ -1,0 +1,31 @@
+# Render blueprint for the BRANDVAULT AI backend + managed Postgres.
+# Deploy: push to GitHub, then "New > Blueprint" in Render and point at this file.
+# The frontend deploys separately on Vercel (set NEXT_PUBLIC_API_URL to this
+# service's URL + /api/v1).
+services:
+  - type: web
+    name: brandvault-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true          # Render generates a strong secret
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brandvault-db
+          property: connectionString
+      - key: BACKEND_CORS_ORIGINS
+        sync: false                   # set to your Vercel frontend URL(s)
+      # Optional LLM layer — leave unset to run heuristic-only.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: brandvault-db
+    plan: free
+    databaseName: brandvault

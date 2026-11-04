@@ -44,7 +44,8 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 - **F2.** Live updates (SSE/polling) for analysis progress and the review queue.
 - **F3.** MCP server auth + audit logging; re-verify tools.
 
-## Milestone G — Deployment
+## Milestone G — Deployment  ✅ DONE (config/docs; live deploy to execute on host)
+*Delivered: env-driven config + hardened CORS (computed origins, no `*`, `allow_credentials=False` for the stateless-token API), `DATABASE_URL` Postgres support with portable ORM types (test-verified), Alembic scaffold (`backend/alembic.ini` + `migrations/`), `Dockerfile`, `Procfile`, `render.yaml` (web + managed Postgres), `.env.example` prod vars, and `DEPLOYMENT.md` (runbook, security checklist, incognito acceptance checklist, demo accounts). Verified locally: full suite (41 tests) green and the app boots under production-style env (health + login 200). Not verified: a live cloud deploy and a real Postgres migration — no hosting/network/driver in this environment; execute the runbook on the target host.*
 - **G1.** Postgres migration (SQLAlchemy models are portable; add Alembic).
 - **G2.** Deploy frontend (Vercel) + backend (Render/Fly) + managed Postgres; configure CORS and server-side secrets.
 - **G3.** Seeded demo workspace + documented demo account; verify in a private/incognito session. `DEPLOYMENT.md`.

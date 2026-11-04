@@ -57,7 +57,7 @@
 | Capability | Status | Notes |
 |---|---|---|
 | RAG / embeddings / vector search | 🟠 | **Milestone C:** real vector-space retrieval — TF-IDF embeddings (L2-normalized, persisted to `document_chunks.embedding_json`), brute-force **cosine** + keyword **hybrid** ranking, org/status isolation, exposed via `POST /rag/search`; analyzer evidence now comes from it (lexical overlap is the fallback). **Honest limit:** statistical TF-IDF, not a neural/transformer embedding; interface is swap-ready for sentence-transformers or pgvector |
-| PostgreSQL / pgvector | ⛔ | SQLite only |
+| PostgreSQL / pgvector | 🟠 | **Milestone G:** Postgres-ready — portable ORM types (verified by test), `DATABASE_URL` config, CORS hardened (env-driven, no `*`, `allow_credentials=False`), Alembic scaffold. Not run against a live Postgres here (driver not installable offline). pgvector N/A (retrieval is TF-IDF) |
 | LLM provider integration | 🟠 | **Milestone B:** provider abstraction (`services/llm.py`) with a real Anthropic driver (official SDK, default `claude-opus-5-5`). LLM findings are Pydantic-validated, labeled `llm:<provider>`, merged/deduped with heuristics, and carry retrieved (not model-invented) citations. Heuristic engine stays default + automatic fallback on any failure. `/health` exposes live LLM status. **Verified:** validation, merge, dedupe, fallback, labeling. **Not verified here:** a live Anthropic HTTP call (no API key/SDK in this env). OpenAI/Gemini are honest interface stubs (report unavailable) |
 | Authentication / RBAC | ✅ | **Milestone D:** `users` table, PBKDF2 passwords, HMAC bearer tokens, `/auth/login` + `/auth/me`, 3 roles. `/approval/decide` is gated — only Reviewer/Administrator may approve/reject/request-revision, attribution comes from the authenticated identity (forged names ignored), and tokenless callers (AI agents) cannot approve. Verified by tests |
 | Tenant isolation | ✅ | **Milestone D:** approval enforces caller-org == submission-org; cross-tenant decide → 403 (tested). Reads still use `org_id` filtering |
@@ -67,7 +67,7 @@
 | Labelled evaluation dataset (PART 21E) | ✅ | **Milestone E:** 36 labelled cases (`backend/eval/dataset.json`) + `run_eval.py`. Measured: **P=1.000, R=0.860, F1=0.925** (6 honest out-of-scope FNs). Surfaced & fixed 2 analyzer bugs |
 | WebSocket/SSE live updates | ⛔ | Synchronous request/response |
 | MCP server | 🟡 | File present; not re-verified this session |
-| Public deployment | ⛔ | Local only |
+| Public deployment | 🟠 | **Milestone G:** deployment config shipped — `Dockerfile`, `render.yaml` (web + managed Postgres), `Procfile`, `DEPLOYMENT.md` (runbook + incognito checklist + demo accounts). Authored, not live-deployed from here (no hosting/network) |
 
 ## Data model vs PART 17 spec
 
