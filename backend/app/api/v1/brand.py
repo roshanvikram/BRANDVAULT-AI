@@ -140,6 +140,14 @@ async def upload_guideline(
     ))
 
     db.commit()
+
+    # Embed and persist vectors for the newly ingested chunks (RAG ingestion).
+    try:
+        from backend.app.services.rag import RagRetriever
+        RagRetriever(db).index_org(org_id)
+    except Exception:
+        pass  # ingestion still succeeds even if indexing fails
+
     db.refresh(guideline)
     return guideline
 

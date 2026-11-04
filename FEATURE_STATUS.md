@@ -56,7 +56,7 @@
 
 | Capability | Status | Notes |
 |---|---|---|
-| RAG / embeddings / vector search | 🟠 | **Evidence now retrieved from `document_chunks`** (lexical token-overlap, Milestone A) with real page citations — no more hardcoded citation strings. Still no embeddings/vector search (Milestone C) |
+| RAG / embeddings / vector search | 🟠 | **Milestone C:** real vector-space retrieval — TF-IDF embeddings (L2-normalized, persisted to `document_chunks.embedding_json`), brute-force **cosine** + keyword **hybrid** ranking, org/status isolation, exposed via `POST /rag/search`; analyzer evidence now comes from it (lexical overlap is the fallback). **Honest limit:** statistical TF-IDF, not a neural/transformer embedding; interface is swap-ready for sentence-transformers or pgvector |
 | PostgreSQL / pgvector | ⛔ | SQLite only |
 | LLM provider integration | 🟠 | **Milestone B:** provider abstraction (`services/llm.py`) with a real Anthropic driver (official SDK, default `claude-opus-5-5`). LLM findings are Pydantic-validated, labeled `llm:<provider>`, merged/deduped with heuristics, and carry retrieved (not model-invented) citations. Heuristic engine stays default + automatic fallback on any failure. `/health` exposes live LLM status. **Verified:** validation, merge, dedupe, fallback, labeling. **Not verified here:** a live Anthropic HTTP call (no API key/SDK in this env). OpenAI/Gemini are honest interface stubs (report unavailable) |
 | Authentication / RBAC | ⛔ | Roles are string fields; approval is forgeable |

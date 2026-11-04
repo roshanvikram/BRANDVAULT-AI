@@ -18,6 +18,12 @@ async def lifespan(app: FastAPI):
     try:
         seed_sample_brand(db)
         augment_integrity_demo(db)
+        # Build/refresh RAG vector embeddings for every org's guideline chunks.
+        from backend.app.models.brand import Organization
+        from backend.app.services.rag import RagRetriever
+        retriever = RagRetriever(db)
+        for org in db.query(Organization).all():
+            retriever.index_org(org.id)
     finally:
         db.close()
     yield

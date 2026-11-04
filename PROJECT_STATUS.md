@@ -48,7 +48,7 @@ The NOVA test produced exactly the expected findings: `world's fastest` → term
 ## 5. Honest limitations (see FEATURE_STATUS.md for the full matrix)
 
 1. **LLM optional, off by default** — *(Milestone B added a real Anthropic LLM layer behind the heuristic engine: Pydantic-validated, labeled, dedup-merged findings with graceful fallback; `/health` shows whether it's live.)* With no API key, "AI analysis" is the deterministic regex+rules engine — robust and explainable. The live Anthropic call path is implemented but unverified without a key; OpenAI/Gemini are interface stubs only.
-2. **No *semantic* RAG** — no embeddings, no vector search, no pgvector. *(Milestone A fixed the honesty gap: evidence is now **retrieved from `document_chunks`** by lexical token-overlap with real page citations, replacing the previously hardcoded citation strings in `analyzer.py`.)* Retrieval is still lexical, not embedding-based (Milestone C).
+2. **RAG is statistical, not neural** — *(Milestone C added real vector-space retrieval: TF-IDF embeddings persisted to `document_chunks.embedding_json`, cosine + keyword hybrid ranking, org isolation, and a `POST /rag/search` endpoint; evidence now flows from it.)* It is a TF-IDF embedding, not a neural/transformer one, and the store is brute-force over SQLite — the `Embedder`/`RagRetriever` interfaces are written for a sentence-transformers or pgvector swap.
 3. **No authentication / RBAC** — roles are string fields; **any caller can approve**. No cross-tenant auth gate (only an `org_id` filter).
 4. **No real Visual DNA / OCR** — no visual analysis route exists (`/analyse/image` → 404); no OpenCV/Tesseract. The page is UI-only.
 5. **No automated tests** — no pytest/Playwright present; QA has been manual.

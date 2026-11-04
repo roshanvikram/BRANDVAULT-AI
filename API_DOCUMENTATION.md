@@ -78,6 +78,14 @@ Each verification carries `evidence_text` + `source_reference` **retrieved from 
 | GET | `/api/v1/agent/runs?limit=` | Persisted agent execution events |
 | GET | `/api/v1/agent/stats` | Totals + `average_latency_ms` (µs-precision) + per-agent distribution |
 
+## RAG Retrieval
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/rag/search` | Hybrid (TF-IDF cosine + keyword) retrieval over org-isolated guideline chunks |
+
+**`POST /rag/search`** request: `{ "query": "launch price", "org_id": "nova-tech-org-001", "top_k": 3 }`
+Returns ranked passages with real page citations and `score`/`cosine`/`keyword` components, plus the `embedder` name (`tfidf`). Statistical embedding, not neural — see FEATURE_STATUS.md.
+
 ## Risk Radar
 | Method | Path | Purpose |
 |---|---|---|
@@ -86,4 +94,4 @@ Each verification carries `evidence_text` + `source_reference` **retrieved from 
 ---
 
 ## Reconciliation with PART 18 (brief) — honesty note
-The brief lists endpoints like `/api/analyse/text`, `/api/rag/search`, `/api/copilot/chat`, and review routes under `/api/reviews/...`. Those paths **do not exist**; the equivalent real capabilities are `/content/analyze`, (no standalone RAG endpoint — retrieval is internal to analysis), no copilot chat, and approval under `/approval/decide`. There is no `/analyse/image` route (Visual DNA has no backend). These gaps are tracked in FEATURE_STATUS.md.
+The brief lists endpoints like `/api/analyse/text`, `/api/copilot/chat`, and review routes under `/api/reviews/...`. Those paths **do not exist**; the equivalent real capabilities are `/content/analyze`, no copilot chat, and approval under `/approval/decide`. RAG is now exposed at `/api/v1/rag/search` (Milestone C) and is also used internally by analysis. There is no `/analyse/image` route (Visual DNA has no backend). These gaps are tracked in FEATURE_STATUS.md.

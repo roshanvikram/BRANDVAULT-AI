@@ -9,6 +9,7 @@ from backend.app.models.submission import Submission, Finding, ClaimVerification
 from backend.app.models.passport import AgentRun, AuditLog
 from backend.app.core.config import settings
 from backend.app.services import llm as llm_mod
+from backend.app.services.rag import RagRetriever
 
 # Ambiguous marketing superlatives that are not outright prohibited but cannot be
 # mechanically confirmed or denied from stored evidence — these require human judgement.
@@ -28,6 +29,8 @@ class ContentAnalyzerService:
         self._chunk_org: Optional[str] = None
         # Optional LLM augmentation. Heuristics remain primary and the fallback.
         self.llm = llm_provider if llm_provider is not None else llm_mod.get_llm_provider(settings)
+        # RAG retriever for evidence (TF-IDF cosine + keyword hybrid over chunks).
+        self.rag = RagRetriever(db)
 
     # ------------------------------------------------------------------ #
     #  Evidence retrieval (lexical RAG over stored document_chunks)
@@ -46,14 +49,23 @@ class ContentAnalyzerService:
         return chunks
 
     def _retrieve_evidence(self, org_id: str, query: str) -> Optional[Dict[str, Any]]:
-        """Return the best-matching stored guideline chunk for `query`.
+        """Best-matching stored guideline chunk for `query`.
 
-        This is real retrieval over persisted `document_chunks` (lexical
-        token-overlap scoring), NOT a hardcoded citation string. If no chunk
-        overlaps the query the method returns None and the caller must say so
-        explicitly rather than inventing a source. A pgvector/embedding backend
-        can replace the scoring here without changing callers (Roadmap C).
+        Primary path: the RAG retriever (TF-IDF cosine + keyword hybrid over
+        persisted `document_chunks`). Falls back to lexical token-overlap if RAG
+        errors. Returns None when nothing matches — callers then say so
+        explicitly rather than inventing a source.
         """
+        try:
+            hit = self.rag.best(org_id, query)
+            if hit:
+                return hit
+        except Exception:
+            pass  # fall back to the simple lexical retriever below
+        return self._retrieve_evidence_lexical(org_id, query)
+
+    def _retrieve_evidence_lexical(self, org_id: str, query: str) -> Optional[Dict[str, Any]]:
+        """Fallback retriever: plain token-overlap over stored chunks."""
         chunks = self._load_chunks(org_id)
         if not chunks:
             return None

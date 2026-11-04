@@ -20,7 +20,8 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 - **B2. LLM-assisted findings** validated against **Pydantic schemas** before persistence; reject/flag invalid model output (never silently pass fabricated results).
 - **B3. Clearly label** in the UI whether a finding came from the heuristic engine or the LLM.
 
-## Milestone C — Real RAG
+## Milestone C — Real RAG  ✅ DONE
+*Delivered: `services/rag.py` — `Embedder` interface + `TfidfEmbedder` (L2-normalized TF-IDF), `cosine`, and `RagRetriever` with hybrid (cosine + keyword) ranking and org/guideline-status isolation. Embeddings persisted to `document_chunks.embedding_json` (backfilled at startup, indexed on upload). Analyzer evidence now comes from RAG with lexical fallback. New `POST /rag/search`. Verified: page-ranking, org isolation, persistence, cosine sanity. Limit: TF-IDF (not neural) + brute-force SQLite; interfaces are swap-ready for sentence-transformers / pgvector.*
 - **C1.** Add embeddings (local `sentence-transformers` or provider embeddings) + a vector column. On SQLite use a brute-force cosine search; design the interface so a Postgres+pgvector swap is config-only.
 - **C2.** Ingestion pipeline: extract → chunk (with page/section metadata) → embed → store, for uploaded PDFs (extend to DOCX/TXT).
 - **C3.** Hybrid retrieval (semantic + keyword) with org + approval-status + version filtering; feed retrieved chunks to findings as true evidence.
