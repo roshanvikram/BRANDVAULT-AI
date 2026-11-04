@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 import datetime
 
 class ApiResponse(BaseModel):
@@ -14,4 +14,6 @@ class HealthResponse(BaseModel):
     version: str
     database: str
     timestamp: str
+    # LLM layer status — honest disclosure of whether generative AI is live.
+    llm: Optional[Dict[str, Any]] = None
 

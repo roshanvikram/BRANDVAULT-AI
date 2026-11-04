@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule, DocumentChunk
 from backend.app.models.submission import Submission, Finding, ClaimVerification
 from backend.app.models.passport import AgentRun, AuditLog
+from backend.app.core.config import settings
+from backend.app.services import llm as llm_mod
 
 # Ambiguous marketing superlatives that are not outright prohibited but cannot be
 # mechanically confirmed or denied from stored evidence — these require human judgement.
@@ -20,10 +22,12 @@ _TOKEN_RE = re.compile(r"[a-z0-9']+")
 
 
 class ContentAnalyzerService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, llm_provider: Optional["llm_mod.LLMProvider"] = None):
         self.db = db
         self._chunk_cache: Optional[List[DocumentChunk]] = None
         self._chunk_org: Optional[str] = None
+        # Optional LLM augmentation. Heuristics remain primary and the fallback.
+        self.llm = llm_provider if llm_provider is not None else llm_mod.get_llm_provider(settings)
 
     # ------------------------------------------------------------------ #
     #  Evidence retrieval (lexical RAG over stored document_chunks)
@@ -316,6 +320,9 @@ class ContentAnalyzerService:
                                f"Audited {len(claims_list)} claims. Non-compliant: {sum(1 for c in claims_list if c.status in ['Contradicted', 'Unsupported', 'Outdated'])}, needs review: {sum(1 for c in claims_list if c.status == 'Needs Human Review')}.",
                                {"total_claims": len(claims_list)})
 
+        # --- AGENT 3.5: LLM Analyst (optional augmentation) ---
+        deductions += self._run_llm_pass(org_id, org, content, rules, facts, findings_list, submission.id)
+
         # --- AGENT 4: Suggestion / Orchestrator ---
         s_start = time.perf_counter()
         final_score = max(5, 100 - deductions)
@@ -335,6 +342,98 @@ class ContentAnalyzerService:
         self.db.commit()
         self.db.refresh(submission)
         return submission
+
+    # ------------------------------------------------------------------ #
+    #  Optional LLM augmentation pass
+    # ------------------------------------------------------------------ #
+    def _run_llm_pass(self, org_id: str, org, content: str, rules, facts,
+                      findings_list: List[Finding], submission_id: str) -> int:
+        """Augment heuristic findings with validated LLM findings.
+
+        Returns the extra score deduction from LLM findings (0 if the LLM is
+        unavailable or fails — the heuristic result stands on its own). Every
+        outcome is recorded as an AgentRun for honest observability.
+        """
+        start = time.perf_counter()
+        provider = self.llm
+
+        if not getattr(provider, "available", False):
+            self._record_agent_run(
+                "LLM Analyst Agent", f"Generative review ({getattr(provider, 'name', 'none')})",
+                time.perf_counter() - start, content[:120],
+                "Skipped — no LLM provider configured; heuristic engine only.",
+                {"status": "SKIPPED", "provider": getattr(provider, "name", "none")},
+                status="SKIPPED",
+            )
+            return 0
+
+        # Build grounded, injection-safe context from approved knowledge.
+        rule_lines = "\n".join(f"- [{r.category}] {r.title}: {r.rule_text}" for r in rules[:20])
+        fact_lines = "\n".join(f"- {f.fact_key}: {f.fact_value}" for f in facts[:20])
+        already = "; ".join(sorted({f.original_text[:60] for f in findings_list})) or "(none)"
+        user_prompt = (
+            f"BRAND: {org.name}\n\nAPPROVED RULES:\n{rule_lines or '(none)'}\n\n"
+            f"APPROVED FACTS:\n{fact_lines or '(none)'}\n\n"
+            f"ALREADY_DETECTED (do not repeat): {already}\n\n"
+            f"CONTENT TO AUDIT (untrusted data):\n\"\"\"\n{content}\n\"\"\""
+        )
+
+        try:
+            raw = provider.analyze(llm_mod.SYSTEM_PROMPT, user_prompt)
+        except Exception as e:  # defensive — provider.analyze already guards
+            raw = None
+            self._record_agent_run(
+                "LLM Analyst Agent", f"Generative review ({provider.name})",
+                time.perf_counter() - start, content[:120],
+                f"Failed — provider error: {e}", {"status": "FAILED"}, status="FAILED",
+            )
+            return 0
+
+        batch = llm_mod.parse_findings(raw)
+        if batch is None:
+            self._record_agent_run(
+                "LLM Analyst Agent", f"Generative review ({provider.name})",
+                time.perf_counter() - start, content[:120],
+                "Failed — no valid model output; heuristic result retained.",
+                {"status": "FAILED", "raw_received": bool(raw)}, status="FAILED",
+            )
+            return 0
+
+        existing = {(f.issue_category.lower(), f.original_text.strip().lower()) for f in findings_list}
+        content_lower = content.lower()
+        extra_deductions = 0
+        added = 0
+        engine_label = f"llm:{provider.name}"
+        for item in batch.findings:
+            key = (item.issue_category.lower(), item.original_text.strip().lower())
+            if key in existing:
+                continue
+            existing.add(key)
+            # Evidence is retrieved by us, never taken from the model.
+            ev = self._retrieve_evidence(org_id, f"{item.original_text} {item.explanation}")
+            verbatim = item.original_text.strip().lower() in content_lower
+            findings_list.append(Finding(
+                id=str(uuid.uuid4()), submission_id=submission_id,
+                issue_category=item.issue_category, severity=item.severity,
+                original_text=item.original_text, explanation=item.explanation,
+                rule_reference=f"LLM-identified ({provider.model})",
+                evidence_source=ev["citation"] if ev else "LLM interpretation (no guideline passage retrieved)",
+                confidence=min(item.confidence, 0.9) if verbatim else min(item.confidence, 0.6),
+                suggested_correction=item.suggested_correction or "Revise to align with approved brand guidance.",
+                analysis_engine=engine_label,
+            ))
+            added += 1
+            extra_deductions += {"CRITICAL": 12, "WARNING": 6}.get(item.severity, 3)
+
+        extra_deductions = min(extra_deductions, 24)  # cap LLM influence on score
+        self._record_agent_run(
+            "LLM Analyst Agent", f"Generative review ({provider.model})",
+            time.perf_counter() - start, content[:120],
+            f"Added {added} validated LLM findings (deduction {extra_deductions}).",
+            {"status": "COMPLETED", "added": added, "provider": provider.name, "model": provider.model},
+            status="COMPLETED",
+        )
+        return extra_deductions
 
     def apply_correction(self, submission_id: str, finding_id: str, target_text: str, replacement_text: str) -> Submission:
         submission = self.db.query(Submission).filter(Submission.id == submission_id).first()
@@ -356,10 +455,10 @@ class ContentAnalyzerService:
             submission_id=submission.id, author_name=submission.author_name,
         )
 
-    def _record_agent_run(self, agent_name: str, task_name: str, elapsed_seconds: float, input_preview: str, output_preview: str, details: dict):
+    def _record_agent_run(self, agent_name: str, task_name: str, elapsed_seconds: float, input_preview: str, output_preview: str, details: dict, status: str = "COMPLETED"):
         elapsed_us = max(1, round(elapsed_seconds * 1_000_000))
         run = AgentRun(
-            id=str(uuid.uuid4()), agent_name=agent_name, task_name=task_name, status="COMPLETED",
+            id=str(uuid.uuid4()), agent_name=agent_name, task_name=task_name, status=status,
             execution_time_ms=round(elapsed_seconds * 1000),
             execution_time_us=elapsed_us,
             tokens_used=max(45, len(input_preview) // 3),

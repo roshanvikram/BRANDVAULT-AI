@@ -235,9 +235,20 @@ function ContentIntelligenceContent() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#FFFFFF] text-[#0A0A0A] font-semibold">
-                        {f.issue_category}
-                      </span>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#FFFFFF] text-[#0A0A0A] font-semibold">
+                          {f.issue_category}
+                        </span>
+                        {f.analysis_engine?.startsWith("llm") ? (
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#0A0A0A] text-[#FFFFFF] font-semibold" title={f.analysis_engine}>
+                            AI
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#737373] font-semibold" title="Deterministic rule engine">
+                            RULES
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[9px] font-mono text-[#737373] border border-[#E5E5E5] px-1 py-0.5 rounded font-semibold">
                         {f.severity}
                       </span>

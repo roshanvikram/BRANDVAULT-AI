@@ -12,8 +12,9 @@ Goal: make what already works fully honest and defensible to a judge.
 - **A3. Add Outdated & Needs-Human-Review paths** to ClaimDNA using a `valid_until`/freshness field on facts, so all 5 statuses are reachable, not just defined.
 - **A4. Author `API_DOCUMENTATION.md`** from the live OpenAPI (`/docs`) and reconcile the README's aspirational endpoints with reality.
 
-## Milestone B — Real (optional) LLM layer with graceful fallback
+## Milestone B — Real (optional) LLM layer with graceful fallback  ✅ DONE
 Goal: satisfy "real AI" without breaking the deterministic guarantee.
+*Delivered: `services/llm.py` (Anthropic driver via official SDK, default `claude-opus-5-5`; OpenAI/Gemini honest stubs); Pydantic-validated, per-item-safe output; findings labeled `llm:<provider>` and dedup-merged with heuristics; retrieved (not model-invented) citations; `/health` LLM status; UI engine badge. Verified: validation, merge, dedupe, fallback, labeling. Live HTTP call unverified without an API key.*
 
 - **B1. Provider abstraction** (`services/llm.py`) with OpenAI/Anthropic/Gemini drivers behind one interface; **heuristic engine stays the default** and the automatic fallback when no key is configured or a call fails/times out.
 - **B2. LLM-assisted findings** validated against **Pydantic schemas** before persistence; reject/flag invalid model output (never silently pass fabricated results).

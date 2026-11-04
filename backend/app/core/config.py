@@ -24,6 +24,15 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+
+    # LLM layer (optional — the deterministic heuristic engine is always the
+    # default and the automatic fallback when no provider is configured or a
+    # call fails. See services/llm.py.)
+    LLM_ENABLED: bool = os.getenv("LLM_ENABLED", "true").lower() != "false"
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "auto")  # auto | anthropic | openai | gemini | none
+    ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-opus-5-5")
+    LLM_TIMEOUT_SECONDS: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "20"))
+    LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1500"))
     
     class Config:
         case_sensitive = True

@@ -5,6 +5,7 @@ from sqlalchemy import text
 from backend.app.core.config import settings
 from backend.app.db.session import get_db
 from backend.app.schemas.common import HealthResponse
+from backend.app.services.llm import get_llm_provider
 
 router = APIRouter()
 
@@ -16,12 +17,22 @@ def get_health(db: Session = Depends(get_db)):
     except Exception as e:
         db_status = f"unhealthy: {str(e)}"
 
+    provider = get_llm_provider(settings)
+    llm_status = {
+        "enabled": settings.LLM_ENABLED,
+        "provider": getattr(provider, "name", "none"),
+        "available": getattr(provider, "available", False),
+        "model": getattr(provider, "model", "") or None,
+        "mode": "llm+heuristic" if getattr(provider, "available", False) else "heuristic-only",
+    }
+
     return HealthResponse(
         status="healthy" if db_status == "connected" else "degraded",
         service=settings.PROJECT_NAME,
         tagline=settings.PROJECT_TAGLINE,
         version=settings.VERSION,
         database=db_status,
-        timestamp=datetime.datetime.utcnow().isoformat() + "Z"
+        timestamp=datetime.datetime.utcnow().isoformat() + "Z",
+        llm=llm_status,
     )
 

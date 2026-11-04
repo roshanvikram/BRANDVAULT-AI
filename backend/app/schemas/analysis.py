@@ -14,6 +14,7 @@ class FindingResponse(BaseModel):
     confidence: float
     suggested_correction: str
     is_applied: bool = False
+    analysis_engine: str = "heuristic"
     created_at: datetime.datetime
 
     class Config:

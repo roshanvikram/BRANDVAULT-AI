@@ -58,7 +58,7 @@
 |---|---|---|
 | RAG / embeddings / vector search | 🟠 | **Evidence now retrieved from `document_chunks`** (lexical token-overlap, Milestone A) with real page citations — no more hardcoded citation strings. Still no embeddings/vector search (Milestone C) |
 | PostgreSQL / pgvector | ⛔ | SQLite only |
-| LLM provider integration | 🔒 | Config slots exist; no calls; no keys |
+| LLM provider integration | 🟠 | **Milestone B:** provider abstraction (`services/llm.py`) with a real Anthropic driver (official SDK, default `claude-opus-5-5`). LLM findings are Pydantic-validated, labeled `llm:<provider>`, merged/deduped with heuristics, and carry retrieved (not model-invented) citations. Heuristic engine stays default + automatic fallback on any failure. `/health` exposes live LLM status. **Verified:** validation, merge, dedupe, fallback, labeling. **Not verified here:** a live Anthropic HTTP call (no API key/SDK in this env). OpenAI/Gemini are honest interface stubs (report unavailable) |
 | Authentication / RBAC | ⛔ | Roles are string fields; approval is forgeable |
 | Tenant isolation | 🟠 | `org_id` filter only, no auth enforcement |
 | Secure file upload validation | 🟠 | Upload exists; size/type hardening unverified |

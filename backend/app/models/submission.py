@@ -45,6 +45,8 @@ class Finding(Base):
     confidence: Mapped[float] = mapped_column(Float, default=0.95)
     suggested_correction: Mapped[str] = mapped_column(Text, nullable=False)
     is_applied: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Which engine produced this finding: "heuristic" or "llm:<provider>".
+    analysis_engine: Mapped[str] = mapped_column(String(40), default="heuristic")
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
     submission: Mapped["Submission"] = relationship("Submission", back_populates="findings")
