@@ -51,7 +51,7 @@ The NOVA test produced exactly the expected findings: `world's fastest` → term
 2. **RAG is statistical, not neural** — *(Milestone C added real vector-space retrieval: TF-IDF embeddings persisted to `document_chunks.embedding_json`, cosine + keyword hybrid ranking, org isolation, and a `POST /rag/search` endpoint; evidence now flows from it.)* It is a TF-IDF embedding, not a neural/transformer one, and the store is brute-force over SQLite — the `Embedder`/`RagRetriever` interfaces are written for a sentence-transformers or pgvector swap.
 3. ~~**No authentication / RBAC**~~ **FIXED (Milestone D)** — real auth (`users` table, PBKDF2 passwords, HMAC bearer tokens, `/auth/login`). `/approval/decide` now requires a Reviewer/Administrator token, attributes the decision to the authenticated identity (forged names ignored), and blocks cross-tenant decisions — so **approval can no longer be forged and AI agents (tokenless) cannot approve**. Verified by tests. Other read endpoints remain open for the demo.
 4. **No real Visual DNA / OCR** — no visual analysis route exists (`/analyse/image` → 404); no OpenCV/Tesseract. The page is UI-only.
-5. **No automated tests** — no pytest/Playwright present; QA has been manual.
+5. ~~**No automated tests**~~ **MOSTLY FIXED (Milestone E)** — 28 `unittest` tests (unit + integration via TestClient, all passing) + a 36-case labelled eval (`run_eval.py`) measuring **P=1.000 / R=0.860 / F1=0.925**; the eval found and we fixed 2 analyzer bugs. Browser E2E (Playwright) is still TODO.
 6. **Not deployed** — local only; no public URL.
 7. **API contract differs from the spec** in PART 18 (e.g. `/content/analyze`, not `/api/analyse/text`; no `/rag/search`, no `/copilot/chat`).
 

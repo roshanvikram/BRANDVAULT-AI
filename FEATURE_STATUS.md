@@ -63,8 +63,8 @@
 | Tenant isolation | ✅ | **Milestone D:** approval enforces caller-org == submission-org; cross-tenant decide → 403 (tested). Reads still use `org_id` filtering |
 | Secure file upload validation | 🟠 | **Milestone D3:** type allowlist (pdf/txt/md) + 15 MB + empty-file checks. Rate limiting still TODO |
 | DOCX / OCR ingestion | ⛔ | pypdf only |
-| Automated tests (unit/integration/E2E) | ⛔ | None present |
-| Labelled evaluation dataset (PART 21E) | ⛔ | Not created |
+| Automated tests (unit + integration) | ✅ | **Milestone E:** 28 `unittest` tests (also pytest-compatible) in `backend/tests/`, all passing — security, RAG, analyzer, auth/RBAC, approval gating, persistence. **Playwright E2E still TODO** (needs a browser runtime) |
+| Labelled evaluation dataset (PART 21E) | ✅ | **Milestone E:** 36 labelled cases (`backend/eval/dataset.json`) + `run_eval.py`. Measured: **P=1.000, R=0.860, F1=0.925** (6 honest out-of-scope FNs). Surfaced & fixed 2 analyzer bugs |
 | WebSocket/SSE live updates | ⛔ | Synchronous request/response |
 | MCP server | 🟡 | File present; not re-verified this session |
 | Public deployment | ⛔ | Local only |

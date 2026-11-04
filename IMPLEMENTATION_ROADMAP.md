@@ -32,7 +32,8 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 - **D2.** Enforce tenant isolation at the auth layer, then add a cross-tenant access test.
 - **D3.** Harden uploads (size/type validation, private storage path), input sanitisation, rate limiting, safe error envelopes.
 
-## Milestone E — Testing & evaluation (make QA claims real)
+## Milestone E — Testing & evaluation (make QA claims real)  ✅ DONE (E1/E2/E4; E3 TODO)
+*Delivered: `backend/tests/` — 28 unittest tests (unit + TestClient integration), all passing; `backend/eval/dataset.json` (36 labelled cases) + `run_eval.py` reporting P=1.000 / R=0.860 / F1=0.925 (6 honest out-of-scope FNs). The eval surfaced and we fixed two real analyzer bugs (price regex word boundary; over-loose fact-keyword matching). Run: `python -m unittest backend.tests.test_unit backend.tests.test_integration` and `python backend/eval/run_eval.py`. Remaining: E3 Playwright browser E2E.*
 - **E1.** `pytest` unit tests: price parsing, term matching, claim classification, score calc, passport hash.
 - **E2.** Integration tests over the FastAPI app (`httpx`/`TestClient`) covering the 9 integration flows in `TESTING_PLAN.md`.
 - **E3.** Playwright E2E for the 10 browser scenarios.

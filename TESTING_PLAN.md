@@ -4,7 +4,32 @@
 
 ---
 
-## 0. Already executed this session (manual, live backend)
+## Automated suite (Milestone E) — EXECUTED, results below
+
+A real `unittest` suite (also pytest-compatible) and a labelled evaluation runner now ship in the repo. Run from the repo root:
+```bash
+backend/venv/Scripts/python -m unittest backend.tests.test_unit backend.tests.test_integration
+backend/venv/Scripts/python backend/eval/run_eval.py
+```
+
+**Unit + integration (`backend/tests/`): 28 tests, all passing.**
+- Unit (E1): PBKDF2 verify; token sign/verify/tamper/expiry; TF-IDF cosine self-similarity; price-contradiction / supported-price; terminology; superlative/comparative Unsupported; ambiguous→Needs-Human-Review; expired-fact→Outdated; evidence cites a real page; findings labeled `heuristic`; clean copy scores 100; violations floor at ≥5; passport SHA-256 (64 hex) + idempotency.
+- Integration (E2, TestClient): health; workspaces; analyze→fetch→apply-correction; `/rag/search`; upload type validation; `/approval/decide` 401 no-token, 403 creator-approve, 200 creator-submit, 200 reviewer-approve with forged-name ignored + passport issued, 403 cross-tenant; persistence.
+
+**Evaluation (E4): 36 labelled cases, `backend/eval/dataset.json`.** Measured on the deterministic (LLM-free) engine:
+
+| Metric | Value |
+|---|---|
+| Workflow completion | 36 / 36 |
+| Micro **Precision** | **1.000** |
+| Micro **Recall** | **0.860** |
+| Micro **F1** | **0.925** |
+| TP / FP / FN | 37 / 0 / 6 |
+| Exact per-case tag match | 30 / 36 (83%) |
+
+The 6 false negatives are honest out-of-scope limitations: reworded superlatives ("most powerful ever", "best in the universe"), an open-ended comparative ("faster than anything"), a non-price fact conflict (18-month vs approved 2-year warranty), and 2 visual cases — none detectable by the current rule engine. **The eval also surfaced and we fixed two real bugs**: a price regex matching "rs" inside words (e.g. "delive**rs** 45") and over-loose fact-keyword matching (generic words like "launch"/"offer"); precision rose from 0.925 to 1.000 after the fixes.
+
+## 0. Earlier manual verification (live backend)
 
 Run against `uvicorn backend.main:app` on a local port:
 

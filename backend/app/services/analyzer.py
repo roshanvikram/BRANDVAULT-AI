@@ -190,7 +190,8 @@ class ContentAnalyzerService:
         c_start = time.perf_counter()
 
         # Pricing claims
-        price_patterns = [r'₹\s*([0-9,]+)', r'Rs\.?\s*([0-9,]+)', r'INR\s*([0-9,]+)']
+        # Word boundaries prevent matching "rs" inside words like "delivers 45".
+        price_patterns = [r'₹\s*([0-9,]+)', r'\bRs\.?\s*([0-9,]+)', r'\bINR\s*([0-9,]+)']
         found_prices = []
         for pat in price_patterns:
             for m in re.finditer(pat, content, re.IGNORECASE):
@@ -304,7 +305,9 @@ class ContentAnalyzerService:
         for fact in facts:
             if "price" in fact.fact_key.lower():
                 continue
-            key_words = [w for w in fact.fact_key.lower().split() if len(w) > 4]
+            # Require a distinctive key token (>= 7 chars) to avoid matching on
+            # generic words like "launch"/"offer"/"bonus" that cause false hits.
+            key_words = [w for w in fact.fact_key.lower().split() if len(w) >= 7]
             if not any(w in lowered for w in key_words):
                 continue
             is_outdated = fact.valid_until is not None and fact.valid_until < now

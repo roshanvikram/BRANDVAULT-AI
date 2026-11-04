@@ -10,4 +10,7 @@ python-dotenv>=1.0.1
 # Optional — enables the LLM augmentation layer (Anthropic driver). The app runs
 # fully without it; the heuristic engine is the default and automatic fallback.
 anthropic>=0.49.0
+# Testing (optional) — the suite is written as stdlib unittest and also runs
+# under pytest: `python -m unittest discover backend/tests` or `pytest`.
+pytest>=8.0.0
 
