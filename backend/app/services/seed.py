@@ -1,4 +1,5 @@
 import uuid
+import datetime
 from sqlalchemy.orm import Session
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule, BrandGuideline, DocumentChunk
 
@@ -202,4 +203,63 @@ Voice must be understated, mathematically precise, and confident. Never use sens
     db.commit()
     db.refresh(org)
     return org
+
+
+def augment_integrity_demo(db: Session) -> None:
+    """Idempotently add data that exercises the OUTDATED claim path.
+
+    `seed_sample_brand` returns early once the org exists, so this augmenter
+    runs separately on every startup and only inserts what is missing. It adds
+    a time-bound promotional fact whose validity has lapsed, plus a matching
+    guideline chunk, so a judge can type content referencing the expired
+    pre-order bonus and see a genuine OUTDATED verification (distinct from a
+    pricing contradiction). See TESTING_PLAN.md.
+    """
+    org = db.query(Organization).filter(Organization.id == NOVA_ORG_ID).first()
+    if not org:
+        return
+
+    key = "Launch Pre-Order Bonus Offer"
+    existing = (
+        db.query(ApprovedFact)
+        .filter(ApprovedFact.org_id == NOVA_ORG_ID, ApprovedFact.fact_key == key)
+        .first()
+    )
+    if existing:
+        return
+
+    db.add(ApprovedFact(
+        id=str(uuid.uuid4()),
+        org_id=NOVA_ORG_ID,
+        category="Promotion",
+        fact_key=key,
+        fact_value="Complimentary NovaSleeve accessory with every pre-order",
+        verification_source="Q4 2024 Launch Promotion Memo (DocRef #PR-2024-11)",
+        notes="Introductory pre-order incentive for the 2024 launch window.",
+        valid_until=datetime.datetime(2024, 12, 31, 23, 59, 59),
+        superseded_by="Promotion concluded. No active pre-order bonus exists for the 2026 campaign.",
+    ))
+
+    # A guideline chunk so retrieval has a real passage to cite for this topic.
+    guideline = (
+        db.query(BrandGuideline)
+        .filter(BrandGuideline.org_id == NOVA_ORG_ID)
+        .first()
+    )
+    if guideline:
+        already = (
+            db.query(DocumentChunk)
+            .filter(DocumentChunk.guideline_id == guideline.id, DocumentChunk.page_number == 11)
+            .first()
+        )
+        if not already:
+            db.add(DocumentChunk(
+                id=str(uuid.uuid4()),
+                guideline_id=guideline.id,
+                page_number=11,
+                chunk_index=3,
+                content="Promotional Offers: The pre-order bonus (complimentary NovaSleeve accessory) applied only to the 2024 launch window and expired on 31 December 2024. It must not be advertised in current 2026 campaign material.",
+            ))
+
+    db.commit()
 

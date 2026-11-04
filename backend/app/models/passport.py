@@ -34,6 +34,8 @@ class AgentRun(Base):
     task_name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="COMPLETED") # RUNNING, COMPLETED, FAILED
     execution_time_ms: Mapped[int] = mapped_column(Integer, default=0)
+    # Microsecond-precision timing: agent steps run sub-millisecond, so ms alone rounds to 0.
+    execution_time_us: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     tokens_used: Mapped[int] = mapped_column(Integer, default=0)
     input_preview: Mapped[str] = mapped_column(Text, nullable=False)
     output_preview: Mapped[str] = mapped_column(Text, nullable=False)

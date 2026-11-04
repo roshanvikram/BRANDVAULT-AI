@@ -5,16 +5,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.db.base import Base
 from backend.app.db.session import engine, SessionLocal
+from backend.app.db.migrations import run_light_migrations
 from backend.app.api.v1 import api_router
-from backend.app.services.seed import seed_sample_brand
+from backend.app.services.seed import seed_sample_brand, augment_integrity_demo
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create tables and seed baseline brand
+    # Startup: create tables, apply additive migrations, seed baseline brand
     Base.metadata.create_all(bind=engine)
+    run_light_migrations(engine)
     db = SessionLocal()
     try:
         seed_sample_brand(db)
+        augment_integrity_demo(db)
     finally:
         db.close()
     yield

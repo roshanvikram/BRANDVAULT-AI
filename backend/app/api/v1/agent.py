@@ -15,15 +15,27 @@ def get_agent_runs(limit: int = 50, db: Session = Depends(get_db)):
 def get_agent_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
     runs = db.query(AgentRun).all()
     total_runs = len(runs)
-    avg_latency = sum(r.execution_time_ms for r in runs) // max(1, total_runs)
-    
+
+    # Agent steps run sub-millisecond, so integer-ms averaging rounded to 0.
+    # Use microsecond-precision timing where available for a truthful figure.
+    us_values = [r.execution_time_us for r in runs if r.execution_time_us]
+    if us_values:
+        avg_us = sum(us_values) / len(us_values)
+        average_latency_ms = round(avg_us / 1000, 3)
+        average_latency_us = round(avg_us, 1)
+    else:
+        average_latency_ms = 0.0
+        average_latency_us = 0.0
+
     agent_counts = {}
     for r in runs:
         agent_counts[r.agent_name] = agent_counts.get(r.agent_name, 0) + 1
 
     return {
         "total_executions": total_runs,
-        "average_latency_ms": avg_latency,
+        "average_latency_ms": average_latency_ms,
+        "average_latency_us": average_latency_us,
+        "timed_executions": len(us_values),
         "active_specialist_agents": [
             {"name": "Orchestrator Agent", "status": "ONLINE", "role": "Pipeline Routing & Coordination"},
             {"name": "Brand Voice Agent", "status": "ONLINE", "role": "Tone & Style Heuristics"},

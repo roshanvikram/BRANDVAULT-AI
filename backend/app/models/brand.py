@@ -77,6 +77,9 @@ class ApprovedFact(Base):
     fact_value: Mapped[str] = mapped_column(Text, nullable=False)
     verification_source: Mapped[str] = mapped_column(String(255), nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Freshness: when set and in the past, the fact is treated as OUTDATED evidence.
+    valid_until: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    superseded_by: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
     organization: Mapped["Organization"] = relationship("Organization", back_populates="facts")
