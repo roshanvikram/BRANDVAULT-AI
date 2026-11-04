@@ -33,7 +33,7 @@
 | Brand DNA Studio | `/brand-dna` | 🟠 | Rules/facts/terms display + confirm; PDF upload path present, DOCX/TXT not fully supported |
 | Content Intelligence | `/content-intelligence` | ✅ | 3-panel editor/findings/evidence, verified via API |
 | ClaimDNA | `/claim-dna` | ✅ | Sample test + claim statuses |
-| Visual DNA Inspector | `/visual-dna` | ⛔ | **UI only** — no backend route, no OCR/CV |
+| Visual DNA Inspector | `/visual-dna` | 🟠 | **Milestone F:** real `POST /visual/analyze` — pure-Python PNG/BMP decode + **measured** colour palette, chromatic/monochrome fraction, contrast; persists a Visual submission with findings. UI shows measured metrics (replaced the old faked setTimeout). **Limits:** JPEG/WebP/SVG → 415 (not faked); OCR unavailable (honest seam, no Tesseract) |
 | Agent Control Center | `/agent-control` | ✅ | Real persisted `agent_runs` + stats |
 | Approval Hub | `/approval-hub` | ✅ | Decision flow works and is **auth-gated** (Milestone D); UI signs in as demo Reviewer before deciding |
 | Brand Passport | `/brand-passport` | ✅ | List + SHA-256; PDF export = print view |
@@ -50,7 +50,7 @@
 | ClaimDNA Agent | ✅ | Price + superlative + comparative detection |
 | Suggestion Agent | ✅ | Emits stored preferred terms / corrections |
 | Guideline Gap Agent | ⛔ | Listed in stats UI; no real gap logic in analyzer |
-| Visual DNA Agent | ⛔ | Not implemented |
+| Visual DNA Agent | 🟠 | **Milestone F:** real deterministic colour/contrast measurement (pure-Python decode), persisted as an agent run. No OCR/logo-match (honest limit) |
 
 ## Infrastructure / cross-cutting (PARTS 11, 13, 17, 20, 21, 24)
 
@@ -62,7 +62,7 @@
 | Authentication / RBAC | ✅ | **Milestone D:** `users` table, PBKDF2 passwords, HMAC bearer tokens, `/auth/login` + `/auth/me`, 3 roles. `/approval/decide` is gated — only Reviewer/Administrator may approve/reject/request-revision, attribution comes from the authenticated identity (forged names ignored), and tokenless callers (AI agents) cannot approve. Verified by tests |
 | Tenant isolation | ✅ | **Milestone D:** approval enforces caller-org == submission-org; cross-tenant decide → 403 (tested). Reads still use `org_id` filtering |
 | Secure file upload validation | 🟠 | **Milestone D3:** type allowlist (pdf/txt/md) + 15 MB + empty-file checks. Rate limiting still TODO |
-| DOCX / OCR ingestion | ⛔ | pypdf only |
+| DOCX / OCR ingestion | ⛔ | pypdf only; OCR is an unavailable provider seam (Milestone F), never faked |
 | Automated tests (unit + integration) | ✅ | **Milestone E:** 28 `unittest` tests (also pytest-compatible) in `backend/tests/`, all passing — security, RAG, analyzer, auth/RBAC, approval gating, persistence. **Playwright E2E still TODO** (needs a browser runtime) |
 | Labelled evaluation dataset (PART 21E) | ✅ | **Milestone E:** 36 labelled cases (`backend/eval/dataset.json`) + `run_eval.py`. Measured: **P=1.000, R=0.860, F1=0.925** (6 honest out-of-scope FNs). Surfaced & fixed 2 analyzer bugs |
 | WebSocket/SSE live updates | ⛔ | Synchronous request/response |

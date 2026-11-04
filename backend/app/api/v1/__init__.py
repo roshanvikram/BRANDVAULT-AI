@@ -9,10 +9,12 @@ from backend.app.api.v1.agent import router as agent_router
 from backend.app.api.v1.radar import router as radar_router
 from backend.app.api.v1.rag import router as rag_router
 from backend.app.api.v1.auth import router as auth_router
+from backend.app.api.v1.visual import router as visual_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
 api_router.include_router(health_router)
+api_router.include_router(visual_router)
 api_router.include_router(brand_router)
 api_router.include_router(content_router)
 api_router.include_router(claim_router)

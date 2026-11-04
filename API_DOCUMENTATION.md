@@ -85,6 +85,13 @@ Each verification carries `evidence_text` + `source_reference` **retrieved from 
 | GET | `/api/v1/agent/runs?limit=` | Persisted agent execution events |
 | GET | `/api/v1/agent/stats` | Totals + `average_latency_ms` (µs-precision) + per-agent distribution |
 
+## Visual DNA
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/visual/analyze` | Multipart (`org_id`, `file`). Measured colour-palette/contrast analysis of a PNG/BMP; persists a Visual submission with findings |
+
+Returns `{submission, format, dimensions, metrics, ocr}`. `metrics` are measured (chromatic/monochrome fraction, contrast, dominant palette). JPEG/WebP/SVG → **415** (not analysed here). `ocr.available` is `false` — OCR is an unavailable seam, never fabricated.
+
 ## RAG Retrieval
 | Method | Path | Purpose |
 |---|---|---|
@@ -101,4 +108,4 @@ Returns ranked passages with real page citations and `score`/`cosine`/`keyword` 
 ---
 
 ## Reconciliation with PART 18 (brief) — honesty note
-The brief lists endpoints like `/api/analyse/text`, `/api/copilot/chat`, and review routes under `/api/reviews/...`. Those paths **do not exist**; the equivalent real capabilities are `/content/analyze`, no copilot chat, and approval under `/approval/decide`. RAG is now exposed at `/api/v1/rag/search` (Milestone C) and is also used internally by analysis. There is no `/analyse/image` route (Visual DNA has no backend). These gaps are tracked in FEATURE_STATUS.md.
+The brief lists endpoints like `/api/analyse/text`, `/api/copilot/chat`, and review routes under `/api/reviews/...`. Those paths **do not exist**; the equivalent real capabilities are `/content/analyze`, no copilot chat, and approval under `/approval/decide`. RAG is now exposed at `/api/v1/rag/search` (Milestone C) and is also used internally by analysis. Visual analysis is at `/api/v1/visual/analyze` (Milestone F) rather than `/analyse/image`. These gaps are tracked in FEATURE_STATUS.md.

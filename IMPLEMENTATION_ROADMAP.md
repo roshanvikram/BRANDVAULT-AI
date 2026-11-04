@@ -40,7 +40,7 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 - **E4.** A labelled eval set (30–50 cases) + a script reporting precision/recall/FP/FN. Report **measured** numbers only.
 
 ## Milestone F — Optional modules
-- **F1.** Visual DNA: real OCR (Tesseract) + deterministic colour-palette extraction (OpenCV/Pillow); label measured vs interpreted results. Add the missing `/analyse/image` route.
+- **F1.** ✅ DONE — Visual DNA: `services/visual.py` (pure-Python PNG/BMP decode, no OpenCV/Pillow available) + **measured** colour palette, chromatic/monochrome fraction, and contrast; `POST /visual/analyze` persists a Visual submission with findings; frontend shows measured metrics (faked data removed). Verified by tests + live check. Limits: JPEG/WebP/SVG → 415; OCR is an unavailable provider seam (no Tesseract) — a real neural/Tesseract OCR and logo-matching remain future work.
 - **F2.** Live updates (SSE/polling) for analysis progress and the review queue.
 - **F3.** MCP server auth + audit logging; re-verify tools.
 
