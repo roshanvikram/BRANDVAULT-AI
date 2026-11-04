@@ -112,3 +112,4 @@ class PassportService:
         )
         self.db.add(passport)
         return passport
+

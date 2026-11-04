@@ -24,3 +24,4 @@ def get_health(db: Session = Depends(get_db)):
         database=db_status,
         timestamp=datetime.datetime.utcnow().isoformat() + "Z"
     )
+

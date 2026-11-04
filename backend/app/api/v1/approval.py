@@ -28,3 +28,4 @@ def get_approval_history(submission_id: str, db: Session = Depends(get_db)):
 @router.get("/revisions/{submission_id}", response_model=List[RevisionResponse])
 def get_revisions(submission_id: str, db: Session = Depends(get_db)):
     return db.query(Revision).filter(Revision.submission_id == submission_id).order_by(Revision.created_at.desc()).all()
+

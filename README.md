@@ -156,3 +156,4 @@ python backend/mcp_server.py
 1. **Brand Drift Intelligence:** Longitudinal time-series analysis detecting subtle erosion of brand voice across quarters.
 2. **Advanced Multimodal Governance:** Frame-accurate video compliance, synthetic voice cadence verification, and 3D product rendering inspection.
 3. **Enterprise MCP Integration Hub:** Bidirectional synchronization with Figma, Contentful, Adobe Creative Cloud, and Slack governance bots.
+

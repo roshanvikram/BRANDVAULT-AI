@@ -14,3 +14,4 @@ class HealthResponse(BaseModel):
     version: str
     database: str
     timestamp: str
+

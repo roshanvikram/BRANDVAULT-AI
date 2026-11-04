@@ -93,3 +93,4 @@ class Revision(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
     submission: Mapped["Submission"] = relationship("Submission", back_populates="revisions")
+

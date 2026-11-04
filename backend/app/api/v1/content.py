@@ -46,3 +46,4 @@ def apply_correction(payload: ApplyCorrectionRequest, db: Session = Depends(get_
         replacement_text=payload.replacement_text
     )
     return submission
+

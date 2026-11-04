@@ -51,3 +51,4 @@ class AuditLog(Base):
     details: Mapped[str] = mapped_column(Text, nullable=False)
     ip_address: Mapped[Optional[str]] = mapped_column(String(50), default="127.0.0.1")
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
+

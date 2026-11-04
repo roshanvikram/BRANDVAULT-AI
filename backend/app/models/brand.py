@@ -95,3 +95,4 @@ class TerminologyRule(Base):
 
 
 from backend.app.models.submission import Submission
+

@@ -24,3 +24,4 @@ def get_passport_by_number(passport_number: str, db: Session = Depends(get_db)):
     if not passport:
         raise HTTPException(status_code=404, detail="Passport not found.")
     return passport
+

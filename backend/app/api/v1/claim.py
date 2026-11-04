@@ -30,3 +30,4 @@ def run_sample_nova_test(db: Session = Depends(get_db)):
         content=test_content,
         author_name="Marketing Launch Specialist"
     )
+

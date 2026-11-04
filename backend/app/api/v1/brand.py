@@ -203,3 +203,4 @@ def create_fact(org_id: str, payload: ApprovedFactCreate, db: Session = Depends(
 @router.get("/terms", response_model=List[TerminologyRuleResponse])
 def get_terms(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
     return db.query(TerminologyRule).filter(TerminologyRule.org_id == org_id).all()
+

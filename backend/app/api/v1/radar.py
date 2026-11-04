@@ -58,3 +58,4 @@ def get_risk_metrics(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -
         "top_repeated_violations": [{"phrase": item[0], "occurrences": item[1]} for item in sorted_repeated],
         "risk_level": "HIGH" if severity_counts["CRITICAL"] > 3 else ("MEDIUM" if severity_counts["CRITICAL"] > 0 else "LOW")
     }
+

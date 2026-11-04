@@ -34,3 +34,4 @@ def get_agent_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
         ],
         "execution_distribution": agent_counts
     }
+

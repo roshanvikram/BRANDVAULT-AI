@@ -12,8 +12,7 @@ import {
   UserCheck,
   Award,
   Radar,
-  Sliders,
-  ChevronRight
+  Sliders
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,15 +33,15 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-[#262626] bg-[#0A0A0A] flex flex-col h-screen sticky top-0 select-none">
+    <aside className="w-64 border-r border-[#E5E5E5] bg-[#FFFFFF] flex flex-col h-screen sticky top-0 select-none shadow-sm">
       {/* Brand Identity Header */}
-      <div className="p-5 border-b border-[#262626]">
+      <div className="p-5 border-b border-[#E5E5E5]">
         <Link href="/" className="flex items-center space-x-3 group">
-          <div className="w-8 h-8 rounded border border-[#404040] bg-[#171717] flex items-center justify-center font-mono font-bold text-sm tracking-wider text-[#F5F5F5] group-hover:border-[#737373] transition-colors">
+          <div className="w-8 h-8 rounded border border-[#0A0A0A] bg-[#0A0A0A] flex items-center justify-center font-mono font-bold text-sm tracking-wider text-[#FFFFFF] shadow-sm">
             BV
           </div>
           <div>
-            <div className="font-semibold text-sm tracking-tight text-[#FFFFFF]">BRANDVAULT AI</div>
+            <div className="font-bold text-sm tracking-tight text-[#0A0A0A]">BRANDVAULT AI</div>
             <div className="text-[10px] text-[#737373] tracking-wide font-mono uppercase">Enterprise Governance</div>
           </div>
         </Link>
@@ -50,7 +49,7 @@ export function Sidebar() {
 
       {/* Nav List */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[10px] font-mono tracking-wider uppercase text-[#737373]">
+        <div className="px-3 pb-2 text-[10px] font-mono tracking-wider uppercase text-[#737373] font-semibold">
           Governance Suite
         </div>
         {navigationItems.map((item) => {
@@ -63,15 +62,15 @@ export function Sidebar() {
               className={cn(
                 "flex items-center justify-between px-3 py-2 text-xs rounded transition-all duration-150 group",
                 isActive
-                  ? "bg-[#171717] text-[#FFFFFF] font-medium border border-[#404040]"
-                  : "text-[#A3A3A3] hover:text-[#FFFFFF] hover:bg-[#171717] border border-transparent"
+                  ? "bg-[#0A0A0A] text-[#FFFFFF] font-medium shadow-sm"
+                  : "text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] border border-transparent"
               )}
             >
               <div className="flex items-center space-x-2.5">
                 <Icon
                   className={cn(
                     "w-4 h-4 transition-colors",
-                    isActive ? "text-[#FFFFFF]" : "text-[#737373] group-hover:text-[#FFFFFF]"
+                    isActive ? "text-[#FFFFFF]" : "text-[#737373] group-hover:text-[#0A0A0A]"
                   )}
                 />
                 <span>{item.name}</span>
@@ -81,8 +80,8 @@ export function Sidebar() {
                   className={cn(
                     "text-[9px] px-1.5 py-0.5 rounded font-mono border",
                     isActive
-                      ? "bg-[#262626] text-[#FFFFFF] border-[#737373]"
-                      : "bg-[#0A0A0A] text-[#737373] border-[#262626]"
+                      ? "bg-[#262626] text-[#FFFFFF] border-[#404040]"
+                      : "bg-[#F5F5F5] text-[#737373] border-[#E5E5E5]"
                   )}
                 >
                   {item.badge}
@@ -94,13 +93,13 @@ export function Sidebar() {
       </nav>
 
       {/* Team / Organization Footer */}
-      <div className="p-4 border-t border-[#262626] bg-[#0A0A0A]">
-        <div className="p-2.5 rounded bg-[#171717] border border-[#262626]">
+      <div className="p-4 border-t border-[#E5E5E5] bg-[#FFFFFF]">
+        <div className="p-3 rounded bg-[#F5F5F5] border border-[#E5E5E5]">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono text-[#A3A3A3]">ACTIVE WORKSPACE</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FFFFFF]" />
+            <span className="text-[10px] font-mono text-[#737373] uppercase font-semibold">ACTIVE WORKSPACE</span>
+            <span className="w-2 h-2 rounded-full bg-[#0A0A0A]" />
           </div>
-          <div className="text-xs font-semibold text-[#FFFFFF] mt-1">NOVA TECH</div>
+          <div className="text-xs font-bold text-[#0A0A0A] mt-1">NOVA TECH</div>
           <div className="text-[10px] text-[#737373] font-mono mt-0.5">Leader: Deepak Mouriya M</div>
         </div>
       </div>

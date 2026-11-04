@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0A0A0A",
-        foreground: "#F5F5F5",
+        background: "#FFFFFF",
+        foreground: "#0A0A0A",
         mono: {
           50: "#FFFFFF",
           100: "#F5F5F5",
@@ -22,15 +22,15 @@ const config: Config = {
           950: "#0A0A0A",
         },
         brand: {
-          surface: "#171717",
-          card: "#121212",
-          border: "#404040",
-          borderSubtle: "#262626",
-          textPrimary: "#F5F5F5",
-          textSecondary: "#A3A3A3",
+          surface: "#FFFFFF",
+          card: "#FFFFFF",
+          border: "#E5E5E5",
+          borderSubtle: "#F0F0F0",
+          textPrimary: "#0A0A0A",
+          textSecondary: "#404040",
           textMuted: "#737373",
-          accent: "#FFFFFF",
-          hover: "#262626",
+          accent: "#0A0A0A",
+          hover: "#F5F5F5",
         }
       },
       fontFamily: {
@@ -38,7 +38,7 @@ const config: Config = {
         mono: ["GeistMono", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       borderColor: {
-        DEFAULT: "#404040",
+        DEFAULT: "#E5E5E5",
       }
     },
   },

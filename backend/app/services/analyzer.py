@@ -333,3 +333,4 @@ class ContentAnalyzerService:
             created_at=datetime.datetime.utcnow()
         )
         self.db.add(run)
+
