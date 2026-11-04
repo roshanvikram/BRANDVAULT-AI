@@ -150,3 +150,4 @@ export function AnalyticsChart({ totalAudits }: AnalyticsChartProps) {
     </div>
   );
 }
+
