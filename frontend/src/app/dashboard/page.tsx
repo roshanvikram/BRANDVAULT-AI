@@ -197,7 +197,7 @@ export default function Dashboard() {
           </div>
 
           <div className="lg:col-span-7">
-            <AnalyticsChart totalAudits={submissions.length} />
+            <AnalyticsChart submissions={submissions} />
           </div>
         </div>
 

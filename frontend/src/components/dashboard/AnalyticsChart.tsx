@@ -1,80 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Submission } from "@/lib/api";
 
 interface AnalyticsChartProps {
-  totalAudits: number;
+  submissions: Submission[];
 }
 
-export function AnalyticsChart({ totalAudits }: AnalyticsChartProps) {
-  const [activeTab, setActiveTab] = useState<"volume" | "findings">("volume");
-  const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; label: string; value: string } | null>(null);
+type Tab = "volume" | "findings";
 
-  // Realistic monthly governance activity points (Jan to Jun)
-  const dataPoints = [
-    { month: "Jan", volume: 18, findings: 42, y: 72 },
-    { month: "Feb", volume: 24, findings: 58, y: 64 },
-    { month: "Mar", volume: 38, findings: 92, y: 46 },
-    { month: "Apr", volume: 54, findings: 110, y: 28 },
-    { month: "May", volume: 46, findings: 84, y: 38 },
-    { month: "Jun", volume: Math.max(62, totalAudits * 12), findings: 124, y: 18 },
-  ];
+/**
+ * Activity chart computed entirely from real submission data — the last six
+ * months bucketed by each submission's created_at. "Review Volume" counts
+ * submissions; "Critical Findings" counts CRITICAL findings. No fabricated
+ * series: if a month has no activity it reads zero, and the month-over-month
+ * delta is derived from the two most recent buckets.
+ */
+export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
+  const [tab, setTab] = useState<Tab>("volume");
+  const [hover, setHover] = useState<number | null>(null);
+
+  const buckets = useMemo(() => {
+    const now = new Date();
+    const months: { key: string; label: string; volume: number; findings: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        label: d.toLocaleString(undefined, { month: "short" }).toUpperCase(),
+        volume: 0,
+        findings: 0,
+      });
+    }
+    const index = new Map(months.map((m, i) => [m.key, i]));
+    submissions.forEach((s) => {
+      const d = new Date(s.created_at);
+      const k = `${d.getFullYear()}-${d.getMonth()}`;
+      const i = index.get(k);
+      if (i === undefined) return;
+      months[i].volume += 1;
+      months[i].findings += (s.findings || []).filter((f) => f.severity === "CRITICAL").length;
+    });
+    return months;
+  }, [submissions]);
+
+  const series = buckets.map((b) => (tab === "volume" ? b.volume : b.findings));
+  const total = series.reduce((a, b) => a + b, 0);
+  const max = Math.max(1, ...series);
+
+  // Month-over-month delta from the two most recent real buckets.
+  const last = series[series.length - 1];
+  const prev = series[series.length - 2] ?? 0;
+  const delta = prev === 0 ? (last > 0 ? 100 : 0) : Math.round(((last - prev) / prev) * 100);
+
+  // Geometry (viewBox 0..500 x, 0..130 y; plot band y:18..110).
+  const n = series.length;
+  const pts = series.map((v, i) => ({
+    x: n === 1 ? 250 : (i / (n - 1)) * 480 + 10,
+    y: 110 - (v / max) * 92,
+  }));
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const area = `${line} L ${pts[pts.length - 1].x.toFixed(1)},110 L ${pts[0].x.toFixed(1)},110 Z`;
 
   return (
     <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-sm space-y-4">
-      {/* Top Header */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-xs font-mono font-bold uppercase text-[#737373]">Activity Trends</span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
-              Live Index
+              Last 6 months
             </span>
           </div>
-          <div className="text-xl font-bold tracking-tight text-[#0A0A0A] mt-1">
-            Brand Governance Activity
-          </div>
-          <div className="text-xs text-[#737373] mt-0.5">
-            Audit throughput & violation prevention trajectory
-          </div>
+          <div className="text-xl font-bold tracking-tight text-[#0A0A0A] mt-1">Brand Governance Activity</div>
+          <div className="text-xs text-[#737373] mt-0.5">Computed from your submission history</div>
         </div>
 
-        {/* Tab switchers */}
         <div className="flex items-center bg-[#F5F5F5] p-1 rounded-xl border border-[#E5E5E5] text-xs font-mono">
           <button
-            onClick={() => setActiveTab("volume")}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              activeTab === "volume"
-                ? "bg-[#0A0A0A] text-white font-bold shadow-sm"
-                : "text-[#737373] hover:text-[#0A0A0A]"
-            }`}
+            onClick={() => setTab("volume")}
+            className={`px-3 py-1 rounded-lg transition-all ${tab === "volume" ? "bg-[#0A0A0A] text-white font-bold shadow-sm" : "text-[#737373] hover:text-[#0A0A0A]"}`}
           >
             Review Volume
           </button>
           <button
-            onClick={() => setActiveTab("findings")}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              activeTab === "findings"
-                ? "bg-[#0A0A0A] text-white font-bold shadow-sm"
-                : "text-[#737373] hover:text-[#0A0A0A]"
-            }`}
+            onClick={() => setTab("findings")}
+            className={`px-3 py-1 rounded-lg transition-all ${tab === "findings" ? "bg-[#0A0A0A] text-white font-bold shadow-sm" : "text-[#737373] hover:text-[#0A0A0A]"}`}
           >
-            Violations Blocked
+            Critical Findings
           </button>
         </div>
       </div>
 
-      {/* Metric Callout */}
+      {/* Metric callout (real totals) */}
       <div className="flex items-baseline space-x-3">
         <span className="text-3xl font-bold tracking-tight text-[#0A0A0A]">
-          {activeTab === "volume" ? `${Math.max(142, totalAudits * 28)} Audits` : "284 Blocked"}
+          {total} {tab === "volume" ? (total === 1 ? "Audit" : "Audits") : "Critical"}
         </span>
-        <span className="text-xs font-mono font-semibold text-[#0A0A0A] bg-[#F5F5F5] border border-[#E5E5E5] px-2 py-0.5 rounded-md">
-          +18.4% this month
-        </span>
+        {(last > 0 || prev > 0) && (
+          <span className="text-xs font-mono font-semibold text-[#0A0A0A] bg-[#F5F5F5] border border-[#E5E5E5] px-2 py-0.5 rounded-md">
+            {delta >= 0 ? "+" : ""}{delta}% vs last month
+          </span>
+        )}
       </div>
 
-      {/* Monochrome Area Chart */}
+      {/* Chart */}
       <div className="relative h-44 w-full pt-2">
         <svg viewBox="0 0 500 130" className="w-full h-full overflow-visible">
           <defs>
@@ -85,69 +116,43 @@ export function AnalyticsChart({ totalAudits }: AnalyticsChartProps) {
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
           <line x1="0" y1="20" x2="500" y2="20" stroke="#F0F0F0" strokeDasharray="3 3" />
           <line x1="0" y1="60" x2="500" y2="60" stroke="#F0F0F0" strokeDasharray="3 3" />
           <line x1="0" y1="100" x2="500" y2="100" stroke="#F0F0F0" strokeDasharray="3 3" />
 
-          {/* Area Fill */}
-          <path
-            d="M 10,85 Q 90,75 170,55 T 330,35 T 490,18 L 490,110 L 10,110 Z"
-            fill="url(#monoAreaGrad)"
-          />
+          <path d={area} fill="url(#monoAreaGrad)" />
+          <path d={line} fill="none" stroke="#0A0A0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-          {/* Curve Stroke */}
-          <path
-            d="M 10,85 Q 90,75 170,55 T 330,35 T 490,18"
-            fill="none"
-            stroke="#0A0A0A"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-
-          {/* Interactive Data Points */}
-          {[
-            { cx: 10, cy: 85, label: "Jan", val: "18 Audits" },
-            { cx: 100, cy: 75, label: "Feb", val: "24 Audits" },
-            { cx: 190, cy: 55, label: "Mar", val: "38 Audits" },
-            { cx: 280, cy: 42, label: "Apr", val: "54 Audits" },
-            { cx: 370, cy: 35, label: "May", val: "46 Audits" },
-            { cx: 470, cy: 18, label: "Jun", val: "62 Audits" },
-          ].map((pt, i) => (
-            <g key={i}>
-              <circle
-                cx={pt.cx}
-                cy={pt.cy}
-                r="4"
-                className="fill-white stroke-[#0A0A0A] stroke-2 cursor-pointer hover:r-6 transition-all"
-                onMouseEnter={() => setHoveredPoint({ x: pt.cx, y: pt.cy, label: pt.label, value: pt.val })}
-                onMouseLeave={() => setHoveredPoint(null)}
-              />
-            </g>
+          {pts.map((p, i) => (
+            <circle
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              r="4"
+              className="fill-white stroke-[#0A0A0A] stroke-2 cursor-pointer transition-all"
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
+            />
           ))}
         </svg>
 
-        {/* Hover Tooltip Box */}
-        {hoveredPoint && (
+        {hover !== null && (
           <div
             className="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-full bg-[#0A0A0A] text-white text-[11px] font-mono px-2.5 py-1.5 rounded-lg shadow-lg border border-[#404040]"
-            style={{ left: `${(hoveredPoint.x / 500) * 100}%`, top: `${(hoveredPoint.y / 130) * 100}%` }}
+            style={{ left: `${(pts[hover].x / 500) * 100}%`, top: `${(pts[hover].y / 130) * 100}%` }}
           >
-            <div className="font-bold">{hoveredPoint.label}: {hoveredPoint.value}</div>
+            <div className="font-bold">
+              {buckets[hover].label}: {series[hover]} {tab === "volume" ? "audits" : "critical"}
+            </div>
           </div>
         )}
 
-        {/* X-Axis Month Labels */}
         <div className="flex justify-between items-center text-[10px] font-mono text-[#737373] pt-1 px-1">
-          <span>JAN</span>
-          <span>FEB</span>
-          <span>MAR</span>
-          <span>APR</span>
-          <span>MAY</span>
-          <span>JUN</span>
+          {buckets.map((b) => (
+            <span key={b.key}>{b.label}</span>
+          ))}
         </div>
       </div>
     </div>
   );
 }
-
