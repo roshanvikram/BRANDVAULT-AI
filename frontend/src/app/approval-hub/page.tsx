@@ -16,11 +16,12 @@ import {
 import {
   fetchSubmissions,
   submitApprovalDecision,
-  ensureDemoLogin,
   Submission
 } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 export default function ApprovalHub() {
+  const { user } = useAuth();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedSub, setSelectedSub] = useState<Submission | null>(null);
   const [reviewerName, setReviewerName] = useState("Preethish");
@@ -52,22 +53,22 @@ export default function ApprovalHub() {
     setIsSubmitting(true);
     setFeedbackMessage(null);
     try {
-      // Authoritative decisions require an authenticated Reviewer/Administrator
-      // session; the backend attributes the decision to that identity.
-      const authUser = await ensureDemoLogin(reviewerRole);
+      // The decision is made as the signed-in user; the backend enforces that
+      // only a Reviewer/Administrator may approve/reject (Creators get 403) and
+      // attributes the decision to the authenticated identity.
       const res = await submitApprovalDecision({
         submission_id: selectedSub.id,
         decision: decision,
         comments: comments,
-        reviewer_name: reviewerName,
-        reviewer_role: reviewerRole
+        reviewer_name: user?.full_name || reviewerName,
+        reviewer_role: user?.role || reviewerRole
       });
       setSelectedSub(res);
       setComments("");
-      setFeedbackMessage(`Campaign marked as '${decision}' by ${authUser.role} (${authUser.email}). Audit log recorded.`);
+      setFeedbackMessage(`Campaign marked as '${decision}' by ${user?.full_name} (${user?.role}). Audit log recorded.`);
       loadSubmissions();
     } catch (err: any) {
-      setFeedbackMessage(err?.message || "Decision failed.");
+      setFeedbackMessage(err?.message || "Decision failed. Your role may not permit this action.");
     } finally {
       setIsSubmitting(false);
     }

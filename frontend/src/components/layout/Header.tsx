@@ -1,22 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
   Bell,
   HelpCircle,
-  ShieldCheck,
   ChevronDown,
-  User,
-  Sparkles
+  LogOut,
 } from "lucide-react";
 import { fetchHealth, HealthInfo } from "@/lib/api";
+import { useAuth, initials } from "@/lib/auth";
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [health, setHealth] = useState<HealthInfo | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   useEffect(() => {
     fetchHealth()
@@ -26,7 +32,7 @@ export function Header() {
 
   const getPageTitle = (path: string) => {
     switch (path) {
-      case "/":
+      case "/dashboard":
         return "Command Center";
       case "/brand-dna":
         return "Brand DNA Studio";
@@ -93,11 +99,22 @@ export function Header() {
           <HelpCircle className="w-4 h-4" />
         </div>
 
-        {/* User Avatar */}
-        <div className="flex items-center space-x-2 pl-2 border-l border-[#E5E5E5]">
-          <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm">
-            RV
+        {/* Signed-in user + logout */}
+        <div className="flex items-center space-x-2.5 pl-3 border-l border-[#E5E5E5]">
+          <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm uppercase">
+            {initials(user?.full_name)}
           </div>
+          <div className="hidden lg:block leading-tight">
+            <div className="text-xs font-bold text-[#0A0A0A]">{user?.full_name || "Guest"}</div>
+            <div className="text-[10px] font-mono text-[#737373]">{user?.role || "—"}</div>
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Sign out"
+            className="p-2 rounded-xl text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>

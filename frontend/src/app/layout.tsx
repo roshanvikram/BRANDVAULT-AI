@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
+import { AppShell } from "@/components/layout/AppShell";
 
-const geistSans = Geist({
+// Brief allows Inter as the primary sans; mono for technical identifiers.
+// Variable names kept as --font-geist-* so globals.css / tailwind are unchanged.
+const geistSans = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
@@ -28,14 +29,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="bg-[#F7F7F7] text-[#0A0A0A] min-h-screen flex antialiased">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-          <Header />
-          <main className="flex-1 p-6 lg:p-7 max-w-[1600px] w-full mx-auto">
-            {children}
-          </main>
-        </div>
+      <body className="bg-[#F7F7F7] text-[#0A0A0A] min-h-screen antialiased">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

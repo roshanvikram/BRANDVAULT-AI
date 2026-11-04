@@ -20,7 +20,6 @@ import {
   applyCorrection,
   fetchSubmissionDetail,
   submitApprovalDecision,
-  ensureDemoLogin,
   Submission,
   Finding
 } from "@/lib/api";
@@ -102,7 +101,6 @@ function ContentIntelligenceContent() {
     if (!submission) return;
     setSubmittingReview(true);
     try {
-      await ensureDemoLogin("Creator");
       const res = await submitApprovalDecision({
         submission_id: submission.id,
         decision: "Pending Review" as any,

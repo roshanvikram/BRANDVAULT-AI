@@ -1,342 +1,143 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
-  CheckCircle2,
-  FileSearch,
-  Dna,
   ArrowRight,
-  TrendingUp,
-  AlertTriangle,
+  Dna,
+  FileSearch,
+  CheckCircle2,
+  Image as ImageIcon,
   Bot,
+  UserCheck,
   Award,
-  Clock,
-  Sparkles,
-  FileText,
-  User,
-  ExternalLink,
-  ChevronRight
+  Radar,
+  LogIn,
 } from "lucide-react";
-import {
-  fetchSubmissions,
-  fetchPassports,
-  fetchRules,
-  fetchFacts,
-  runSampleNovaTest,
-  Submission,
-  BrandPassport
-} from "@/lib/api";
-import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
-import { RightActivityPanel } from "@/components/layout/RightActivityPanel";
+import { useAuth } from "@/lib/auth";
 
-export default function CommandCenter() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [passports, setPassports] = useState<BrandPassport[]>([]);
-  const [rulesCount, setRulesCount] = useState<number>(5);
-  const [factsCount, setFactsCount] = useState<number>(4);
-  const [isTesting, setIsTesting] = useState<boolean>(false);
-  const [testResult, setTestResult] = useState<Submission | null>(null);
+const FEATURES = [
+  { icon: Dna, title: "Brand DNA Studio", desc: "Ingest guidelines, facts, and terminology into structured brand knowledge." },
+  { icon: FileSearch, title: "Content Intelligence", desc: "Audit copy against approved brand DNA with evidence-backed findings." },
+  { icon: CheckCircle2, title: "ClaimDNA", desc: "Verify promotional claims: supported, unsupported, contradicted, outdated." },
+  { icon: ImageIcon, title: "Visual DNA", desc: "Measured colour-palette & contrast analysis of creative assets." },
+  { icon: Bot, title: "Agent Control", desc: "Observe real analysis agents with persisted execution telemetry." },
+  { icon: UserCheck, title: "Approval Hub", desc: "Role-gated human review — only authorised reviewers can approve." },
+  { icon: Award, title: "Brand Passport", desc: "Tamper-evident SHA-256 audit record for every approved submission." },
+  { icon: Radar, title: "Risk Radar", desc: "Aggregated governance analytics across your submission history." },
+];
 
-  const loadData = () => {
-    fetchSubmissions().then(setSubmissions).catch(console.error);
-    fetchPassports().then(setPassports).catch(console.error);
-    fetchRules().then((r) => setRulesCount(r.length)).catch(console.error);
-    fetchFacts().then((f) => setFactsCount(f.length)).catch(console.error);
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleRunSampleTest = async () => {
-    setIsTesting(true);
-    try {
-      const res = await runSampleNovaTest();
-      setTestResult(res);
-      loadData();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  const pendingApprovalsCount = submissions.filter(
-    (s) => s.status === "Pending Review" || s.status === "Analysed"
-  ).length;
-
-  const criticalFindingsCount = submissions.reduce(
-    (acc, s) => acc + s.findings.filter((f) => f.severity === "CRITICAL").length,
-    0
-  );
+export default function Home() {
+  const { user, loading } = useAuth();
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 items-start select-none">
-      {/* ============================================================ */}
-      {/* CENTRAL DASHBOARD WORKSPACE (Main 2 Columns)                */}
-      {/* ============================================================ */}
-      <div className="flex-1 w-full space-y-6">
-        {/* 1. Header Greeting & Benchmark Trigger */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A] flex items-center space-x-2">
-              <span>Welcome back, Roshan</span>
-              <span className="text-xl">👋</span>
-            </h2>
-            <p className="text-xs text-[#737373] mt-0.5">
-              Your brand governance overview. Protect Every Word. Preserve Every Identity.
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2.5">
-            <button
-              onClick={handleRunSampleTest}
-              disabled={isTesting}
-              className="px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-white border border-[#E5E5E5] hover:border-[#0A0A0A] text-[#0A0A0A] hover:bg-[#F5F5F5] transition-all flex items-center space-x-2 shadow-sm"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isTesting ? "AUDITING..." : "VERIFY SAMPLE TEST CASE"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2. Benchmark Test Result Callout if Triggered */}
-        {testResult && (
-          <div className="p-5 rounded-2xl border border-[#E5E5E5] bg-white shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-xs font-mono font-bold text-[#0A0A0A]">
-                  AUDIT COMPLETE: {testResult.title}
-                </span>
-              </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-[#0A0A0A] text-white font-bold">
-                Health Score: {testResult.overall_score}/100
-              </span>
+    <div className="min-h-screen bg-[#F7F7F7] text-[#0A0A0A] select-none">
+      {/* Top bar */}
+      <header className="h-16 border-b border-[#E5E5E5] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm">BV</div>
+            <div>
+              <div className="font-bold text-sm tracking-tight">BRANDVAULT AI</div>
+              <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
             </div>
-            <p className="text-xs text-[#0A0A0A] font-mono bg-[#F5F5F5] p-3 rounded-xl border border-[#E5E5E5]">
-              "{testResult.content}"
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5]">
-                <div className="font-mono text-[#737373] text-[10px] uppercase font-bold mb-1">
-                  Findings ({testResult.findings.length})
-                </div>
-                <ul className="space-y-1">
-                  {testResult.findings.map((f) => (
-                    <li key={f.id} className="text-[#404040]">
-                      • <span className="text-[#0A0A0A] font-bold">[{f.issue_category}]</span> {f.original_text} → <span className="underline font-medium">{f.suggested_correction}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5]">
-                <div className="font-mono text-[#737373] text-[10px] uppercase font-bold mb-1">
-                  ClaimDNA Verifications ({testResult.claim_verifications.length})
-                </div>
-                <ul className="space-y-1">
-                  {testResult.claim_verifications.map((c) => (
-                    <li key={c.id} className="text-[#404040]">
-                      • <span className="font-mono text-[#0A0A0A] font-bold">[{c.status.toUpperCase()}]</span> {c.claim_text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="flex justify-end pt-1">
-              <Link
-                href={`/content-intelligence?submissionId=${testResult.id}`}
-                className="text-xs font-mono font-bold text-[#0A0A0A] hover:underline flex items-center space-x-1"
-              >
-                <span>Inspect in Content Intelligence Studio</span>
+          </div>
+          {!loading && (
+            user ? (
+              <Link href="/dashboard" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+                <span>Open dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-            </div>
-          </div>
-        )}
-
-        {/* 3. Metric Cards Grid + Analytics Chart (Matching Reference Composition) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* 4 Compact Metric Cards (5 cols) */}
-          <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-            {/* Card 1 */}
-            <div className="bg-white rounded-2xl border border-[#E5E5E5] p-4 shadow-sm flex flex-col justify-between hover:border-[#A3A3A3] transition-all">
-              <div className="flex items-center justify-between text-[#737373]">
-                <FileSearch className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-[10px] font-mono text-[#A3A3A3]">LIVE</span>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold tracking-tight text-[#0A0A0A]">{submissions.length}</div>
-                <div className="text-[11px] font-mono text-[#737373] mt-0.5 leading-tight">Total Reviews</div>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white rounded-2xl border border-[#E5E5E5] p-4 shadow-sm flex flex-col justify-between hover:border-[#A3A3A3] transition-all">
-              <div className="flex items-center justify-between text-[#737373]">
-                <Clock className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-[10px] font-mono text-[#A3A3A3]">QUEUE</span>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold tracking-tight text-[#0A0A0A]">{pendingApprovalsCount}</div>
-                <div className="text-[11px] font-mono text-[#737373] mt-0.5 leading-tight">Pending Approvals</div>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white rounded-2xl border border-[#E5E5E5] p-4 shadow-sm flex flex-col justify-between hover:border-[#A3A3A3] transition-all">
-              <div className="flex items-center justify-between text-[#737373]">
-                <Dna className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-[10px] font-mono text-[#A3A3A3]">RULES</span>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold tracking-tight text-[#0A0A0A]">{rulesCount}</div>
-                <div className="text-[11px] font-mono text-[#737373] mt-0.5 leading-tight">Active Brand Rules</div>
-              </div>
-            </div>
-
-            {/* Card 4 */}
-            <div className="bg-white rounded-2xl border border-[#E5E5E5] p-4 shadow-sm flex flex-col justify-between hover:border-[#A3A3A3] transition-all">
-              <div className="flex items-center justify-between text-[#737373]">
-                <AlertTriangle className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-[10px] font-mono text-[#A3A3A3]">ISSUES</span>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold tracking-tight text-[#0A0A0A]">{criticalFindingsCount}</div>
-                <div className="text-[11px] font-mono text-[#737373] mt-0.5 leading-tight">Critical Findings</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Large Area Chart (7 cols) */}
-          <div className="lg:col-span-7">
-            <AnalyticsChart totalAudits={submissions.length} />
-          </div>
+            ) : (
+              <Link href="/login" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign in</span>
+              </Link>
+            )
+          )}
         </div>
+      </header>
 
-        {/* 4. Recent Content Submissions Table (Matching Reference Table Design) */}
-        <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm overflow-hidden space-y-2">
-          {/* Table Header Row */}
-          <div className="p-5 border-b border-[#F0F0F0] flex items-center justify-between">
-            <div>
-              <div className="text-sm font-bold text-[#0A0A0A]">Recent Content Submissions</div>
-              <div className="text-[11px] font-mono text-[#737373]">
-                Showing {submissions.length} campaigns audited against NOVA TECH Brand DNA
-              </div>
-            </div>
-            <Link
-              href="/content-intelligence"
-              className="text-xs font-mono font-bold text-[#0A0A0A] hover:underline flex items-center space-x-1"
-            >
-              <span>View All</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Table Element */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#FAFAFA] border-b border-[#F0F0F0] text-[#737373] font-mono uppercase text-[10px]">
-                <tr>
-                  <th className="py-3 px-5 font-semibold">Content Title</th>
-                  <th className="py-3 px-4 font-semibold">Submitted By</th>
-                  <th className="py-3 px-4 font-semibold">Risk Level</th>
-                  <th className="py-3 px-4 font-semibold">Review Status</th>
-                  <th className="py-3 px-4 font-semibold">Date</th>
-                  <th className="py-3 px-5 text-right font-semibold">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F0F0F0]">
-                {submissions.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-xs text-[#737373]">
-                      No submissions recorded yet. Click "VERIFY SAMPLE TEST CASE" above to run an instant audit.
-                    </td>
-                  </tr>
-                ) : (
-                  submissions.map((sub) => {
-                    const isCritical = sub.overall_score < 50;
-                    return (
-                      <tr key={sub.id} className="hover:bg-[#FAFAFA] transition-colors group">
-                        {/* Title & snippet */}
-                        <td className="py-3.5 px-5">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-7 h-7 rounded-lg bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center shrink-0">
-                              <FileText className="w-3.5 h-3.5 text-[#0A0A0A]" />
-                            </div>
-                            <div className="truncate max-w-[220px]">
-                              <div className="font-bold text-[#0A0A0A] truncate">{sub.title}</div>
-                              <div className="text-[10px] font-mono text-[#737373] truncate">
-                                "{sub.content}"
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Author */}
-                        <td className="py-3.5 px-4 font-mono text-[#404040]">
-                          <div className="font-medium text-[#0A0A0A]">{sub.author_name}</div>
-                          <div className="text-[10px] text-[#737373]">{sub.author_role}</div>
-                        </td>
-
-                        {/* Risk Level */}
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold ${
-                              isCritical
-                                ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
-                                : "bg-[#F5F5F5] text-[#0A0A0A] border-[#E5E5E5]"
-                            }`}
-                          >
-                            {isCritical ? "HIGH RISK" : "COMPLIANT"}
-                          </span>
-                        </td>
-
-                        {/* Review Status */}
-                        <td className="py-3.5 px-4">
-                          <span className="font-mono text-[10px] px-2 py-0.5 rounded-md border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
-                            {sub.status}
-                          </span>
-                        </td>
-
-                        {/* Date */}
-                        <td className="py-3.5 px-4 font-mono text-[11px] text-[#737373]">
-                          {new Date(sub.updated_at || sub.created_at).toLocaleDateString()}
-                        </td>
-
-                        {/* Action */}
-                        <td className="py-3.5 px-5 text-right">
-                          <Link
-                            href={`/content-intelligence?submissionId=${sub.id}`}
-                            className="px-3 py-1 rounded-lg bg-[#0A0A0A] hover:bg-[#262626] text-white font-mono text-[10px] font-bold transition-all shadow-sm inline-flex items-center space-x-1"
-                          >
-                            <span>Inspect</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Bottom Pagination Dots (Matching reference image) */}
-          <div className="p-3 border-t border-[#F0F0F0] flex items-center justify-center space-x-1.5">
-            <span className="w-5 h-1.5 rounded-full bg-[#0A0A0A]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4D4D4]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4D4D4]" />
-          </div>
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-[#E5E5E5] bg-white text-[10px] font-mono uppercase tracking-wider text-[#737373] mb-6">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#0A0A0A]" />
+          <span>Agentic Brand Governance &amp; Evidence Retrieval</span>
         </div>
-      </div>
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.1] max-w-3xl mx-auto">
+          Protect Every Word.<br />Preserve Every Identity.
+        </h1>
+        <p className="text-sm sm:text-base text-[#737373] mt-5 max-w-2xl mx-auto leading-relaxed">
+          BRANDVAULT AI audits marketing content against your organisation&apos;s approved brand DNA —
+          flagging unsupported claims, pricing conflicts, tone drift, and prohibited terms with retrieved
+          evidence, then routing every decision through authorised human review.
+        </p>
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <Link href={user ? "/dashboard" : "/login"} className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+            <span>{user ? "Open dashboard" : "Get started"}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <a href="#modules" className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-white border border-[#E5E5E5] text-[#0A0A0A] hover:border-[#0A0A0A] hover:bg-[#F5F5F5] transition-all">
+            Explore modules
+          </a>
+        </div>
+      </section>
 
-      {/* ============================================================ */}
-      {/* CONTEXTUAL RIGHT ACTIVITY PANEL (Matching Reference UI)       */}
-      {/* ============================================================ */}
-      <RightActivityPanel />
+      {/* Workflow strip */}
+      <section className="max-w-5xl mx-auto px-6 pb-16">
+        <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[10px] sm:text-xs font-mono text-[#404040]">
+          {["Brand DNA", "Submit content", "AI analysis", "RAG evidence", "ClaimDNA", "Human approval", "Brand Passport"].map((step, i, arr) => (
+            <span key={step} className="flex items-center">
+              <span className="px-2.5 py-1 rounded-lg bg-[#F5F5F5] border border-[#E5E5E5] font-semibold text-[#0A0A0A]">{step}</span>
+              {i < arr.length - 1 && <ArrowRight className="w-3 h-3 mx-1 text-[#A3A3A3]" />}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Modules */}
+      <section id="modules" className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="text-center mb-8">
+          <h2 className="text-xl font-bold tracking-tight">One console for brand governance</h2>
+          <p className="text-xs text-[#737373] mt-1">Ten functional modules, backed by real analysis and persistent records.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {FEATURES.map((f) => {
+            const Icon = f.icon;
+            return (
+              <div key={f.title} className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all">
+                <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-3">
+                  <Icon className="w-4 h-4 text-[#0A0A0A]" />
+                </div>
+                <div className="text-sm font-bold tracking-tight">{f.title}</div>
+                <div className="text-[11px] text-[#737373] mt-1 leading-relaxed">{f.desc}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="bg-[#0A0A0A] rounded-2xl p-8 sm:p-10 text-center">
+          <h2 className="text-2xl font-bold tracking-tight text-white">Ready to govern your brand?</h2>
+          <p className="text-xs text-[#A3A3A3] mt-2 max-w-md mx-auto">
+            Sign in with a demo account to run the full workflow — analyse, correct, approve, and issue a Brand Passport.
+          </p>
+          <Link href={user ? "/dashboard" : "/login"} className="inline-flex items-center space-x-2 mt-6 px-5 py-3 text-xs font-mono font-bold rounded-xl bg-white text-[#0A0A0A] hover:bg-[#E5E5E5] transition-all shadow-sm">
+            <span>{user ? "Open dashboard" : "Sign in"}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-[#E5E5E5] bg-white">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] font-mono text-[#737373]">
+          <span>BRANDVAULT AI — Protect Every Word. Preserve Every Identity.</span>
+          <span>Team BRANDVAULT AI · CodeNexus India 2026</span>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -21,9 +21,10 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth, initials } from "@/lib/auth";
 
 const mainNavigation = [
-  { name: "Command Center", href: "/", icon: ShieldCheck },
+  { name: "Command Center", href: "/dashboard", icon: ShieldCheck },
   { name: "Brand DNA Studio", href: "/brand-dna", icon: Dna },
   { name: "Content Intelligence", href: "/content-intelligence", icon: FileSearch },
   { name: "ClaimDNA", href: "/claim-dna", icon: CheckCircle2 },
@@ -41,6 +42,7 @@ const secondaryNavigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { user } = useAuth();
 
   return (
     <aside
@@ -51,7 +53,7 @@ export function Sidebar() {
     >
       {/* 1. Brand Wordmark & Logo */}
       <div className="p-5 border-b border-[#F0F0F0] flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-3 group">
+        <Link href="/dashboard" className="flex items-center space-x-3 group">
           <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
             BV
           </div>
@@ -76,12 +78,12 @@ export function Sidebar() {
         <div className="px-4 py-3 border-b border-[#F0F0F0] bg-[#FAFAFA]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm">
-                RV
+              <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm uppercase">
+                {initials(user?.full_name)}
               </div>
               <div className="text-left">
-                <div className="text-xs font-bold text-[#0A0A0A] leading-tight">Roshan Vikram</div>
-                <div className="text-[10px] text-[#737373] font-mono">Lead Engineer</div>
+                <div className="text-xs font-bold text-[#0A0A0A] leading-tight">{user?.full_name || "Guest"}</div>
+                <div className="text-[10px] text-[#737373] font-mono">{user?.role || "—"}</div>
               </div>
             </div>
             <MoreHorizontal className="w-4 h-4 text-[#A3A3A3]" />
