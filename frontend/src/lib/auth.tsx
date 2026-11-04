@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
-import { AuthUser, fetchCurrentUser, login as apiLogin, clearToken } from "@/lib/api";
+import { AuthUser, fetchCurrentUser, login as apiLogin, register as apiRegister, clearToken } from "@/lib/api";
 
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
+  register: (full_name: string, email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
   refresh: () => Promise<void>;
 }
@@ -40,13 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return u;
   };
 
+  const register = async (full_name: string, email: string, password: string) => {
+    const u = await apiRegister({ full_name, email, password });
+    setUser(u);
+    return u;
+  };
+
   const logout = () => {
     clearToken();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refresh }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );

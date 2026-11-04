@@ -53,9 +53,27 @@ The UI signs in automatically as the demo Creator (submit for review) and Review
 | `ENVIRONMENT` | `development` | `production` in prod |
 | `BACKEND_CORS_ORIGINS` | localhost dev origins | Comma-separated frontend origin(s) in prod, e.g. `https://brandvault.vercel.app` |
 | `ANTHROPIC_API_KEY` | empty | Optional — enables the LLM layer; unset = heuristic-only |
+| `FRONTEND_URL` | `http://localhost:3000` | Public SPA origin; Google OAuth redirects back here after sign-in |
+| `GOOGLE_CLIENT_ID` | empty | Optional — enables "Continue with Google" (see §3a) |
+| `GOOGLE_CLIENT_SECRET` | empty | Optional — server-side only, **never** exposed to the browser |
+| `GOOGLE_REDIRECT_URI` | `http://127.0.0.1:8000/api/v1/auth/google/callback` | Must exactly match an Authorized redirect URI in Google Cloud |
 | `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:8000/api/v1` | Frontend → backend base URL |
 
 Never commit real secrets. See `.env.example`.
+
+### 3a. Google OAuth (optional)
+
+Sign-up and email/password sign-in work out of the box. "Continue with Google" is a **real** server-side OAuth 2.0 authorization-code flow that stays **disabled** (the button is greyed with a "configure to enable" note, backed by `GET /api/v1/auth/google/status`) until both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set — there is no fake button.
+
+To enable it:
+
+1. Google Cloud Console → **APIs & Services → Credentials → Create credentials → OAuth client ID → Web application**.
+2. Add an **Authorized redirect URI** that exactly matches `GOOGLE_REDIRECT_URI`, e.g.
+   - dev: `http://127.0.0.1:8000/api/v1/auth/google/callback`
+   - prod: `https://api.yourdomain.com/api/v1/auth/google/callback`
+3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, and `FRONTEND_URL` in the backend environment. The client secret is used only in the server-side token exchange and is never sent to the browser; the minted session token is returned to the SPA in the URL **fragment** (kept out of server logs).
+
+Google accounts are provisioned as **Creators** (like any self-service sign-up) and, if an email already exists as a local account, are linked to it on first federated sign-in.
 
 ## 4. Database
 

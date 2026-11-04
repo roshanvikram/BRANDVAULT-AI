@@ -36,6 +36,25 @@ class Settings(BaseSettings):
     def BACKEND_CORS_ORIGINS(self) -> list[str]:
         return _parse_cors(os.getenv("BACKEND_CORS_ORIGINS"))
 
+    # Public URL of the frontend (used for OAuth redirects back to the SPA).
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+    # Google OAuth 2.0 (optional). The "Sign in with Google" button is only
+    # functional when BOTH the client id and secret are supplied via env — the
+    # frontend queries /auth/google/status and keeps the button disabled with a
+    # clear "configure to enable" note otherwise. We never ship credentials and
+    # never expose the secret to the browser; the token exchange is server-side.
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    # Must exactly match an Authorized redirect URI in the Google Cloud console.
+    GOOGLE_REDIRECT_URI: str = os.getenv(
+        "GOOGLE_REDIRECT_URI", "http://127.0.0.1:8000/api/v1/auth/google/callback"
+    )
+
+    @property
+    def GOOGLE_OAUTH_CONFIGURED(self) -> bool:
+        return bool(self.GOOGLE_CLIENT_ID and self.GOOGLE_CLIENT_SECRET)
+
     # Security & AI
     SECRET_KEY: str = os.getenv("SECRET_KEY", "brandvault-enterprise-secret-key-2026")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

@@ -49,10 +49,16 @@ export default function Home() {
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
-              <Link href="/login" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Sign in</span>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/login" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-white border border-[#E5E5E5] text-[#0A0A0A] hover:border-[#0A0A0A] hover:bg-[#F5F5F5] transition-all flex items-center space-x-2">
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign in</span>
+                </Link>
+                <Link href="/signup" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+                  <span>Create account</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             )
           )}
         </div>
@@ -73,7 +79,7 @@ export default function Home() {
           evidence, then routing every decision through authorised human review.
         </p>
         <div className="flex items-center justify-center gap-3 mt-8">
-          <Link href={user ? "/dashboard" : "/login"} className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+          <Link href={user ? "/dashboard" : "/signup"} className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
             <span>{user ? "Open dashboard" : "Get started"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>

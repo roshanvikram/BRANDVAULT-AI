@@ -7,7 +7,7 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
 // Public routes render full-page without the app chrome.
-const PUBLIC_ROUTES = ["/", "/login"];
+const PUBLIC_ROUTES = ["/", "/login", "/signup"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();

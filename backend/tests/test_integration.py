@@ -150,6 +150,50 @@ class TestApi(unittest.TestCase):
                              json={"submission_id": self.beta_sub_id, "decision": "Approved", "comments": "x"})
         self.assertEqual(r.status_code, 403)
 
+    # ---- sign-up (register) ----
+    def test_register_creates_creator_and_logs_in(self):
+        email = f"newuser-{uuid.uuid4().hex[:8]}@example.com"
+        r = self.client.post("/api/v1/auth/register",
+                             json={"email": email, "password": "Str0ngPass!", "full_name": "New User"})
+        self.assertEqual(r.status_code, 201, r.text)
+        body = r.json()
+        self.assertEqual(body["user"]["role"], "Creator")  # never self-elevated
+        self.assertEqual(body["user"]["auth_provider"], "password")
+        self.assertTrue(body["access_token"])
+        # the returned token authenticates against /me
+        me = self.client.get("/api/v1/auth/me",
+                             headers={"Authorization": f"Bearer {body['access_token']}"})
+        self.assertEqual(me.status_code, 200)
+        self.assertEqual(me.json()["email"], email.lower())
+        # and the account can now sign in normally
+        self.assertTrue(self._token(email, "Str0ngPass!"))
+
+    def test_register_rejects_duplicate_email(self):
+        r = self.client.post("/api/v1/auth/register",
+                             json={"email": "creator@novatech.demo", "password": "Whatever12", "full_name": "Dup"})
+        self.assertEqual(r.status_code, 409, r.text)
+
+    def test_register_rejects_weak_password(self):
+        r = self.client.post("/api/v1/auth/register",
+                             json={"email": "weak@example.com", "password": "short", "full_name": "Weak"})
+        self.assertEqual(r.status_code, 422, r.text)
+
+    def test_register_rejects_bad_email(self):
+        r = self.client.post("/api/v1/auth/register",
+                             json={"email": "not-an-email", "password": "Str0ngPass!", "full_name": "Bad"})
+        self.assertEqual(r.status_code, 422, r.text)
+
+    # ---- google oauth gating ----
+    def test_google_status_reports_unconfigured(self):
+        # No GOOGLE_CLIENT_ID/SECRET set in the test env -> button must stay off.
+        r = self.client.get("/api/v1/auth/google/status")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertFalse(r.json()["configured"])
+
+    def test_google_login_503_when_unconfigured(self):
+        r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
+        self.assertEqual(r.status_code, 503, r.text)
+
     # ---- persistence ----
     def test_persistence(self):
         sub = self.client.post("/api/v1/content/analyze",

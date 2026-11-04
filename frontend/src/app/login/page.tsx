@@ -1,21 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { DEMO_CREDS } from "@/lib/api";
+import { DEMO_CREDS, setToken } from "@/lib/api";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 
 const DEMO_ROLES: ("Administrator" | "Creator" | "Reviewer")[] = ["Administrator", "Creator", "Reviewer"];
 
+const OAUTH_ERRORS: Record<string, string> = {
+  google_no_code: "Google did not return an authorization code. Please try again.",
+  google_bad_state: "The sign-in request expired or was invalid. Please try again.",
+  google_token_exchange: "Google rejected the authorization. Please try again.",
+  google_unreachable: "Could not reach Google to complete sign-in. Check the server's connectivity.",
+  google_profile: "Google did not return a usable profile. Please try again.",
+  google_unverified_email: "Your Google email is not verified.",
+  account_disabled: "This account is disabled. Contact an administrator.",
+};
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Google OAuth bounces back to /login with the token (or an error) in the URL
+  // fragment — never a query string, so it stays out of server logs.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const token = params.get("token");
+    const err = params.get("error");
+    // Clear the fragment so the token isn't left in the address bar / history.
+    history.replaceState(null, "", window.location.pathname);
+    if (token) {
+      setToken(token);
+      setBusy(true);
+      refresh().then(() => router.push("/dashboard"));
+    } else if (err) {
+      setError(OAUTH_ERRORS[err] || "Google sign-in failed. Please try again.");
+    }
+  }, [refresh, router]);
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -108,6 +139,24 @@ export default function LoginPage() {
               <span>{busy ? "SIGNING IN…" : "SIGN IN"}</span>
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px flex-1 bg-[#F0F0F0]" />
+            <span className="text-[10px] font-mono uppercase text-[#A3A3A3]">or</span>
+            <div className="h-px flex-1 bg-[#F0F0F0]" />
+          </div>
+
+          {/* Google OAuth */}
+          <GoogleAuthButton label="Continue with Google" />
+
+          {/* Sign-up link */}
+          <p className="text-[11px] text-[#737373] text-center mt-4">
+            New to BrandVault?{" "}
+            <Link href="/signup" className="font-semibold text-[#0A0A0A] hover:underline">
+              Create an account
+            </Link>
+          </p>
 
           {/* Demo accounts */}
           <div className="mt-5 pt-4 border-t border-[#F0F0F0]">

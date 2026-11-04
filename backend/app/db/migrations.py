@@ -17,6 +17,8 @@ _ADDITIVE_COLUMNS = [
     ("approved_facts", "superseded_by", "TEXT"),
     ("agent_runs", "execution_time_us", "INTEGER"),
     ("findings", "analysis_engine", "TEXT DEFAULT 'heuristic'"),
+    ("users", "auth_provider", "TEXT DEFAULT 'password'"),
+    ("users", "google_sub", "TEXT"),
 ]
 
 
