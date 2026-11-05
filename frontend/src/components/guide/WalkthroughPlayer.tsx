@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
-export type WalkStep = { n: number; title: string; summary: string; ill: ReactNode };
+export type WalkStep = { n: number; title: string; summary: string; ill: ReactNode; shot?: string };
 
 /**
  * An in-page "video" walkthrough: it auto-advances through the guide steps,
@@ -110,6 +110,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
   const next = () => { if (index < steps.length - 1) goTo(index + 1); };
 
   const step = steps[index];
+  const hasShots = steps.some((s) => s.shot);
 
   return (
     <div className="w-full">
@@ -117,14 +118,27 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
       <div className="rounded-2xl border border-[#E5E5E5] bg-[#0A0A0A] shadow-sm overflow-hidden">
         {/* Screen */}
         <div className="relative bg-[#FAFAFA] aspect-video flex items-center justify-center overflow-hidden">
-          <div key={index} className="w-full h-full p-6 sm:p-10 flex flex-col items-center justify-center text-center animate-[fadeIn_.35s_ease]">
-            <div className="w-full max-w-[280px] aspect-[200/140] mb-4">{step.ill}</div>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="w-6 h-6 rounded-lg bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-[11px]">{step.n}</span>
-              <h3 className="text-sm sm:text-base font-bold tracking-tight text-[#0A0A0A]">{step.title}</h3>
+          {step.shot ? (
+            <div key={index} className="absolute inset-0 animate-[fadeIn_.35s_ease]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={step.shot} alt={`${step.title} — screenshot`} className="w-full h-full object-cover" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-4 pt-12">
+                <div className="flex items-center space-x-2">
+                  <span className="w-6 h-6 rounded-lg bg-white text-[#0A0A0A] flex items-center justify-center font-mono font-bold text-[11px] shrink-0">{step.n}</span>
+                  <h3 className="text-sm sm:text-base font-bold tracking-tight text-white">{step.title}</h3>
+                </div>
+              </div>
             </div>
-            <p className="text-[11px] sm:text-xs text-[#737373] mt-2 max-w-md leading-relaxed">{step.summary}</p>
-          </div>
+          ) : (
+            <div key={index} className="w-full h-full p-6 sm:p-10 flex flex-col items-center justify-center text-center animate-[fadeIn_.35s_ease]">
+              <div className="w-full max-w-[280px] aspect-[200/140] mb-4">{step.ill}</div>
+              <div className="flex items-center justify-center space-x-2">
+                <span className="w-6 h-6 rounded-lg bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-[11px]">{step.n}</span>
+                <h3 className="text-sm sm:text-base font-bold tracking-tight text-[#0A0A0A]">{step.title}</h3>
+              </div>
+              <p className="text-[11px] sm:text-xs text-[#737373] mt-2 max-w-md leading-relaxed">{step.summary}</p>
+            </div>
+          )}
 
           {/* Overlay play button when paused/idle */}
           {!playing && (
@@ -187,7 +201,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
       </div>
 
       <p className="text-[10px] font-mono text-[#A3A3A3] mt-2 text-center">
-        Animated walkthrough{voiceSupported ? " · narrated with your browser's built-in voice" : ""}. Not a recorded screen capture.
+        {hasShots ? "Real screens captured from the running app" : "Animated walkthrough"}{voiceSupported ? " · narrated with your browser's built-in voice" : ""}.
       </p>
 
       <style jsx>{`

@@ -117,50 +117,50 @@ function IllPassport() {
 }
 
 /* --------------------------------- steps ---------------------------------- */
-type Step = { n: number; icon: any; title: string; summary: string; actions: string[]; ill: ReactNode };
+type Step = { n: number; icon: any; title: string; summary: string; actions: string[]; ill: ReactNode; shot?: string };
 
 const STEPS: Step[] = [
   {
     n: 1, icon: UserPlus, title: "Create your account or sign in",
     summary: "Open the app and either create an account or use a demo account. New sign-ups join as a Creator, who can submit content for review. Reviewer and Administrator roles — the only roles that can approve content — are granted by an administrator.",
     actions: ["Click Create account, or use a demo button on the sign-in page.", "You can also continue with Google once it is configured on the server."],
-    ill: <IllAccount />,
+    ill: <IllAccount />, shot: "/demo/01-signin.jpg",
   },
   {
     n: 2, icon: Dna, title: "Set up your Brand DNA",
     summary: "Go to Brand DNA Studio. This is your source of truth: the approved rules, verified facts, and prohibited-versus-preferred terminology the system checks every piece of content against. Review the extracted rules and confirm them before they become active.",
     actions: ["Upload a brand guideline PDF or text file, or use the seeded NOVA TECH example.", "Confirm each extracted rule so it is active during analysis."],
-    ill: <IllBrandDNA />,
+    ill: <IllBrandDNA />, shot: "/demo/02-brand-dna.jpg",
   },
   {
     n: 3, icon: FileSearch, title: "Analyse content in Content Intelligence",
     summary: "Paste your marketing copy and run the analysis. The engine flags unsupported claims, pricing conflicts, tone drift, and prohibited terms — each finding comes with the retrieved evidence passage and a suggested correction you can apply.",
     actions: ["Paste copy and click analyse.", "Review each finding's evidence, then apply a suggested correction to re-score."],
-    ill: <IllContent />,
+    ill: <IllContent />, shot: "/demo/03-content-intelligence.jpg",
   },
   {
     n: 4, icon: CheckCircle2, title: "Verify claims with ClaimDNA",
     summary: "Every factual claim is checked against your approved facts and classified as Supported, Unsupported, Contradicted, Outdated, or Needs Human Review. Nothing is invented: a claim with no matching evidence is marked unsupported rather than guessed.",
     actions: ["Open ClaimDNA to see each claim's status and the fact it was checked against."],
-    ill: <IllClaim />,
+    ill: <IllClaim />, shot: "/demo/04-claim-dna.jpg",
   },
   {
     n: 5, icon: ImageIcon, title: "Check creative assets in Visual DNA — by image",
     summary: "Upload an image of a creative asset (PNG or BMP). Visual DNA measures the real colour palette, dominant colours, and contrast directly from the pixels — a measured analysis, not a guess. Use it to check that artwork stays on-brand.",
     actions: ["Open Visual DNA and upload a PNG or BMP image.", "Read the measured colour palette and contrast metrics."],
-    ill: <IllVisual />,
+    ill: <IllVisual />, shot: "/demo/05-visual-dna.jpg",
   },
   {
     n: 6, icon: UserCheck, title: "Get human approval in the Approval Hub",
     summary: "This is the governance gate. Only a Reviewer or Administrator can approve, reject, or request revision on a submission — the AI never approves anything on its own. A written reviewer comment is required and the decision is attributed to the signed-in reviewer.",
     actions: ["Sign in as a Reviewer or Administrator.", "Add a comment and record your decision; it is logged to the audit trail."],
-    ill: <IllApproval />,
+    ill: <IllApproval />, shot: "/demo/06-approval-hub.jpg",
   },
   {
     n: 7, icon: Award, title: "Issue a Brand Passport",
     summary: "When content is approved, the system issues a Brand Passport: a tamper-evident certificate with a SHA-256 hash of the exact approved content, the guideline version, the final score, and who approved it. If the content changes, the hash no longer matches.",
     actions: ["Find the certificate in the Brand Passport repository.", "Share or archive it as proof the content passed governance."],
-    ill: <IllPassport />,
+    ill: <IllPassport />, shot: "/demo/07-brand-passport.jpg",
   },
 ];
 
@@ -218,12 +218,12 @@ export default function GuidePage() {
         <div className="text-center mb-5">
           <div className="inline-flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider text-[#737373]">
             <PlayCircle className="w-3.5 h-3.5 text-[#0A0A0A]" />
-            <span>{VIDEO_URL ? "Video walkthrough" : "Watch the walkthrough"}</span>
+            <span>{VIDEO_URL ? "Video walkthrough" : "Watch the product demo"}</span>
           </div>
           <p className="text-xs text-[#737373] mt-2">
             {VIDEO_URL
               ? "A recorded walkthrough of the full governance flow."
-              : "A narrated, auto-playing tour through all seven steps. Press play."}
+              : "A narrated demo of the real app — seven steps from draft to certified Brand Passport. Press play."}
           </p>
         </div>
         {VIDEO_URL ? <VideoEmbed url={VIDEO_URL} /> : <WalkthroughPlayer steps={STEPS} />}
