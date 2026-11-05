@@ -10,17 +10,26 @@ import { useAuth } from "@/lib/auth";
 import { ReadAloud } from "@/components/guide/ReadAloud";
 import { WalkthroughPlayer } from "@/components/guide/WalkthroughPlayer";
 
-// Optional: a real recorded screen-capture video. When this env var is set to a
-// video file URL (.mp4/.webm) or an embeddable player URL (YouTube/Vimeo embed),
-// the Watch section shows it instead of the built-in animated walkthrough.
-const VIDEO_URL = process.env.NEXT_PUBLIC_GUIDE_VIDEO_URL || "";
+// The recorded walkthrough video. Defaults to the bundled screen recording in
+// public/demo; override with NEXT_PUBLIC_GUIDE_VIDEO_URL (a video file URL or an
+// embeddable YouTube/Vimeo URL). Set it to "none" to fall back to the built-in
+// animated screenshot reel instead.
+const VIDEO_ENV = process.env.NEXT_PUBLIC_GUIDE_VIDEO_URL;
+const VIDEO_URL = VIDEO_ENV === "none" ? "" : (VIDEO_ENV || "/demo/walkthrough.mp4");
 
 function VideoEmbed({ url }: { url: string }) {
   const isFile = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
   return (
     <div className="rounded-2xl overflow-hidden border border-[#E5E5E5] bg-black aspect-video shadow-sm">
       {isFile ? (
-        <video src={url} controls className="w-full h-full" />
+        <video
+          src={url}
+          controls
+          playsInline
+          preload="metadata"
+          poster="/demo/03-content-intelligence.jpg"
+          className="w-full h-full object-contain bg-black"
+        />
       ) : (
         <iframe
           src={url}
