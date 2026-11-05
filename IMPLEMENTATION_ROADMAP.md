@@ -52,5 +52,34 @@ Goal: satisfy "real AI" without breaking the deterministic guarantee.
 
 ---
 
-### Explicitly deferred to Round 3 (do not claim as done)
-Brand Drift Intelligence • Advanced Multimodal (video) Governance • Enterprise MCP Integration Hub (Figma/Slack/CMS connectors).
+# ROUND 2 — "Ultimate Product Evolution" (added 2026-11-05)
+
+Maps the Round 2 vision onto bounded milestones. **Rule unchanged:** the Level‑1
+core (A–G) must keep working and nothing is marked done until tested. Each R2
+milestone is independently shippable, uses real persisted data, keeps the AI
+explainable, and keeps consequential decisions human‑controlled.
+
+### What already exists and must be preserved (do NOT rebuild)
+Auth + RBAC + tenant isolation • Brand DNA (rules/facts/terminology, confirm) •
+Content Intelligence 3‑panel + apply‑correction • ClaimDNA 5‑status + real
+evidence • TF‑IDF RAG retrieval • Visual DNA (measured colour/contrast) •
+Agent Control (real `agent_runs`) • Human Approval (gated) • Brand Passport
+(SHA‑256) • Risk Radar (real aggregates) • real dashboard data • sign‑up /
+sign‑in / Google OAuth • /guide with audio + video walkthrough • 47 tests + eval.
+
+### R2 milestones (proposed order — value-to-risk, Level 1 protected)
+
+- **R2‑1 — UX foundation: smart empty states, progressive disclosure, Simple/Advanced mode, guided onboarding wizard.** Highest "independently usable" value (PART 04, 16), low risk, no backend fabrication. Onboarding reflects *real* saved config; demo data clearly labelled.
+- **R2‑2 — Brand Knowledge Graph + Brand Intelligence Map.  ✅ DONE** A relational knowledge graph over existing records with an interactive SVG graph explorer; clicking a node opens its real detail (PART 02.2, 06). *Delivered: `services/graph.py` (`build_brand_graph`) assembles nodes/edges purely from real records — Brand→{Guidelines→Evidence, Rules, Facts, Terminology, Campaigns→{Findings, Claims, Passport}} — plus real `finding→rule` cross-links resolved by `rule_reference`↔rule‑title match (no fabricated links). `GET /graph/brand`. New `/knowledge-graph` page: weighted radial‑tree SVG layout with expand/collapse, auto‑fit viewBox, a detail panel showing each node's real fields + "Open in module", and a legend. Verified: endpoint consistency tests (every edge/parent resolves to a real node; 404 on unknown org) in the 49‑test suite, `tsc` clean, and a live browser walkthrough (brand → categories → campaign → findings/claims, real detail panel). No graph DB — relational queries suffice.*
+- **R2‑3 — Brand Digital Twin Q&A (grounded).** Natural‑language questions ("which claims are approved?", "most violated rules?") answered *only* from approved org data via RAG + structured queries, with citations. Heuristic intent‑routing default; optional LLM behind the existing honest fallback. Never bypasses permissions (PART 02.1, 04 command centre).
+- **R2‑4 — Brand Memory Engine.** Capture accepted/rejected suggestions and reviewer edits; aggregate repeated patterns; *propose* policy improvements for administrator review. Never silently edits official Brand DNA (PART 02.4).
+- **R2‑5 — Predictive Brand Risk Intelligence.** Upgrade Risk Radar into explained risk indicators (Content/Claim/Visual/Guideline/Process) computed from historical records, each with a transparent rationale. No unvalidated "forecasts" presented as fact (PART 02.5).
+- **R2‑6 — Content Intelligence comparison mode + live job state.** Original‑vs‑suggested diff without mutating the submission; real analysis‑job status via SSE/polling (no simulated progress) (PART 07, 10).
+- **R2‑7 — ClaimDNA intelligence upgrade.** Claim‑to‑evidence relationship visualisation, source reliability + evidence‑freshness metadata, missing‑vs‑contradictory distinction surfaced in UI (PART 02.3).
+- **R2‑8 — "Monochrome Organic Glass" visual system.** Glassmorphism/neumorphism/organic depth applied to chrome and cards, strictly monochrome, accessibility‑preserving, reduced‑motion honoured. Pure frontend; done last so it never blocks functional work (PART 05).
+
+### Level 3 — architecture only, not built (do not claim as done)
+Multimodal video/audio & PPTX/DOCX intelligence • Brand Drift Monitoring •
+Counterfactual Simulator • Multilingual Governance • Enterprise Connector Hub
+(Drive/Slack/Notion/Figma/CMS via permissioned MCP) • public Governance API •
+legal/compliance certification claims.

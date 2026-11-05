@@ -31,6 +31,7 @@
 |---|---|---|---|
 | Command Center | `/` | 🟡 | Live metrics + sample test trigger |
 | Brand DNA Studio | `/brand-dna` | 🟠 | Rules/facts/terms display + confirm; PDF upload path present, DOCX/TXT not fully supported |
+| Knowledge Graph | `/knowledge-graph` | ✅ | **R2-2:** interactive SVG graph explorer over **real** records (`GET /graph/brand`, `services/graph.py`). Brand→categories→entities→findings/claims/passport + real finding→rule cross-links. Expand/collapse, auto-fit, detail panel with module links. Verified by tests + live walkthrough |
 | Content Intelligence | `/content-intelligence` | ✅ | 3-panel editor/findings/evidence, verified via API |
 | ClaimDNA | `/claim-dna` | ✅ | Sample test + claim statuses |
 | Visual DNA Inspector | `/visual-dna` | 🟠 | **Milestone F:** real `POST /visual/analyze` — pure-Python PNG/BMP decode + **measured** colour palette, chromatic/monochrome fraction, contrast; persists a Visual submission with findings. UI shows measured metrics (replaced the old faked setTimeout). **Limits:** JPEG/WebP/SVG → 415 (not faked); OCR unavailable (honest seam, no Tesseract) |

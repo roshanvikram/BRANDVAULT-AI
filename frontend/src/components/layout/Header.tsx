@@ -11,6 +11,7 @@ import { GlobalSearch } from "./GlobalSearch";
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Command Center",
   "/brand-dna": "Brand DNA Studio",
+  "/knowledge-graph": "Knowledge Graph",
   "/content-intelligence": "Content Intelligence",
   "/claim-dna": "ClaimDNA Verification",
   "/visual-dna": "Visual DNA Inspector",

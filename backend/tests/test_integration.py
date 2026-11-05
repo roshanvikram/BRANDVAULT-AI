@@ -194,6 +194,31 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- brand knowledge graph (R2-2) ----
+    def test_brand_graph_is_real_and_consistent(self):
+        r = self.client.get("/api/v1/graph/brand", params={"org_id": NOVA_ORG_ID})
+        self.assertEqual(r.status_code, 200, r.text)
+        g = r.json()
+        self.assertEqual(g["brand"]["id"], NOVA_ORG_ID)
+        ids = {n["id"] for n in g["nodes"]}
+        types = [n["type"] for n in g["nodes"]]
+        self.assertIn("brand", types)
+        self.assertEqual(types.count("category"), 5)  # guidelines/rules/facts/terms/campaigns
+        # Every edge connects two real nodes (no dangling/fabricated links).
+        for e in g["edges"]:
+            self.assertIn(e["source"], ids)
+            self.assertIn(e["target"], ids)
+        # Every non-brand node's parent resolves to a real node.
+        for n in g["nodes"]:
+            if n["parent"] is not None:
+                self.assertIn(n["parent"], ids)
+        self.assertEqual(g["stats"]["nodes"], len(g["nodes"]))
+        self.assertEqual(g["stats"]["edges"], len(g["edges"]))
+
+    def test_brand_graph_unknown_org_404(self):
+        r = self.client.get("/api/v1/graph/brand", params={"org_id": "no-such-org"})
+        self.assertEqual(r.status_code, 404)
+
     # ---- persistence ----
     def test_persistence(self):
         sub = self.client.post("/api/v1/content/analyze",

@@ -13,6 +13,7 @@ import {
   UserCheck,
   Award,
   Radar,
+  Network,
   Sliders,
   HelpCircle,
   ChevronDown,
@@ -26,6 +27,7 @@ import { useAuth, initials } from "@/lib/auth";
 const mainNavigation = [
   { name: "Command Center", href: "/dashboard", icon: ShieldCheck },
   { name: "Brand DNA Studio", href: "/brand-dna", icon: Dna },
+  { name: "Knowledge Graph", href: "/knowledge-graph", icon: Network },
   { name: "Content Intelligence", href: "/content-intelligence", icon: FileSearch },
   { name: "ClaimDNA", href: "/claim-dna", icon: CheckCircle2 },
   { name: "Visual DNA", href: "/visual-dna", icon: ImageIcon },

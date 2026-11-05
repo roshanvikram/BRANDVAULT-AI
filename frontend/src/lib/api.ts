@@ -429,6 +429,40 @@ export async function analyzeImage(orgId: string, file: File): Promise<VisualAna
   return res.json();
 }
 
+// ------------------------------------------------------------------ //
+//  Brand Knowledge Graph (Round 2 / R2-2)
+// ------------------------------------------------------------------ //
+export type GraphNodeType =
+  | "brand" | "category" | "guideline" | "evidence" | "rule" | "fact" | "term"
+  | "campaign" | "finding" | "claim" | "passport";
+
+export interface GraphNode {
+  id: string;
+  type: GraphNodeType;
+  label: string;
+  parent: string | null;
+  count?: number;
+  href?: string;
+  meta: Record<string, any>;
+}
+export interface GraphEdge {
+  source: string;
+  target: string;
+  kind: "contains" | "references";
+}
+export interface BrandGraph {
+  brand: { id: string; name: string };
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  stats: Record<string, number>;
+}
+
+export async function fetchBrandGraph(orgId: string = "nova-tech-org-001"): Promise<BrandGraph> {
+  const res = await fetch(`${API_BASE}/graph/brand?org_id=${orgId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load knowledge graph");
+  return res.json();
+}
+
 export async function fetchRiskRadar(orgId: string = "nova-tech-org-001"): Promise<any> {
   const res = await fetch(`${API_BASE}/radar/metrics?org_id=${orgId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch risk radar metrics");
