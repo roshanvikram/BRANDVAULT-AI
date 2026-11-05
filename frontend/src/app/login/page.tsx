@@ -56,8 +56,10 @@ export default function LoginPage() {
     try {
       await login(email.trim(), password);
       router.push("/dashboard");
-    } catch {
-      setError("Invalid email or password. Try a demo account below.");
+    } catch (err: any) {
+      // Surface the real reason (bad credentials vs. server unreachable vs.
+      // server error) rather than always blaming the credentials.
+      setError(err?.message || "Sign-in failed. Please try again.");
     } finally {
       setBusy(false);
     }

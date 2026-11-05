@@ -36,12 +36,19 @@ export function authHeaders(): Record<string, string> {
 }
 
 export async function login(email: string, password: string): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) throw new Error("Login failed");
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    // fetch() rejects only on a network-level failure (server down, CORS, DNS).
+    throw new Error(`Can't reach the server. Make sure the backend is running at ${API_BASE.replace(/\/api\/v1\/?$/, "")}.`);
+  }
+  if (res.status === 401) throw new Error("Invalid email or password. Try a demo account below.");
+  if (!res.ok) throw new Error(`Sign-in failed (server error ${res.status}). Please try again.`);
   const data = await res.json();
   setToken(data.access_token);
   return data.user as AuthUser;
