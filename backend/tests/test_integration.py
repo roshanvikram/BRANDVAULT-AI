@@ -194,6 +194,25 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- AI Copy Studio (R2-AI) ----
+    def test_copy_studio_status_reports_llm(self):
+        r = self.client.get("/api/v1/copy-studio/status")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertIn("llm_available", r.json())
+
+    def test_copy_studio_rewrite_is_grounded_and_labeled(self):
+        r = self.client.post("/api/v1/copy-studio/rewrite",
+                             json={"org_id": NOVA_ORG_ID, "content": "The world's fastest laptop, now only Rs 69,999!!!"})
+        self.assertEqual(r.status_code, 200, r.text)
+        b = r.json()
+        self.assertIn(b["engine"], ("heuristic", "llm:anthropic"))  # honestly labeled, never faked
+        self.assertIn("79,999", b["rewritten"])  # corrected to the approved price
+        self.assertGreaterEqual(len(b["changes"]), 1)
+
+    def test_copy_studio_unknown_org_404(self):
+        r = self.client.post("/api/v1/copy-studio/rewrite", json={"org_id": "no-such-org", "content": "x"})
+        self.assertEqual(r.status_code, 404)
+
     # ---- brand digital twin Q&A (R2-3) ----
     def test_twin_answers_pricing_with_citation(self):
         r = self.client.post("/api/v1/twin/ask", json={"org_id": NOVA_ORG_ID, "question": "What is the approved launch price?"})

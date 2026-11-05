@@ -430,6 +430,36 @@ export async function analyzeImage(orgId: string, file: File): Promise<VisualAna
 }
 
 // ------------------------------------------------------------------ //
+//  AI Copy Studio (Round 2 / R2-AI)
+// ------------------------------------------------------------------ //
+export interface CopyChange { from: string; to: string; reason: string; }
+export interface CopyRewrite {
+  original: string;
+  rewritten: string;
+  changes: CopyChange[];
+  engine: string;        // "llm:<provider>" | "heuristic" | "none"
+  model: string;
+  grounded: boolean;
+  note: string;
+}
+export interface CopyStudioStatus { llm_available: boolean; provider: string; model: string; }
+
+export async function fetchCopyStudioStatus(): Promise<CopyStudioStatus> {
+  const res = await fetch(`${API_BASE}/copy-studio/status`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load Copy Studio status");
+  return res.json();
+}
+export async function rewriteCopy(content: string, orgId: string = "nova-tech-org-001"): Promise<CopyRewrite> {
+  const res = await fetch(`${API_BASE}/copy-studio/rewrite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content, org_id: orgId }),
+  });
+  if (!res.ok) throw new Error("Rewrite failed");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
 //  Brand Digital Twin Q&A (Round 2 / R2-3)
 // ------------------------------------------------------------------ //
 export interface TwinEvidence {

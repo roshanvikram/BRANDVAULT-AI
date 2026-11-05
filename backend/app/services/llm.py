@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import logging
+import urllib.request
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
@@ -161,6 +162,59 @@ class AnthropicProvider(LLMProvider):
             return None
 
 
+class HttpAnthropicProvider(LLMProvider):
+    """Anthropic driver over raw HTTP (stdlib urllib) — no SDK required.
+
+    Used when a key is configured but the `anthropic` package is not installed
+    (e.g. an offline environment where it cannot be pip-installed). It calls the
+    public Messages API directly. Same honesty contract: any failure returns
+    None and the caller falls back to heuristics — never a fabricated result.
+    """
+    name = "anthropic"
+
+    def __init__(self, api_key: str, model: str, timeout: float, max_tokens: int):
+        self._api_key = api_key
+        self._model = model
+        self._timeout = timeout
+        self._max_tokens = max_tokens
+
+    @property
+    def available(self) -> bool:
+        return bool(self._api_key)
+
+    @property
+    def model(self) -> str:
+        return self._model
+
+    def analyze(self, system: str, user: str) -> Optional[str]:
+        if not self.available:
+            return None
+        try:
+            body = json.dumps({
+                "model": self._model,
+                "max_tokens": self._max_tokens,
+                "system": system,
+                "messages": [{"role": "user", "content": user}],
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.anthropic.com/v1/messages",
+                data=body, method="POST",
+                headers={
+                    "content-type": "application/json",
+                    "x-api-key": self._api_key,
+                    "anthropic-version": "2023-06-01",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+            text = "".join(parts).strip()
+            return text or None
+        except Exception as e:
+            logger.warning("Anthropic HTTP analyze failed: %s", e)
+            return None
+
+
 class _UnimplementedProvider(LLMProvider):
     """Honest placeholder: interface exists, driver not implemented yet."""
     def __init__(self, name: str):
@@ -179,14 +233,19 @@ def get_llm_provider(settings) -> LLMProvider:
     choice = (settings.LLM_PROVIDER or "auto").lower()
 
     def anthropic_driver() -> Optional[LLMProvider]:
-        if settings.ANTHROPIC_API_KEY:
-            return AnthropicProvider(
-                api_key=settings.ANTHROPIC_API_KEY,
-                model=settings.ANTHROPIC_MODEL,
-                timeout=settings.LLM_TIMEOUT_SECONDS,
-                max_tokens=settings.LLM_MAX_TOKENS,
-            )
-        return None
+        if not settings.ANTHROPIC_API_KEY:
+            return None
+        kwargs = dict(
+            api_key=settings.ANTHROPIC_API_KEY,
+            model=settings.ANTHROPIC_MODEL,
+            timeout=settings.LLM_TIMEOUT_SECONDS,
+            max_tokens=settings.LLM_MAX_TOKENS,
+        )
+        sdk = AnthropicProvider(**kwargs)
+        if sdk.available:  # official SDK installed
+            return sdk
+        # SDK not installed — use the dependency-free HTTP driver instead.
+        return HttpAnthropicProvider(**kwargs)
 
     if choice == "none":
         return NullProvider()

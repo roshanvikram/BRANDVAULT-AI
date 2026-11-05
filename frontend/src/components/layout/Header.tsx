@@ -14,6 +14,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/knowledge-graph": "Knowledge Graph",
   "/assistant": "Brand Assistant",
   "/content-intelligence": "Content Intelligence",
+  "/copy-studio": "AI Copy Studio",
   "/claim-dna": "ClaimDNA Verification",
   "/visual-dna": "Visual DNA Inspector",
   "/agent-control": "Agent Control Center",
