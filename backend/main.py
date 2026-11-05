@@ -7,7 +7,7 @@ from backend.app.db.base import Base
 from backend.app.db.session import engine, SessionLocal
 from backend.app.db.migrations import run_light_migrations
 from backend.app.api.v1 import api_router
-from backend.app.services.seed import seed_sample_brand, augment_integrity_demo, seed_demo_users
+from backend.app.services.seed import seed_sample_brand, augment_integrity_demo, seed_demo_users, seed_vortexa_brand
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +17,7 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_sample_brand(db)
+        seed_vortexa_brand(db)
         augment_integrity_demo(db)
         seed_demo_users(db)
         # Build/refresh RAG vector embeddings for every org's guideline chunks.

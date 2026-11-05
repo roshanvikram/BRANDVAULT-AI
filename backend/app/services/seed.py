@@ -297,3 +297,140 @@ def seed_demo_users(db: Session) -> None:
     if created:
         db.commit()
 
+
+VORTEXA_ORG_ID = "vortexa-tech-org-002"
+
+VORTEXA_DEMO_USERS = [
+    {"email": "admin@vortexa.demo", "full_name": "VORTEXA Admin", "role": ROLE_ADMIN, "password": "Admin@2026"},
+    {"email": "creator@vortexa.demo", "full_name": "VORTEXA Creator", "role": ROLE_CREATOR, "password": "Creator@2026"},
+    {"email": "reviewer@vortexa.demo", "full_name": "VORTEXA Reviewer", "role": ROLE_REVIEWER, "password": "Reviewer@2026"},
+]
+
+def seed_vortexa_brand(db: Session) -> Organization:
+    org = db.query(Organization).filter(Organization.id == VORTEXA_ORG_ID).first()
+    if not org:
+        org = Organization(
+            id=VORTEXA_ORG_ID,
+            name="VORTEXA TECHNOLOGIES",
+            slug="vortexa-technologies"
+        )
+        db.add(org)
+        db.commit()
+
+    # Demo users
+    for spec in VORTEXA_DEMO_USERS:
+        if not db.query(User).filter(User.email == spec["email"]).first():
+            salt, pwd_hash = hash_password(spec["password"])
+            db.add(User(
+                id=str(uuid.uuid4()),
+                email=spec["email"],
+                full_name=spec["full_name"],
+                role=spec["role"],
+                org_id=VORTEXA_ORG_ID,
+                salt=salt,
+                password_hash=pwd_hash,
+            ))
+    db.commit()
+
+    # Guideline
+    if not db.query(BrandGuideline).filter(BrandGuideline.org_id == VORTEXA_ORG_ID).first():
+        guideline_id = str(uuid.uuid4())
+        guideline = BrandGuideline(
+            id=guideline_id,
+            org_id=VORTEXA_ORG_ID,
+            filename="VORTEXA_TECHNOLOGIES_Brand_Governance_Guidelines.pdf",
+            file_path="/guidelines/VORTEXA_TECHNOLOGIES_Brand_Governance_Guidelines.pdf",
+            file_type="pdf",
+            file_size_bytes=48500,
+            total_pages=4,
+            status="processed",
+            raw_text="""VORTEXA TECHNOLOGIES BRAND GOVERNANCE GUIDELINES
+Document ID: VT-BG-2026-001 | Version: 1.0 | Effective Date: 05 November 2026
+
+1. Purpose and scope: Approved brand rules for VORTEXA TECHNOLOGIES marketing.
+2. Brand identity: Dependable productivity tools for students, creators, professionals.
+3. Voice and tone: Professional, friendly, calm, mathematically precise. Avoid sensationalist language and hype.
+4. Product naming: Primary approved name is VortexBook AI Pro 16. Approved shortened name: VortexBook AI Pro. Do not use 'budget laptop' or 'cheap AI device'.
+5. Pricing Policy: VortexBook AI Pro 16 official launch price is strictly ₹79,999 (inclusive of taxes). Any lower price such as ₹69,999 is contradicted.
+6. Promotional Claims: Comparative claims like '10x faster' and superlatives like 'world\\'s fastest' require independent verified lab benchmarks and are forbidden without explicit CMO clearance."""
+        )
+        db.add(guideline)
+
+        # Chunks
+        db.add_all([
+            DocumentChunk(
+                id=str(uuid.uuid4()),
+                guideline_id=guideline_id,
+                page_number=2,
+                chunk_index=0,
+                content="Pricing restriction: Approved launch price is ₹79,999. Any other price, discount, offer or financing term requires a separate approved offer record. ₹69,999 is not approved by this document."
+            ),
+            DocumentChunk(
+                id=str(uuid.uuid4()),
+                guideline_id=guideline_id,
+                page_number=2,
+                chunk_index=1,
+                content="Product naming: Primary approved name is VortexBook AI Pro 16. Approved shortened name after first mention: VortexBook AI Pro. Do not use: 'budget laptop', 'cheap AI device', 'Vortex Book' or 'VortexBook 16X'."
+            ),
+            DocumentChunk(
+                id=str(uuid.uuid4()),
+                guideline_id=guideline_id,
+                page_number=3,
+                chunk_index=2,
+                content="Promotional claims: Every measurable, comparative, performance claim must be supported. Comparative claims like '10x faster than every competitor' and superlatives like 'world\\'s fastest AI laptop' are unsupported without current independent laboratory evidence."
+            ),
+        ])
+        db.commit()
+
+    # Facts
+    if not db.query(ApprovedFact).filter(ApprovedFact.org_id == VORTEXA_ORG_ID).first():
+        db.add_all([
+            ApprovedFact(
+                id=str(uuid.uuid4()),
+                org_id=VORTEXA_ORG_ID,
+                category="Pricing",
+                fact_key="VortexBook AI Pro 16 Launch Price",
+                fact_value="₹79,999",
+                verification_source="VT-BG-2026-001 Page 2, Section 5",
+                notes="Official launch price is strictly ₹79,999. ₹69,999 is directly contradicted."
+            ),
+            ApprovedFact(
+                id=str(uuid.uuid4()),
+                org_id=VORTEXA_ORG_ID,
+                category="Product",
+                fact_key="Primary Approved Product Name",
+                fact_value="VortexBook AI Pro 16",
+                verification_source="VT-BG-2026-001 Page 2, Section 4",
+                notes="Use exact name on first mention. Shortened name: VortexBook AI Pro."
+            ),
+        ])
+        db.commit()
+
+    # Terminology
+    if not db.query(TerminologyRule).filter(TerminologyRule.org_id == VORTEXA_ORG_ID).first():
+        db.add_all([
+            TerminologyRule(
+                id=str(uuid.uuid4()),
+                org_id=VORTEXA_ORG_ID,
+                prohibited_term="budget laptop",
+                preferred_term="dependable productivity laptop",
+                explanation="VORTEXA Brand Guidelines Section 4: Do not use budget laptop."
+            ),
+            TerminologyRule(
+                id=str(uuid.uuid4()),
+                org_id=VORTEXA_ORG_ID,
+                prohibited_term="cheap AI device",
+                preferred_term="AI-powered productivity device",
+                explanation="VORTEXA Brand Guidelines Section 4: Do not use cheap AI device."
+            ),
+            TerminologyRule(
+                id=str(uuid.uuid4()),
+                org_id=VORTEXA_ORG_ID,
+                prohibited_term="world's fastest",
+                preferred_term="dependable everyday performance",
+                explanation="Section 3: Do not use 'world\\'s fastest' without explicit benchmark verification."
+            ),
+        ])
+        db.commit()
+
+    return org
