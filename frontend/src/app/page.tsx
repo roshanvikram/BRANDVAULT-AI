@@ -42,6 +42,10 @@ export default function Home() {
               <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
             </div>
           </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/guide" className="hidden sm:inline-flex px-3 py-2 text-xs font-mono font-semibold rounded-xl text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] transition-all">
+            How it works
+          </Link>
           {!loading && (
             user ? (
               <Link href="/dashboard" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
@@ -61,6 +65,7 @@ export default function Home() {
               </div>
             )
           )}
+          </div>
         </div>
       </header>
 
@@ -91,14 +96,19 @@ export default function Home() {
 
       {/* Workflow strip */}
       <section className="max-w-5xl mx-auto px-6 pb-16">
-        <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[10px] sm:text-xs font-mono text-[#404040]">
-          {["Brand DNA", "Submit content", "AI analysis", "RAG evidence", "ClaimDNA", "Human approval", "Brand Passport"].map((step, i, arr) => (
-            <span key={step} className="flex items-center">
-              <span className="px-2.5 py-1 rounded-lg bg-[#F5F5F5] border border-[#E5E5E5] font-semibold text-[#0A0A0A]">{step}</span>
-              {i < arr.length - 1 && <ArrowRight className="w-3 h-3 mx-1 text-[#A3A3A3]" />}
-            </span>
-          ))}
-        </div>
+        <Link href="/guide" className="block bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all group">
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[10px] sm:text-xs font-mono text-[#404040]">
+            {["Brand DNA", "Submit content", "AI analysis", "RAG evidence", "ClaimDNA", "Human approval", "Brand Passport"].map((step, i, arr) => (
+              <span key={step} className="flex items-center">
+                <span className="px-2.5 py-1 rounded-lg bg-[#F5F5F5] border border-[#E5E5E5] font-semibold text-[#0A0A0A]">{step}</span>
+                {i < arr.length - 1 && <ArrowRight className="w-3 h-3 mx-1 text-[#A3A3A3]" />}
+              </span>
+            ))}
+          </div>
+          <div className="text-center mt-3 text-[11px] font-mono text-[#737373] group-hover:text-[#0A0A0A] transition-colors inline-flex items-center justify-center w-full">
+            See the step-by-step guide (with audio) <ArrowRight className="w-3 h-3 ml-1" />
+          </div>
+        </Link>
       </section>
 
       {/* Modules */}
