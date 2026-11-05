@@ -430,6 +430,34 @@ export async function analyzeImage(orgId: string, file: File): Promise<VisualAna
 }
 
 // ------------------------------------------------------------------ //
+//  Brand Digital Twin Q&A (Round 2 / R2-3)
+// ------------------------------------------------------------------ //
+export interface TwinEvidence {
+  label: string;
+  detail: string;
+  source: string;
+  href: string;
+  page: number | null;
+}
+export interface TwinAnswer {
+  intent: string;
+  grounded: boolean;
+  question: string;
+  answer: string;
+  evidence: TwinEvidence[];
+  suggestions: string[];
+}
+export async function askBrandTwin(question: string, orgId: string = "nova-tech-org-001"): Promise<TwinAnswer> {
+  const res = await fetch(`${API_BASE}/twin/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, org_id: orgId }),
+  });
+  if (!res.ok) throw new Error("Assistant request failed");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
 //  Onboarding / setup status (Round 2 / R2-1)
 // ------------------------------------------------------------------ //
 export interface OnboardingStep {

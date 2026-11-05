@@ -194,6 +194,33 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- brand digital twin Q&A (R2-3) ----
+    def test_twin_answers_pricing_with_citation(self):
+        r = self.client.post("/api/v1/twin/ask", json={"org_id": NOVA_ORG_ID, "question": "What is the approved launch price?"})
+        self.assertEqual(r.status_code, 200, r.text)
+        b = r.json()
+        self.assertTrue(b["grounded"])
+        self.assertEqual(b["intent"], "pricing")
+        self.assertGreaterEqual(len(b["evidence"]), 1)
+        self.assertIn("79,999", b["answer"])
+
+    def test_twin_violations_from_history(self):
+        self.client.post("/api/v1/content/analyze", json={"org_id": NOVA_ORG_ID, "title": "twin-v", "content": NOVA_CONTENT})
+        r = self.client.post("/api/v1/twin/ask", json={"org_id": NOVA_ORG_ID, "question": "which rules are most often violated?"})
+        b = r.json()
+        self.assertEqual(b["intent"], "violations")
+        self.assertTrue(b["grounded"])
+
+    def test_twin_off_topic_is_ungrounded(self):
+        r = self.client.post("/api/v1/twin/ask", json={"org_id": NOVA_ORG_ID, "question": "What is the capital of France?"})
+        b = r.json()
+        self.assertFalse(b["grounded"])
+        self.assertEqual(b["evidence"], [])
+
+    def test_twin_unknown_org_404(self):
+        r = self.client.post("/api/v1/twin/ask", json={"org_id": "no-such-org", "question": "price?"})
+        self.assertEqual(r.status_code, 404)
+
     # ---- onboarding status (R2-1) ----
     def test_onboarding_status_reflects_real_config(self):
         r = self.client.get("/api/v1/onboarding/status", params={"org_id": NOVA_ORG_ID})
