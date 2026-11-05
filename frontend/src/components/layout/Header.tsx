@@ -20,6 +20,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/brand-passport": "Brand Passport Repository",
   "/risk-radar": "Brand Risk Radar",
   "/settings": "System Settings",
+  "/onboarding": "Setup Guide",
 };
 
 export function Header() {

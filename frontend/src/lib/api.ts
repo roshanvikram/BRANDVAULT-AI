@@ -430,6 +430,32 @@ export async function analyzeImage(orgId: string, file: File): Promise<VisualAna
 }
 
 // ------------------------------------------------------------------ //
+//  Onboarding / setup status (Round 2 / R2-1)
+// ------------------------------------------------------------------ //
+export interface OnboardingStep {
+  key: string;
+  label: string;
+  done: boolean;
+  count: number | null;
+  total?: number;
+  href: string;
+  hint: string;
+}
+export interface OnboardingStatus {
+  org: { id: string; name: string };
+  steps: OnboardingStep[];
+  completed: number;
+  total: number;
+  completion: number;
+  is_demo: boolean;
+}
+export async function fetchOnboardingStatus(orgId: string = "nova-tech-org-001"): Promise<OnboardingStatus> {
+  const res = await fetch(`${API_BASE}/onboarding/status?org_id=${orgId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load onboarding status");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
 //  Brand Knowledge Graph (Round 2 / R2-2)
 // ------------------------------------------------------------------ //
 export type GraphNodeType =

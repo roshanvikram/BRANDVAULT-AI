@@ -15,6 +15,7 @@ import {
   Radar,
   Network,
   Sliders,
+  Rocket,
   HelpCircle,
   ChevronDown,
   MoreHorizontal,
@@ -38,6 +39,7 @@ const mainNavigation = [
 ];
 
 const secondaryNavigation = [
+  { name: "Setup Guide", href: "/onboarding", icon: Rocket },
   { name: "Settings", href: "/settings", icon: Sliders },
 ];
 

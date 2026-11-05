@@ -11,19 +11,23 @@ import {
   Sparkles,
   FileText,
   ChevronRight,
+  Rocket,
 } from "lucide-react";
 import {
   fetchSubmissions,
   fetchPassports,
   fetchRules,
   fetchFacts,
+  fetchOnboardingStatus,
   runSampleNovaTest,
   Submission,
   BrandPassport,
+  OnboardingStatus,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { RightActivityPanel } from "@/components/layout/RightActivityPanel";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -33,12 +37,14 @@ export default function Dashboard() {
   const [factsCount, setFactsCount] = useState<number>(4);
   const [isTesting, setIsTesting] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<Submission | null>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null);
 
   const loadData = () => {
     fetchSubmissions().then(setSubmissions).catch(console.error);
     fetchPassports().then(setPassports).catch(console.error);
     fetchRules().then((r) => setRulesCount(r.length)).catch(console.error);
     fetchFacts().then((f) => setFactsCount(f.length)).catch(console.error);
+    fetchOnboardingStatus().then(setOnboarding).catch(console.error);
   };
 
   useEffect(() => {
@@ -95,6 +101,39 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+
+        {/* Setup progress (real onboarding completion) */}
+        {onboarding && (
+          <Link
+            href="/onboarding"
+            className="block bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-4 hover:border-[#A3A3A3] transition-all group"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center shrink-0">
+                  <Rocket className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#0A0A0A]">
+                    Workspace setup — {onboarding.completion === 100 ? "complete" : `${onboarding.completion}%`}
+                  </div>
+                  <div className="text-[11px] font-mono text-[#737373]">
+                    {onboarding.completed}/{onboarding.total} steps{onboarding.is_demo ? " · demo data loaded" : ""}
+                  </div>
+                </div>
+              </div>
+              <div className="hidden sm:block flex-1 max-w-[220px]">
+                <div className="h-2 w-full rounded-full bg-[#F0F0F0] overflow-hidden">
+                  <div className="h-full bg-[#0A0A0A] rounded-full" style={{ width: `${onboarding.completion}%` }} />
+                </div>
+              </div>
+              <span className="text-[11px] font-mono font-bold text-[#0A0A0A] inline-flex items-center shrink-0">
+                {onboarding.completion === 100 ? "View guide" : "Finish setup"}
+                <ChevronRight className="w-3.5 h-3.5 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </div>
+          </Link>
+        )}
 
         {/* Sample test callout */}
         {testResult && (
@@ -234,8 +273,16 @@ export default function Dashboard() {
               <tbody className="divide-y divide-[#F0F0F0]">
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-xs text-[#737373]">
-                      No submissions recorded yet. Click "VERIFY SAMPLE TEST CASE" above to run an instant audit.
+                    <td colSpan={6} className="p-0">
+                      <EmptyState
+                        icon={FileSearch}
+                        title="No content analysed yet"
+                        description="Content Intelligence audits your marketing copy against your approved brand DNA — flagging unsupported claims, pricing conflicts, tone drift and prohibited terms, each with retrieved evidence."
+                        actionLabel="Analyse content"
+                        actionHref="/content-intelligence"
+                        example={<>Try: &ldquo;Introducing the world&apos;s fastest AI laptop! Now only ₹69,999!&rdquo;</>}
+                        compact
+                      />
                     </td>
                   </tr>
                 ) : (

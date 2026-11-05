@@ -194,6 +194,24 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- onboarding status (R2-1) ----
+    def test_onboarding_status_reflects_real_config(self):
+        r = self.client.get("/api/v1/onboarding/status", params={"org_id": NOVA_ORG_ID})
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["total"], len(body["steps"]))
+        self.assertEqual(body["completed"], sum(1 for s in body["steps"] if s["done"]))
+        self.assertTrue(0 <= body["completion"] <= 100)
+        # The seeded demo really has guidelines, confirmed rules and submissions.
+        done = {s["key"] for s in body["steps"] if s["done"]}
+        self.assertIn("guidelines", done)
+        self.assertIn("rules", done)
+        self.assertIn("sample_test", done)
+
+    def test_onboarding_unknown_org_404(self):
+        r = self.client.get("/api/v1/onboarding/status", params={"org_id": "no-such-org"})
+        self.assertEqual(r.status_code, 404)
+
     # ---- brand knowledge graph (R2-2) ----
     def test_brand_graph_is_real_and_consistent(self):
         r = self.client.get("/api/v1/graph/brand", params={"org_id": NOVA_ORG_ID})
