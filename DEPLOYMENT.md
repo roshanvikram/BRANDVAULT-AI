@@ -58,6 +58,7 @@ The UI signs in automatically as the demo Creator (submit for review) and Review
 | `GOOGLE_CLIENT_SECRET` | empty | Optional — server-side only, **never** exposed to the browser |
 | `GOOGLE_REDIRECT_URI` | `http://127.0.0.1:8000/api/v1/auth/google/callback` | Must exactly match an Authorized redirect URI in Google Cloud |
 | `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:8000/api/v1` | Frontend → backend base URL |
+| `NEXT_PUBLIC_GUIDE_VIDEO_URL` | empty | Optional — a recorded walkthrough video for `/guide`. Empty = built-in animated narrated tour (see below) |
 
 Never commit real secrets. See `.env.example`.
 
@@ -74,6 +75,10 @@ To enable it:
 3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, and `FRONTEND_URL` in the backend environment. The client secret is used only in the server-side token exchange and is never sent to the browser; the minted session token is returned to the SPA in the URL **fragment** (kept out of server logs).
 
 Google accounts are provisioned as **Creators** (like any self-service sign-up) and, if an email already exists as a local account, are linked to it on first federated sign-in.
+
+### 3b. Guide walkthrough video (optional)
+
+The `/guide` page ("How to use BRANDVAULT AI") includes a **Watch the walkthrough** section. By default this is a built-in, narrated, auto-playing animated tour of the seven steps — it uses the browser's own speech synthesis and is clearly labelled as an animated walkthrough, not a recorded screen capture. To show a real recorded video instead, set `NEXT_PUBLIC_GUIDE_VIDEO_URL` to a direct video file URL (`.mp4`/`.webm`) or an embeddable player URL (e.g. a YouTube/Vimeo `/embed/` link); the section then renders that video in place of the animated tour.
 
 ## 4. Database
 

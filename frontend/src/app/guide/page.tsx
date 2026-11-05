@@ -4,10 +4,35 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight, ArrowLeft, ShieldCheck, UserPlus, Dna, FileSearch,
-  CheckCircle2, Image as ImageIcon, UserCheck, Award, Mic, ImagePlus,
+  CheckCircle2, Image as ImageIcon, UserCheck, Award, Mic, ImagePlus, PlayCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { ReadAloud } from "@/components/guide/ReadAloud";
+import { WalkthroughPlayer } from "@/components/guide/WalkthroughPlayer";
+
+// Optional: a real recorded screen-capture video. When this env var is set to a
+// video file URL (.mp4/.webm) or an embeddable player URL (YouTube/Vimeo embed),
+// the Watch section shows it instead of the built-in animated walkthrough.
+const VIDEO_URL = process.env.NEXT_PUBLIC_GUIDE_VIDEO_URL || "";
+
+function VideoEmbed({ url }: { url: string }) {
+  const isFile = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
+  return (
+    <div className="rounded-2xl overflow-hidden border border-[#E5E5E5] bg-black aspect-video shadow-sm">
+      {isFile ? (
+        <video src={url} controls className="w-full h-full" />
+      ) : (
+        <iframe
+          src={url}
+          title="BRANDVAULT AI walkthrough"
+          className="w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      )}
+    </div>
+  );
+}
 
 /* ------------------------------- illustrations ---------------------------- */
 const F = "#F5F5F5", B = "#0A0A0A", G = "#737373", E = "#E5E5E5";
@@ -179,9 +204,29 @@ export default function GuidePage() {
           Follow these seven steps to take a piece of marketing content from draft to a certified Brand Passport.
           Prefer to listen? Play the guide as audio with your browser&apos;s built-in voice.
         </p>
-        <div className="flex items-center justify-center mt-7">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+          <a href="#watch" className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+            <PlayCircle className="w-4 h-4" />
+            <span>Watch walkthrough</span>
+          </a>
           <ReadAloud text={buildSpeech()} label="Play audio guide" />
         </div>
+      </section>
+
+      {/* Watch — video / animated walkthrough */}
+      <section id="watch" className="max-w-3xl mx-auto px-6 pb-14 scroll-mt-20">
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider text-[#737373]">
+            <PlayCircle className="w-3.5 h-3.5 text-[#0A0A0A]" />
+            <span>{VIDEO_URL ? "Video walkthrough" : "Watch the walkthrough"}</span>
+          </div>
+          <p className="text-xs text-[#737373] mt-2">
+            {VIDEO_URL
+              ? "A recorded walkthrough of the full governance flow."
+              : "A narrated, auto-playing tour through all seven steps. Press play."}
+          </p>
+        </div>
+        {VIDEO_URL ? <VideoEmbed url={VIDEO_URL} /> : <WalkthroughPlayer steps={STEPS} />}
       </section>
 
       {/* Roles */}
