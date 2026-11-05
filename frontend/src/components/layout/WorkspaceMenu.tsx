@@ -32,14 +32,14 @@ export function WorkspaceMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] text-xs font-mono font-semibold text-[#0A0A0A] hover:bg-[#E5E5E5] transition-colors"
+        className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/55 border border-white/70 text-xs font-mono font-semibold text-[#0A0A0A] hover:bg-white/80 transition-colors"
       >
         <span className="uppercase">{label}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[#E5E5E5] bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-white/70 bg-white/85 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-[#F0F0F0] text-[10px] font-mono uppercase font-bold text-[#A3A3A3]">
             Your Workspaces
           </div>

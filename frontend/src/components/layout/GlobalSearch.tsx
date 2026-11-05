@@ -113,12 +113,12 @@ export function GlobalSearch() {
           onFocus={() => { setOpen(true); ensureCorpus(); }}
           onKeyDown={onKeyDown}
           placeholder="Search guidelines, claims, rules, or campaigns… (⌘K)"
-          className="w-full pl-10 pr-4 py-2 text-xs bg-[#F5F5F5] border border-transparent hover:border-[#E5E5E5] focus:border-[#0A0A0A] focus:bg-white rounded-xl text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none transition-all"
+          className="w-full pl-10 pr-4 py-2 text-xs bg-white/55 border border-white/70 hover:border-[#D4D4D4] focus:border-[#0A0A0A] focus:bg-white rounded-xl text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none transition-all"
         />
       </div>
 
       {open && q.trim() && (
-        <div className="absolute left-0 right-0 mt-2 rounded-xl border border-[#E5E5E5] bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute left-0 right-0 mt-2 rounded-xl border border-white/70 bg-white/90 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
           {results.length === 0 ? (
             <div className="px-4 py-6 text-center text-xs text-[#737373] font-mono">
               No matches for “{q.trim()}”.

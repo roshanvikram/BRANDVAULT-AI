@@ -36,7 +36,7 @@ export function Header() {
   const title = PAGE_TITLES[pathname] || "Brand Governance";
 
   return (
-    <header className="h-16 border-b border-[#E5E5E5] bg-white px-7 flex items-center justify-between sticky top-0 z-40 select-none shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+    <header className="h-16 border-b border-white/60 bg-white/55 backdrop-blur-xl px-7 flex items-center justify-between sticky top-0 z-40 select-none shadow-[0_6px_20px_-12px_rgba(10,10,10,0.15)]">
       {/* Breadcrumb / current page */}
       <div className="flex items-center space-x-3 w-1/4">
         <span className="text-xs font-mono text-[#A3A3A3] uppercase">BrandVault</span>

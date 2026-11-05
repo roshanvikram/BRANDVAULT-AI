@@ -35,7 +35,7 @@ export function HelpMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[#E5E5E5] bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-white/70 bg-white/85 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-[#F0F0F0] flex items-center space-x-1.5">
             <Workflow className="w-3.5 h-3.5 text-[#0A0A0A]" />
             <span className="text-[10px] font-mono uppercase font-bold text-[#A3A3A3]">Governance Workflow</span>

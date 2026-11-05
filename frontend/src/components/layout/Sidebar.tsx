@@ -51,12 +51,12 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "border-r border-[#E5E5E5] bg-white flex flex-col h-screen sticky top-0 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)] transition-all duration-200 z-50",
+        "border-r border-white/60 bg-white/60 backdrop-blur-xl flex flex-col h-screen sticky top-0 select-none shadow-[1px_0_20px_-8px_rgba(10,10,10,0.1)] transition-all duration-200 z-50",
         collapsed ? "w-20" : "w-[240px]"
       )}
     >
       {/* 1. Brand Wordmark & Logo */}
-      <div className="p-5 border-b border-[#F0F0F0] flex items-center justify-between">
+      <div className="p-5 border-b border-white/50 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center space-x-3 group">
           <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
             BV
@@ -79,7 +79,7 @@ export function Sidebar() {
 
       {/* 2. User Profile Snippet (Matching reference image) */}
       {!collapsed && (
-        <div className="px-4 py-3 border-b border-[#F0F0F0] bg-[#FAFAFA]">
+        <div className="px-4 py-3 border-b border-white/50 bg-white/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm uppercase">
@@ -166,8 +166,8 @@ export function Sidebar() {
 
       {/* 4. Organization Switcher & Footer */}
       {!collapsed && (
-        <div className="p-4 border-t border-[#F0F0F0]">
-          <div className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5] space-y-1">
+        <div className="p-4 border-t border-white/50">
+          <div className="p-3 rounded-xl bg-white/50 border border-white/60 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[9px] font-mono text-[#737373] uppercase font-bold">ORGANIZATION</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]" />
