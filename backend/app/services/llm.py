@@ -215,6 +215,63 @@ class HttpAnthropicProvider(LLMProvider):
             return None
 
 
+class GroqProvider(LLMProvider):
+    """Groq driver over raw HTTP (stdlib urllib, no SDK). Groq exposes an
+    OpenAI-compatible Chat Completions API serving fast open models (Llama etc.).
+    Same honesty contract: any failure returns None -> heuristic fallback."""
+    name = "groq"
+
+    def __init__(self, api_key: str, model: str, timeout: float, max_tokens: int):
+        self._api_key = api_key
+        self._model = model
+        self._timeout = timeout
+        self._max_tokens = max_tokens
+
+    @property
+    def available(self) -> bool:
+        return bool(self._api_key)
+
+    @property
+    def model(self) -> str:
+        return self._model
+
+    def analyze(self, system: str, user: str) -> Optional[str]:
+        if not self.available:
+            return None
+        try:
+            body = json.dumps({
+                "model": self._model,
+                "max_tokens": self._max_tokens,
+                "temperature": 0.2,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.groq.com/openai/v1/chat/completions",
+                data=body, method="POST",
+                headers={
+                    "content-type": "application/json",
+                    "authorization": f"Bearer {self._api_key}",
+                    # Cloudflare (fronting the API) rejects the default
+                    # "Python-urllib" signature with error 1010; send a normal UA.
+                    "user-agent": "BrandVault-AI/1.0 (+https://brandvault.ai)",
+                    "accept": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            choices = data.get("choices") or []
+            if not choices:
+                return None
+            text = (choices[0].get("message") or {}).get("content", "").strip()
+            return text or None
+        except Exception as e:
+            logger.warning("Groq analyze failed: %s", e)
+            return None
+
+
 class _UnimplementedProvider(LLMProvider):
     """Honest placeholder: interface exists, driver not implemented yet."""
     def __init__(self, name: str):
@@ -247,17 +304,29 @@ def get_llm_provider(settings) -> LLMProvider:
         # SDK not installed — use the dependency-free HTTP driver instead.
         return HttpAnthropicProvider(**kwargs)
 
+    def groq_driver() -> Optional[LLMProvider]:
+        if not settings.GROQ_API_KEY:
+            return None
+        return GroqProvider(
+            api_key=settings.GROQ_API_KEY,
+            model=settings.GROQ_MODEL,
+            timeout=settings.LLM_TIMEOUT_SECONDS,
+            max_tokens=settings.LLM_MAX_TOKENS,
+        )
+
     if choice == "none":
         return NullProvider()
     if choice == "anthropic":
         return anthropic_driver() or NullProvider()
+    if choice == "groq":
+        return groq_driver() or NullProvider()
     if choice == "openai":
         return _UnimplementedProvider("openai") if settings.OPENAI_API_KEY else NullProvider()
     if choice == "gemini":
         return _UnimplementedProvider("gemini") if settings.GEMINI_API_KEY else NullProvider()
 
-    # auto: prefer a fully-implemented, configured driver (Anthropic), else null.
-    return anthropic_driver() or NullProvider()
+    # auto: prefer any configured, fully-implemented driver — Anthropic, then Groq.
+    return anthropic_driver() or groq_driver() or NullProvider()
 
 
 def parse_findings(raw: Optional[str]) -> Optional[LLMFindingBatch]:

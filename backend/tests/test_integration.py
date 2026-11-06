@@ -205,7 +205,7 @@ class TestApi(unittest.TestCase):
                              json={"org_id": NOVA_ORG_ID, "content": "The world's fastest laptop, now only Rs 69,999!!!"})
         self.assertEqual(r.status_code, 200, r.text)
         b = r.json()
-        self.assertIn(b["engine"], ("heuristic", "llm:anthropic"))  # honestly labeled, never faked
+        self.assertTrue(b["engine"] == "heuristic" or b["engine"].startswith("llm:"))  # honestly labeled, never faked
         self.assertIn("79,999", b["rewritten"])  # corrected to the approved price
         self.assertGreaterEqual(len(b["changes"]), 1)
 

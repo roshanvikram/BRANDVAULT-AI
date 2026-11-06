@@ -44,7 +44,7 @@ export default function CopyStudioPage() {
           {status && (
             <div className={`shrink-0 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-[11px] font-mono font-semibold ${status.llm_available ? "bg-[#0A0A0A] text-white" : `${GLASS} text-[#737373]`}`}>
               <Cpu className="w-3.5 h-3.5" />
-              <span>{status.llm_available ? `AI live · ${status.model}` : "Heuristic mode — set ANTHROPIC_API_KEY for generative AI"}</span>
+              <span>{status.llm_available ? `AI live · ${status.model}` : "Heuristic mode — set an LLM API key (ANTHROPIC_API_KEY or GROQ_API_KEY) for generative AI"}</span>
             </div>
           )}
         </div>
