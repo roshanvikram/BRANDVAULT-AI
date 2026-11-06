@@ -13,6 +13,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/brand-dna": "Brand DNA Studio",
   "/knowledge-graph": "Knowledge Graph",
   "/assistant": "Brand Assistant",
+  "/brand-memory": "Brand Memory",
   "/content-intelligence": "Content Intelligence",
   "/copy-studio": "AI Copy Studio",
   "/claim-dna": "ClaimDNA Verification",

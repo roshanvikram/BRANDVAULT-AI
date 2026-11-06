@@ -201,6 +201,36 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- brand memory (R2-4) ----
+    def test_memory_insights_from_history(self):
+        self.client.post("/api/v1/content/analyze", json={"org_id": NOVA_ORG_ID, "title": "mem", "content": NOVA_CONTENT})
+        r = self.client.get("/api/v1/memory/insights", params={"org_id": NOVA_ORG_ID})
+        self.assertEqual(r.status_code, 200, r.text)
+        b = r.json()
+        for k in ("insights", "proposals", "summary", "note"):
+            self.assertIn(k, b)
+        self.assertGreaterEqual(len(b["insights"]), 1)   # recurring NOVA_CONTENT -> patterns
+
+    def test_memory_apply_requires_admin(self):
+        body = {"org_id": NOVA_ORG_ID, "prohibited_term": "zzz draft phrase", "preferred_term": "approved alt"}
+        # no token -> 401
+        self.assertEqual(self.client.post("/api/v1/memory/apply-terminology", json=body).status_code, 401)
+        # creator -> 403
+        tok = self._token("creator@novatech.demo", "Creator@2026")
+        r = self.client.post("/api/v1/memory/apply-terminology", headers={"Authorization": f"Bearer {tok}"}, json=body)
+        self.assertEqual(r.status_code, 403)
+
+    def test_memory_apply_admin_creates_and_is_idempotent(self):
+        tok = self._token("admin@novatech.demo", "Admin@2026")
+        h = {"Authorization": f"Bearer {tok}"}
+        body = {"org_id": NOVA_ORG_ID, "prohibited_term": "brandmem-test-phrase", "preferred_term": "approved alternative", "explanation": "t"}
+        r = self.client.post("/api/v1/memory/apply-terminology", headers=h, json=body)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertTrue(r.json()["created"])
+        r2 = self.client.post("/api/v1/memory/apply-terminology", headers=h, json=body)
+        self.assertEqual(r2.status_code, 200)
+        self.assertFalse(r2.json()["created"])   # no duplicate
+
     # ---- ClaimDNA evidence map (R2-7) ----
     def test_claim_evidence_map(self):
         # ensure there is at least one analysed submission with claims

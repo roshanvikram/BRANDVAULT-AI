@@ -14,6 +14,7 @@ from backend.app.api.v1.graph import router as graph_router
 from backend.app.api.v1.onboarding import router as onboarding_router
 from backend.app.api.v1.twin import router as twin_router
 from backend.app.api.v1.copystudio import router as copystudio_router
+from backend.app.api.v1.memory import router as memory_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -31,4 +32,5 @@ api_router.include_router(graph_router)
 api_router.include_router(onboarding_router)
 api_router.include_router(twin_router)
 api_router.include_router(copystudio_router)
+api_router.include_router(memory_router)
 

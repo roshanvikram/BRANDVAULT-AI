@@ -541,6 +541,37 @@ export async function fetchOnboardingStatus(orgId: string = "nova-tech-org-001")
 }
 
 // ------------------------------------------------------------------ //
+//  Brand Memory (Round 2 / R2-4)
+// ------------------------------------------------------------------ //
+export interface MemoryInsight { type: string; title: string; detail: string; count: number; }
+export interface MemoryProposal { kind: string; prohibited_term: string; preferred_term: string; reason: string; occurrences: number; }
+export interface BrandMemory {
+  org: { id: string; name: string };
+  insights: MemoryInsight[];
+  proposals: MemoryProposal[];
+  summary: Record<string, number>;
+  note: string;
+}
+export async function fetchBrandMemory(orgId: string = "nova-tech-org-001"): Promise<BrandMemory> {
+  const res = await fetch(`${API_BASE}/memory/insights?org_id=${orgId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load brand memory");
+  return res.json();
+}
+export async function applyMemoryTerminology(payload: {
+  org_id: string; prohibited_term: string; preferred_term: string; explanation?: string;
+}): Promise<{ created: boolean; message?: string }> {
+  const res = await fetch(`${API_BASE}/memory/apply-terminology`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 401) throw new Error("Sign in required.");
+  if (res.status === 403) throw new Error("Only an Administrator can apply a proposal.");
+  if (!res.ok) throw new Error("Failed to apply proposal.");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
 //  Brand Knowledge Graph (Round 2 / R2-2)
 // ------------------------------------------------------------------ //
 export type GraphNodeType =
