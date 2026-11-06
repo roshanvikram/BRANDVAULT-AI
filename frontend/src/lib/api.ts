@@ -476,6 +476,8 @@ export interface TwinAnswer {
   answer: string;
   evidence: TwinEvidence[];
   suggestions: string[];
+  phrased_by?: string;   // "llm:<provider>" when the LLM rephrased the grounded answer
+  model?: string;
 }
 export async function askBrandTwin(question: string, orgId: string = "nova-tech-org-001"): Promise<TwinAnswer> {
   const res = await fetch(`${API_BASE}/twin/ask`, {

@@ -24,9 +24,11 @@ from collections import Counter
 from typing import Optional
 from sqlalchemy.orm import Session
 
+from backend.app.core.config import settings
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule
 from backend.app.models.submission import Submission
 from backend.app.services.rag import RagRetriever
+from backend.app.services.llm import get_llm_provider
 
 SUGGESTIONS = [
     "What is the approved launch price?",
@@ -60,7 +62,64 @@ def _content_words(text: str) -> set:
     return {w for w in re.findall(r"[a-z0-9']+", (text or "").lower()) if len(w) >= 4 and w not in _STOPWORDS}
 
 
+_PHRASE_SYSTEM = (
+    "You rephrase a brand-governance answer so it reads naturally and concisely. "
+    "STRICT RULES: use ONLY the information in the provided answer and sources. Do "
+    "NOT add, infer, invent or change any fact, number, name, price or claim. If "
+    "something isn't in the provided text, don't say it. Keep it accurate, "
+    "professional and under about four sentences. Return only the rephrased answer "
+    "text — no preamble, no markdown."
+)
+
+
+def _llm_phrase(provider, question: str, answer: str, evidence: list) -> Optional[str]:
+    """Ask the LLM to rephrase a grounded answer — never to add information.
+    Returns the rephrased text, or None on any failure (caller keeps the
+    deterministic answer)."""
+    try:
+        src = "\n".join(
+            f"- {e.get('label','')}: {e.get('detail','')}" + (f" (source: {e.get('source')})" if e.get("source") else "")
+            for e in (evidence or [])[:8]
+        ) or "(no additional sources)"
+        user = (
+            f"User question: {question}\n\n"
+            f"Grounded answer to rephrase (do not add anything beyond this):\n{answer}\n\n"
+            f"Sources (context only — do not fabricate beyond these):\n{src}"
+        )
+        text = provider.analyze(_PHRASE_SYSTEM, user)
+        if not text:
+            return None
+        text = text.strip().strip("`").strip()
+        # Guard against the model returning something empty or absurdly long.
+        if len(text) < 2 or len(text) > 4000:
+            return None
+        return text
+    except Exception:
+        return None
+
+
 def answer_question(db: Session, org_id: str, question: str) -> Optional[dict]:
+    """Grounded answer, then (optionally) phrased by the LLM. The evidence and
+    grounding are computed deterministically from real records; the LLM only
+    makes the prose natural and never adds facts. Falls back to the deterministic
+    answer if no LLM is configured or the call fails."""
+    result = _grounded_answer(db, org_id, question)
+    if result is None:
+        return None
+    # Only rephrase real, grounded answers — never the honest "not in approved
+    # data" refusals, and never when there's nothing to say.
+    if result.get("grounded") and result.get("intent") not in ("empty",):
+        provider = get_llm_provider(settings)
+        if provider.available:
+            phrased = _llm_phrase(provider, question, result["answer"], result.get("evidence", []))
+            if phrased:
+                result["answer"] = phrased
+                result["phrased_by"] = f"llm:{provider.name}"
+                result["model"] = provider.model
+    return result
+
+
+def _grounded_answer(db: Session, org_id: str, question: str) -> Optional[dict]:
     org = db.query(Organization).filter(Organization.id == org_id).first()
     if not org:
         return None

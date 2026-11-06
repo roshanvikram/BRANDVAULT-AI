@@ -25,6 +25,12 @@ NOVA_CONTENT = "Introducing the world's fastest AI laptop! 10x faster than every
 class TestApi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Keep the suite deterministic and offline: disable the LLM layer so no
+        # endpoint makes a network call, regardless of any key in .env.
+        from backend.app.core.config import settings as _settings
+        cls._settings = _settings
+        cls._llm_prev = _settings.LLM_ENABLED
+        _settings.LLM_ENABLED = False
         cls.engine, cls.Session, cls.path = make_seeded_db()
         # Second org + reviewer + submission for cross-tenant checks.
         db = cls.Session()
@@ -52,6 +58,7 @@ class TestApi(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls._settings.LLM_ENABLED = cls._llm_prev
         app.dependency_overrides.clear()
         drop_db(cls.engine, cls.path)
 

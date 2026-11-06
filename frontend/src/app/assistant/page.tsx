@@ -84,6 +84,9 @@ export default function AssistantPage() {
                 <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${t.grounded ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
                   {t.grounded ? "grounded" : "not in approved data"}
                 </span>
+                {t.phrased_by?.startsWith("llm:") && t.model && (
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]">AI · {t.model}</span>
+                )}
               </div>
               <p className="text-xs text-[#0A0A0A] leading-relaxed whitespace-pre-line">{t.answer}</p>
 
