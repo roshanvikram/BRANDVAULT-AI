@@ -351,6 +351,31 @@ export async function fetchSubmissionDetail(id: string): Promise<Submission> {
   return res.json();
 }
 
+// ClaimDNA Evidence Map (R2-7)
+export type EvidenceState = "supported" | "contradicted" | "missing" | "outdated" | "review";
+export interface EvidenceClaim {
+  id: string;
+  claim_text: string;
+  status: string;
+  category: string;
+  confidence: number;
+  explanation: string;
+  evidence_text: string | null;
+  source_reference: string | null;
+  evidence_state: EvidenceState;
+  source: { present: boolean; reliability: string; freshness: string };
+}
+export interface EvidenceMap {
+  items: EvidenceClaim[];
+  summary: Record<EvidenceState, number>;
+  total: number;
+}
+export async function fetchEvidenceMap(orgId: string = "nova-tech-org-001"): Promise<EvidenceMap> {
+  const res = await fetch(`${API_BASE}/claim/evidence-map?org_id=${orgId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch evidence map");
+  return res.json();
+}
+
 export async function runSampleNovaTest(): Promise<Submission> {
   const res = await fetch(`${API_BASE}/claim/test-sample`, {
     method: "POST",

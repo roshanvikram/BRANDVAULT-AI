@@ -5,27 +5,41 @@ import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   AlertTriangle,
-  HelpCircle,
-  XCircle,
-  FileSearch,
   Sparkles,
-  ShieldCheck,
-  BookOpen,
-  ArrowRight
+  ArrowRight,
+  Link2,
+  Database,
+  Clock,
+  ShieldOff,
 } from "lucide-react";
 import {
   fetchSubmissions,
   runSampleNovaTest,
   analyzeContent,
+  fetchEvidenceMap,
   Submission,
-  ClaimVerification
+  EvidenceMap,
+  EvidenceClaim,
+  EvidenceState,
 } from "@/lib/api";
+
+const GLASS = "bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_10px_34px_-14px_rgba(10,10,10,0.22)] rounded-2xl";
+
+const STATE_META: Record<EvidenceState, { label: string; shade: string; text: string }> = {
+  supported:   { label: "Supported",   shade: "#0A0A0A", text: "#FFFFFF" },
+  contradicted:{ label: "Contradicted",shade: "#404040", text: "#FFFFFF" },
+  outdated:    { label: "Outdated",    shade: "#737373", text: "#FFFFFF" },
+  missing:     { label: "Missing",     shade: "#A3A3A3", text: "#FFFFFF" },
+  review:      { label: "Needs review",shade: "#D4D4D4", text: "#0A0A0A" },
+};
+const STATE_ORDER: EvidenceState[] = ["supported", "contradicted", "missing", "outdated", "review"];
 
 export default function ClaimDNA() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [activeSubmission, setActiveSubmission] = useState<Submission | null>(null);
   const [customClaim, setCustomClaim] = useState("");
   const [runningTest, setRunningTest] = useState(false);
+  const [evidence, setEvidence] = useState<EvidenceMap | null>(null);
 
   const loadSubmissions = () => {
     fetchSubmissions().then((subs) => {
@@ -34,6 +48,7 @@ export default function ClaimDNA() {
         setActiveSubmission(subs[0]);
       }
     }).catch(console.error);
+    fetchEvidenceMap().then(setEvidence).catch(console.error);
   };
 
   useEffect(() => {
@@ -136,6 +151,86 @@ export default function ClaimDNA() {
           </button>
         </div>
       </div>
+
+      {/* Evidence Integrity Map (R2-7) */}
+      {evidence && evidence.total > 0 && (
+        <div className={`${GLASS} p-5 space-y-4`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Link2 className="w-4 h-4 text-[#0A0A0A]" />
+              <span className="text-sm font-bold text-[#0A0A0A]">Evidence Integrity Map</span>
+            </div>
+            <span className="text-[11px] font-mono text-[#737373]">{evidence.total} claims · claim → approved evidence</span>
+          </div>
+
+          {/* Summary distribution bar */}
+          <div>
+            <div className="h-3 w-full rounded-full overflow-hidden flex bg-black/5">
+              {STATE_ORDER.map((st) => {
+                const n = evidence.summary[st] || 0;
+                const pct = evidence.total ? (n / evidence.total) * 100 : 0;
+                return pct > 0 ? <div key={st} style={{ width: `${pct}%`, background: STATE_META[st].shade }} title={`${STATE_META[st].label}: ${n}`} /> : null;
+              })}
+            </div>
+            <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1.5">
+              {STATE_ORDER.map((st) => (
+                <div key={st} className="flex items-center space-x-1.5 text-[11px]">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: STATE_META[st].shade }} />
+                  <span className="text-[#404040]">{STATE_META[st].label}</span>
+                  <span className="font-mono font-bold text-[#0A0A0A]">{evidence.summary[st] || 0}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Claim → evidence relationship rows */}
+          <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+            {[...evidence.items]
+              .sort((a, b) => STATE_ORDER.indexOf(a.evidence_state) - STATE_ORDER.indexOf(b.evidence_state))
+              .map((c: EvidenceClaim) => {
+                const meta = STATE_META[c.evidence_state];
+                const hasEv = c.source.present;
+                return (
+                  <div key={c.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-stretch p-3 rounded-xl bg-white/50 border border-white/60">
+                    {/* Claim */}
+                    <div className="md:col-span-5 min-w-0">
+                      <div className="text-xs font-bold text-[#0A0A0A] truncate">&ldquo;{c.claim_text}&rdquo;</div>
+                      <div className="text-[10px] font-mono text-[#737373] mt-0.5">{c.category} · {(c.confidence * 100).toFixed(0)}% conf.</div>
+                    </div>
+                    {/* Connector + state */}
+                    <div className="md:col-span-2 flex items-center justify-center">
+                      <span className="hidden md:block h-px flex-1 bg-[#D4D4D4]" />
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full shrink-0 mx-1" style={{ background: meta.shade, color: meta.text }}>{meta.label}</span>
+                      <span className="hidden md:block h-px flex-1 bg-[#D4D4D4]" />
+                    </div>
+                    {/* Evidence */}
+                    <div className="md:col-span-5 min-w-0">
+                      {hasEv ? (
+                        <>
+                          <div className="text-[11px] text-[#0A0A0A] leading-snug line-clamp-2">
+                            {c.evidence_state === "contradicted" ? "Contradicts: " : ""}{c.evidence_text}
+                          </div>
+                          <div className="flex items-center flex-wrap gap-1.5 mt-1">
+                            <span className="inline-flex items-center gap-1 text-[9px] font-mono text-[#737373]"><Database className="w-2.5 h-2.5" />{c.source.reliability}</span>
+                            <span className="inline-flex items-center gap-1 text-[9px] font-mono text-[#737373]"><Clock className="w-2.5 h-2.5" />{c.source.freshness}</span>
+                            {c.source_reference && <span className="text-[9px] font-mono text-[#A3A3A3] truncate">Ref: {c.source_reference}</span>}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#737373]">
+                          <ShieldOff className="w-3.5 h-3.5 text-[#A3A3A3]" />{c.source.reliability}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+          <p className="text-[10px] font-mono text-[#A3A3A3] flex items-center gap-1.5">
+            <AlertTriangle className="w-3 h-3" /> Missing = no approved evidence found; Contradicted = evidence conflicts with the claim. Both are distinguished, never conflated.
+          </p>
+        </div>
+      )}
 
       {/* Active Audit Verifications */}
       {activeSubmission && (

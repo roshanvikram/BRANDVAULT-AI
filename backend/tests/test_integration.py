@@ -201,6 +201,22 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- ClaimDNA evidence map (R2-7) ----
+    def test_claim_evidence_map(self):
+        # ensure there is at least one analysed submission with claims
+        self.client.post("/api/v1/content/analyze", json={"org_id": NOVA_ORG_ID, "title": "ev", "content": NOVA_CONTENT})
+        r = self.client.get("/api/v1/claim/evidence-map", params={"org_id": NOVA_ORG_ID})
+        self.assertEqual(r.status_code, 200, r.text)
+        b = r.json()
+        self.assertEqual(b["total"], len(b["items"]))
+        self.assertEqual(sum(b["summary"].values()), b["total"])  # every claim classified once
+        for it in b["items"]:
+            self.assertIn(it["evidence_state"], ("supported", "contradicted", "missing", "outdated", "review"))
+            # missing/review carry no supporting evidence; contradicted/supported do
+            if it["evidence_state"] in ("missing", "review"):
+                self.assertIsNone(it["evidence_text"])
+                self.assertFalse(it["source"]["present"])
+
     # ---- predictive risk intelligence (R2-5) ----
     def test_risk_intelligence_is_explained(self):
         r = self.client.get("/api/v1/radar/intelligence", params={"org_id": NOVA_ORG_ID})
