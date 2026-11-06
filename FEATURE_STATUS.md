@@ -41,7 +41,7 @@
 | Agent Control Center | `/agent-control` | ✅ | Real persisted `agent_runs` + stats |
 | Approval Hub | `/approval-hub` | ✅ | Decision flow works and is **auth-gated** (Milestone D); UI signs in as demo Reviewer before deciding |
 | Brand Passport | `/brand-passport` | ✅ | List + SHA-256; PDF export = print view |
-| Brand Risk Radar | `/risk-radar` | 🟡 | Aggregates real records |
+| Brand Risk Radar | `/risk-radar` | ✅ | **R2-5 Predictive Risk Intelligence:** `GET /radar/intelligence` (`services/risk.py`) → 5 explained indicators (Content/Claim/Guideline/Process/Visual) with rationale + real drivers + recommendation + overall score, transparent rules over history (not ML forecasts). Glass page with score bars. Verified by tests + live |
 | Settings | `/settings` | 🟡 | Config + roadmap display |
 
 ## Agents (PART 10)

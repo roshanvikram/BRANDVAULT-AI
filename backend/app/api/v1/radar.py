@@ -1,12 +1,22 @@
 from typing import Dict, Any, List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from backend.app.db.session import get_db
 from backend.app.models.submission import Submission, Finding, ClaimVerification, ApprovalRecord
 from backend.app.services.seed import NOVA_ORG_ID
+from backend.app.services.risk import compute_risk_intelligence
 
 router = APIRouter(prefix="/radar", tags=["Brand Risk Radar"])
+
+
+@router.get("/intelligence")
+def risk_intelligence(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """Explained, rules-based risk indicators computed from real history (R2-5)."""
+    result = compute_risk_intelligence(db, org_id)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+    return result
 
 @router.get("/metrics")
 def get_risk_metrics(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Dict[str, Any]:

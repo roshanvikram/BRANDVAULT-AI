@@ -555,3 +555,28 @@ export async function fetchRiskRadar(orgId: string = "nova-tech-org-001"): Promi
   return res.json();
 }
 
+// Predictive Risk Intelligence (R2-5)
+export interface RiskDriver { label: string; value: string | number; }
+export interface RiskIndicator {
+  key: string;
+  label: string;
+  score: number;
+  level: "Low" | "Medium" | "High";
+  rationale: string;
+  drivers: RiskDriver[];
+  recommendation: string;
+}
+export interface RiskIntelligence {
+  org: { id: string; name: string };
+  overall_score: number;
+  overall_level: "Low" | "Medium" | "High";
+  indicators: RiskIndicator[];
+  basis: string;
+  history: Record<string, number>;
+}
+export async function fetchRiskIntelligence(orgId: string = "nova-tech-org-001"): Promise<RiskIntelligence> {
+  const res = await fetch(`${API_BASE}/radar/intelligence?org_id=${orgId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch risk intelligence");
+  return res.json();
+}
+

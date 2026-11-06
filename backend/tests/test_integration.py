@@ -201,6 +201,25 @@ class TestApi(unittest.TestCase):
         r = self.client.get("/api/v1/auth/google/login", follow_redirects=False)
         self.assertEqual(r.status_code, 503, r.text)
 
+    # ---- predictive risk intelligence (R2-5) ----
+    def test_risk_intelligence_is_explained(self):
+        r = self.client.get("/api/v1/radar/intelligence", params={"org_id": NOVA_ORG_ID})
+        self.assertEqual(r.status_code, 200, r.text)
+        b = r.json()
+        keys = {i["key"] for i in b["indicators"]}
+        self.assertEqual(keys, {"content", "claim", "guideline", "process", "visual"})
+        for i in b["indicators"]:
+            self.assertTrue(0 <= i["score"] <= 100)
+            self.assertIn(i["level"], ("Low", "Medium", "High"))
+            self.assertTrue(i["rationale"])        # every indicator is explained
+            self.assertGreaterEqual(len(i["drivers"]), 1)   # ...with real drivers
+            self.assertTrue(i["recommendation"])
+        self.assertTrue(0 <= b["overall_score"] <= 100)
+
+    def test_risk_intelligence_unknown_org_404(self):
+        r = self.client.get("/api/v1/radar/intelligence", params={"org_id": "no-such-org"})
+        self.assertEqual(r.status_code, 404)
+
     # ---- AI Copy Studio (R2-AI) ----
     def test_copy_studio_status_reports_llm(self):
         r = self.client.get("/api/v1/copy-studio/status")
