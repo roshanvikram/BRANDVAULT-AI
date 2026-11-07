@@ -81,12 +81,8 @@ export default function BrandDNAStudio() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E5E5E5] pb-5">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-            <Dna className="w-3.5 h-3.5 text-[#0A0A0A]" />
-            <span className="font-semibold">Brand DNA Studio // Knowledge Management</span>
-          </div>
-          <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Brand Governance Profile: {org?.name || "…"}</h2>
-          <p className="text-xs text-[#737373] mt-0.5">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Brand Governance Profile: {org?.name || "…"}</h2>
+          <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
             Ingest guidelines, verify extracted policies, manage ground-truth facts, and enforce approved terminology.
           </p>
         </div>
@@ -103,10 +99,10 @@ export default function BrandDNAStudio() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="px-4 py-2.5 text-xs font-mono font-semibold rounded-lg bg-[#0A0A0A] text-[#FFFFFF] hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm"
+            className="px-4 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-[#FFFFFF] hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>{uploading ? "INGESTING PDF..." : "UPLOAD GUIDELINE (PDF/TXT)"}</span>
+            <span>{uploading ? "Ingesting…" : "Upload guideline"}</span>
           </button>
         </div>
       </div>
@@ -176,11 +172,11 @@ export default function BrandDNAStudio() {
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
                       {rule.category}
                     </span>
                     <span
-                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded border font-semibold ${
+                      className={`text-[11px] font-mono px-1.5 py-0.5 rounded border font-semibold ${
                         rule.severity === "CRITICAL"
                           ? "bg-[#0A0A0A] text-[#FFFFFF] border-[#0A0A0A]"
                           : "bg-[#F5F5F5] text-[#404040] border-[#E5E5E5]"
@@ -203,9 +199,9 @@ export default function BrandDNAStudio() {
                   ) : (
                     <button
                       onClick={() => handleConfirmRule(rule.id)}
-                      className="px-2.5 py-1 rounded bg-[#0A0A0A] text-[#FFFFFF] font-bold hover:bg-[#262626] transition-colors"
+                      className="px-2.5 py-1 rounded bg-[#0A0A0A] text-[#FFFFFF] font-medium hover:bg-[#27272A] transition-colors"
                     >
-                      CONFIRM RULE
+                      Confirm rule
                     </button>
                   )}
                 </div>
@@ -221,10 +217,10 @@ export default function BrandDNAStudio() {
           <div className="border border-[#E5E5E5] rounded-xl bg-[#FFFFFF] shadow-sm overflow-hidden">
             <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-[#F5F5F5]">
               <span className="text-xs font-bold text-[#0A0A0A]">Verified Enterprise Truth Records</span>
-              <span className="text-[10px] font-mono text-[#737373]">Used by ClaimDNA for automated fact checking</span>
+              <span className="text-[11px] font-mono text-[#737373]">Used by ClaimDNA for automated fact checking</span>
             </div>
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[10px]">
+              <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[11px]">
                 <tr>
                   <th className="py-2.5 px-4">Category</th>
                   <th className="py-2.5 px-4">Fact / Parameter</th>
@@ -253,10 +249,10 @@ export default function BrandDNAStudio() {
           <div className="border border-[#E5E5E5] rounded-xl bg-[#FFFFFF] shadow-sm overflow-hidden">
             <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-[#F5F5F5]">
               <span className="text-xs font-bold text-[#0A0A0A]">Prohibited vs Preferred Terminology</span>
-              <span className="text-[10px] font-mono text-[#737373]">Strict Lexicon Enforcement</span>
+              <span className="text-[11px] font-mono text-[#737373]">Strict Lexicon Enforcement</span>
             </div>
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[10px]">
+              <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[11px]">
                 <tr>
                   <th className="py-2.5 px-4">Prohibited Phrase</th>
                   <th className="py-2.5 px-4">Approved Replacement</th>

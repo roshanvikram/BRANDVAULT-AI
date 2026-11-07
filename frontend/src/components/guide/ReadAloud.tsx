@@ -104,7 +104,7 @@ export function ReadAloud({
           type="button"
           onClick={toggle}
           disabled={!supported}
-          className="px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center space-x-2 shadow-sm"
+          className="px-4 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center space-x-2 shadow-sm"
         >
           {state === "playing" ? <Pause className="w-3.5 h-3.5" /> : state === "paused" ? <Play className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
           <span>{state === "idle" ? label : state === "playing" ? "Pause" : "Resume"}</span>
@@ -122,10 +122,10 @@ export function ReadAloud({
         )}
       </div>
       {!supported && (
-        <span className="text-[10px] font-mono text-[#A3A3A3]">Voice is not available in this browser.</span>
+        <span className="text-[11px] font-mono text-[#A3A3A3]">Voice is not available in this browser.</span>
       )}
       {supported && (
-        <span className="text-[10px] font-mono text-[#A3A3A3]">Uses your browser&apos;s built-in voice.</span>
+        <span className="text-[11px] font-mono text-[#A3A3A3]">Uses your browser&apos;s built-in voice.</span>
       )}
     </div>
   );

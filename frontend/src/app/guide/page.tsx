@@ -20,7 +20,7 @@ const VIDEO_URL = VIDEO_ENV === "none" ? "" : (VIDEO_ENV || "/demo/walkthrough.m
 function VideoEmbed({ url }: { url: string }) {
   const isFile = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
   return (
-    <div className="rounded-2xl overflow-hidden border border-[#E5E5E5] bg-black aspect-video shadow-sm">
+    <div className="rounded-xl overflow-hidden border border-[#E5E5E5] bg-black aspect-video shadow-sm">
       {isFile ? (
         <video
           src={url}
@@ -186,16 +186,16 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0A0A0A] select-none">
       {/* Top bar */}
-      <header className="h-16 border-b border-[#E5E5E5] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="h-16 border-b border-[#E5E5E5] bg-white backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-5xl mx-auto h-full px-6 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">BV</div>
             <div>
               <div className="font-bold text-sm tracking-tight">BRANDVAULT AI</div>
-              <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">User Guide</div>
+              <div className="text-[11px] text-[#737373] tracking-widest font-mono uppercase">User Guide</div>
             </div>
           </Link>
-          <Link href={dashHref} className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+          <Link href={dashHref} className="px-4 py-2 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm">
             <span>{user ? "Open dashboard" : "Get started"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -204,7 +204,7 @@ export default function GuidePage() {
 
       {/* Hero */}
       <section className="max-w-5xl mx-auto px-6 pt-16 pb-10 text-center">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-[#E5E5E5] bg-white text-[10px] font-mono uppercase tracking-wider text-[#737373] mb-6">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-[#E5E5E5] bg-white text-[11px] font-mono uppercase tracking-wider text-[#737373] mb-6">
           <ShieldCheck className="w-3.5 h-3.5 text-[#0A0A0A]" />
           <span>Step-by-step user guide</span>
         </div>
@@ -214,7 +214,7 @@ export default function GuidePage() {
           Prefer to listen? Play the guide as audio with your browser&apos;s built-in voice.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
-          <a href="#watch" className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+          <a href="#watch" className="px-5 py-3 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm">
             <PlayCircle className="w-4 h-4" />
             <span>Watch walkthrough</span>
           </a>
@@ -225,7 +225,7 @@ export default function GuidePage() {
       {/* Watch — video / animated walkthrough */}
       <section id="watch" className="max-w-3xl mx-auto px-6 pb-14 scroll-mt-20">
         <div className="text-center mb-5">
-          <div className="inline-flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider text-[#737373]">
+          <div className="inline-flex items-center space-x-2 text-[11px] font-mono uppercase tracking-wider text-[#737373]">
             <PlayCircle className="w-3.5 h-3.5 text-[#0A0A0A]" />
             <span>{VIDEO_URL ? "Video walkthrough" : "Watch the product demo"}</span>
           </div>
@@ -246,8 +246,8 @@ export default function GuidePage() {
             { r: "Reviewer", d: "Approves, rejects, or requests revision." },
             { r: "Administrator", d: "Full access, incl. approvals & settings." },
           ].map((x) => (
-            <div key={x.r} className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold mb-1">Role</div>
+            <div key={x.r} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-5">
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold mb-1">Role</div>
               <div className="text-sm font-bold tracking-tight">{x.r}</div>
               <div className="text-[11px] text-[#737373] mt-1 leading-relaxed">{x.d}</div>
             </div>
@@ -261,7 +261,7 @@ export default function GuidePage() {
           const Icon = s.icon;
           const flip = i % 2 === 1;
           return (
-            <div key={s.n} className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm overflow-hidden">
+            <div key={s.n} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm overflow-hidden">
               <div className={`grid grid-cols-1 md:grid-cols-5 ${flip ? "md:[&>*:first-child]:order-2" : ""}`}>
                 {/* Text */}
                 <div className="md:col-span-3 p-6 sm:p-7">
@@ -298,7 +298,7 @@ export default function GuidePage() {
       {/* Voice & image callout */}
       <section className="max-w-5xl mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6">
             <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-3"><Mic className="w-4 h-4 text-[#0A0A0A]" /></div>
             <div className="text-sm font-bold tracking-tight">Listen instead of reading</div>
             <p className="text-[11px] text-[#737373] mt-1 leading-relaxed">
@@ -306,7 +306,7 @@ export default function GuidePage() {
               own built-in text-to-speech voice — it works offline and sends nothing to any server.
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6">
             <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-3"><ImagePlus className="w-4 h-4 text-[#0A0A0A]" /></div>
             <div className="text-sm font-bold tracking-tight">Work by image</div>
             <p className="text-[11px] text-[#737373] mt-1 leading-relaxed">
@@ -319,7 +319,7 @@ export default function GuidePage() {
 
       {/* CTA */}
       <section className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="bg-[#0A0A0A] rounded-2xl p-8 sm:p-10 text-center">
+        <div className="bg-[#0A0A0A] rounded-xl p-8 sm:p-10 text-center">
           <h2 className="text-2xl font-bold tracking-tight text-white">Ready to try it?</h2>
           <p className="text-xs text-[#A3A3A3] mt-2 max-w-md mx-auto">Open the dashboard and run the full workflow end to end.</p>
           <div className="flex items-center justify-center gap-3 mt-6">

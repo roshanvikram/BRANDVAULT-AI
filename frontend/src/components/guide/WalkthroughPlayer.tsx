@@ -115,7 +115,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
   return (
     <div className="w-full">
       {/* Player frame */}
-      <div className="rounded-2xl border border-[#E5E5E5] bg-[#0A0A0A] shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-[#E5E5E5] bg-[#0A0A0A] shadow-sm overflow-hidden">
         {/* Screen */}
         <div className="relative bg-[#FAFAFA] aspect-video flex items-center justify-center overflow-hidden">
           {step.shot ? (
@@ -200,7 +200,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
         </div>
       </div>
 
-      <p className="text-[10px] font-mono text-[#A3A3A3] mt-2 text-center">
+      <p className="text-[11px] font-mono text-[#A3A3A3] mt-2 text-center">
         {hasShots ? "Real screens captured from the running app" : "Animated walkthrough"}{voiceSupported ? " · narrated with your browser's built-in voice" : ""}.
       </p>
 

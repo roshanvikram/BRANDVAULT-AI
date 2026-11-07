@@ -133,14 +133,10 @@ export default function KnowledgeGraphPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] pb-5">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-            <Network className="w-3.5 h-3.5 text-[#0A0A0A]" />
-            <span className="font-semibold">Brand Knowledge Graph // Intelligence Map</span>
-          </div>
-          <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">
             {graph ? graph.brand.name : "Brand"} — Connected Governance Knowledge
           </h2>
-          <p className="text-xs text-[#737373] mt-0.5">
+          <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
             Every node and link is built from real records. Click a node to expand its connections or inspect its details.
           </p>
         </div>
@@ -148,11 +144,11 @@ export default function KnowledgeGraphPage() {
           <div className="flex items-center gap-4 text-xs font-mono">
             <div className="text-right">
               <div className="text-[#0A0A0A] font-bold">{graph.stats.nodes}</div>
-              <div className="text-[10px] text-[#737373]">nodes</div>
+              <div className="text-[11px] text-[#737373]">nodes</div>
             </div>
             <div className="text-right">
               <div className="text-[#0A0A0A] font-bold">{graph.stats.edges}</div>
-              <div className="text-[10px] text-[#737373]">links</div>
+              <div className="text-[11px] text-[#737373]">links</div>
             </div>
             <button
               onClick={() => { setExpanded(new Set(["brand"])); setSelected(null); }}
@@ -233,11 +229,11 @@ export default function KnowledgeGraphPage() {
           )}
 
           {/* Legend */}
-          <div className="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm border border-[#E5E5E5] rounded-lg px-3 py-2 flex flex-wrap gap-x-3 gap-y-1 max-w-[88%]">
+          <div className="absolute bottom-3 left-3 bg-white backdrop-blur-sm border border-[#E5E5E5] rounded-lg px-3 py-2 flex flex-wrap gap-x-3 gap-y-1 max-w-[88%]">
             {legend.map((t) => (
               <div key={t} className="flex items-center space-x-1.5">
                 <span className="w-2.5 h-2.5 rounded-full border" style={{ background: STYLE[t].fill, borderColor: STYLE[t].stroke }} />
-                <span className="text-[9px] font-mono text-[#737373]">{STYLE[t].label}</span>
+                <span className="text-[11px] font-mono text-[#737373]">{STYLE[t].label}</span>
               </div>
             ))}
           </div>
@@ -249,13 +245,13 @@ export default function KnowledgeGraphPage() {
             <div className="flex-1 flex flex-col items-center justify-center text-center text-[#737373]">
               <Network className="w-9 h-9 mb-3 text-[#A3A3A3]" />
               <p className="text-xs font-mono">Select any node to inspect its real record and open it in its module.</p>
-              <p className="text-[10px] text-[#A3A3A3] mt-3 leading-relaxed max-w-[220px]">
+              <p className="text-[11px] text-[#A3A3A3] mt-3 leading-relaxed max-w-[220px]">
                 Dark links are containment. Dashed links show a finding referencing the brand rule it was checked against.
               </p>
             </div>
           ) : (
             <div className="flex-1 flex flex-col">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold">{STYLE[selected.type].label}</div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold">{STYLE[selected.type].label}</div>
               <h3 className="text-base font-bold tracking-tight text-[#0A0A0A] mt-1 break-words">{selected.label}</h3>
               {typeof selected.count === "number" && (
                 <div className="text-[11px] font-mono text-[#737373] mt-1">{selected.count} item{selected.count === 1 ? "" : "s"}</div>
@@ -264,7 +260,7 @@ export default function KnowledgeGraphPage() {
               <div className="mt-4 space-y-2.5 overflow-y-auto flex-1">
                 {Object.entries(selected.meta || {}).filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
                   <div key={k} className="text-xs">
-                    <div className="text-[10px] font-mono uppercase text-[#A3A3A3] font-semibold">{k}</div>
+                    <div className="text-[11px] font-mono uppercase text-[#A3A3A3] font-semibold">{k}</div>
                     <div className="text-[#0A0A0A] break-words leading-relaxed">{String(v)}</div>
                   </div>
                 ))}
@@ -276,7 +272,7 @@ export default function KnowledgeGraphPage() {
               {selected.href && (
                 <Link
                   href={selected.href}
-                  className="mt-4 inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 text-xs font-mono font-bold rounded-lg bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all"
+                  className="mt-4 inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all"
                 >
                   <span>Open in module</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />

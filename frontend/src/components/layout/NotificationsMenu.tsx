@@ -90,17 +90,17 @@ export function NotificationsMenu() {
       >
         <Bell className="w-4 h-4" />
         {reviewCount > 0 && (
-          <span className="absolute top-1 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-[#0A0A0A] ring-2 ring-white text-[8px] font-mono font-bold text-white flex items-center justify-center">
+          <span className="absolute top-1 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-[#0A0A0A] ring-2 ring-white text-[8px] font-medium text-white flex items-center justify-center">
             {reviewCount > 9 ? "9+" : reviewCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-white/70 bg-white/85 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[#E4E4E7] bg-white shadow-[0_12px_32px_-8px_rgba(10,10,10,0.16)] z-50 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-[#F0F0F0] flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase font-bold text-[#A3A3A3]">Notifications</span>
-            <span className="text-[10px] font-mono text-[#737373]">{notes.length} total</span>
+            <span className="text-[11px] font-mono uppercase font-bold text-[#A3A3A3]">Notifications</span>
+            <span className="text-[11px] font-mono text-[#737373]">{notes.length} total</span>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {subs === null ? (
@@ -124,7 +124,7 @@ export function NotificationsMenu() {
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-bold text-[#0A0A0A]">{n.title}</div>
                     <div className="text-[11px] text-[#737373] truncate">{n.detail}</div>
-                    <div className="text-[9px] font-mono text-[#A3A3A3] mt-0.5">{n.when}</div>
+                    <div className="text-[11px] font-mono text-[#A3A3A3] mt-0.5">{n.when}</div>
                   </div>
                 </button>
               ))

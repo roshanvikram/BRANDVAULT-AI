@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Wand2, Sparkles, ArrowRight, Loader2, Info, Check, Cpu } from "lucide-react";
 import { rewriteCopy, fetchCopyStudioStatus, CopyRewrite, CopyStudioStatus } from "@/lib/api";
 
-const GLASS = "bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_10px_34px_-14px_rgba(10,10,10,0.22)] rounded-2xl";
+const GLASS = "bg-white border border-[#E4E4E7] shadow-[0_1px_2px_rgba(10,10,10,0.04)] rounded-xl";
 const SAMPLE = "Introducing the world's fastest AI laptop! 10x faster than every competitor. Now only Rs 69,999!!!";
 
 export default function CopyStudioPage() {
@@ -29,10 +29,10 @@ export default function CopyStudioPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-5 select-none">
       {/* Header */}
-      <div className="border-b border-white/50 pb-5">
+      <div className="border-b border-[#E4E4E7] pb-5">
         <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
           <Wand2 className="w-3.5 h-3.5 text-[#0A0A0A]" />
-          <span className="font-semibold">AI Copy Studio // Generative Compliant Rewrite</span>
+          <span className="font-semibold">AI Copy Studio · Generative Compliant Rewrite</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -52,12 +52,12 @@ export default function CopyStudioPage() {
 
       {/* Input */}
       <div className={`${GLASS} p-4`}>
-        <label className="text-[10px] font-mono uppercase text-[#737373] font-semibold block mb-2">Marketing copy</label>
+        <label className="text-[11px] font-mono uppercase text-[#737373] font-semibold block mb-2">Marketing copy</label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={4}
-          className="w-full text-sm bg-white/60 border border-white/70 rounded-xl p-3 text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A] resize-y leading-relaxed"
+          className="w-full text-sm bg-white border border-[#E4E4E7] rounded-xl p-3 text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A] resize-y leading-relaxed"
           placeholder="Paste marketing copy to rewrite…"
         />
         <div className="flex items-center justify-between mt-3">
@@ -65,7 +65,7 @@ export default function CopyStudioPage() {
             Load sample
           </button>
           <button onClick={run} disabled={busy || !content.trim()}
-                  className="px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] disabled:opacity-40 transition-all flex items-center space-x-2 shadow-sm">
+                  className="px-5 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] disabled:opacity-40 transition-all flex items-center space-x-2 shadow-sm">
             {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             <span>{busy ? "Rewriting…" : "Rewrite"}</span>
           </button>
@@ -83,13 +83,13 @@ export default function CopyStudioPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={`${GLASS} p-4`}>
-              <div className="text-[10px] font-mono uppercase text-[#A3A3A3] font-bold mb-2">Original</div>
+              <div className="text-[11px] font-mono uppercase text-[#A3A3A3] font-bold mb-2">Original</div>
               <p className="text-sm text-[#737373] leading-relaxed whitespace-pre-line line-through decoration-[#D4D4D4]">{result.original}</p>
             </div>
             <div className={`${GLASS} p-4 ring-1 ring-[#0A0A0A]/10`}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] font-mono uppercase text-[#A3A3A3] font-bold">Compliant rewrite</div>
-                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${isAI ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
+                <div className="text-[11px] font-mono uppercase text-[#A3A3A3] font-bold">Compliant rewrite</div>
+                <span className={`text-[11px] font-mono px-1.5 py-0.5 rounded-full ${isAI ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
                   {isAI ? `AI · ${result.model}` : "rules-based"}
                 </span>
               </div>
@@ -98,7 +98,7 @@ export default function CopyStudioPage() {
           </div>
 
           <div className={`${GLASS} p-4`}>
-            <div className="text-[10px] font-mono uppercase text-[#A3A3A3] font-bold mb-3">
+            <div className="text-[11px] font-mono uppercase text-[#A3A3A3] font-bold mb-3">
               What changed ({result.changes.length})
             </div>
             {result.changes.length === 0 ? (
@@ -106,7 +106,7 @@ export default function CopyStudioPage() {
             ) : (
               <div className="space-y-2">
                 {result.changes.map((c, i) => (
-                  <div key={i} className="flex items-start space-x-3 px-3 py-2 rounded-lg bg-white/50 border border-white/60">
+                  <div key={i} className="flex items-start space-x-3 px-3 py-2 rounded-lg bg-white border border-[#E4E4E7]">
                     <Check className="w-3.5 h-3.5 text-[#0A0A0A] mt-0.5 shrink-0" />
                     <div className="min-w-0 text-xs">
                       <div className="flex flex-wrap items-center gap-1.5">
@@ -120,7 +120,7 @@ export default function CopyStudioPage() {
                 ))}
               </div>
             )}
-            <p className="text-[10px] font-mono text-[#A3A3A3] mt-3 flex items-center gap-1.5">
+            <p className="text-[11px] font-mono text-[#A3A3A3] mt-3 flex items-center gap-1.5">
               <Info className="w-3 h-3" /> {result.note}
             </p>
           </div>

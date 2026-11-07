@@ -1,76 +1,88 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { useAuth, initials } from "@/lib/auth";
 import { WorkspaceMenu } from "./WorkspaceMenu";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { HelpMenu } from "./HelpMenu";
 import { GlobalSearch } from "./GlobalSearch";
+import { useShell } from "./AppShell";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Command Center",
-  "/brand-dna": "Brand DNA Studio",
-  "/knowledge-graph": "Knowledge Graph",
-  "/assistant": "Brand Assistant",
-  "/brand-memory": "Brand Memory",
-  "/content-intelligence": "Content Intelligence",
-  "/copy-studio": "AI Copy Studio",
-  "/claim-dna": "ClaimDNA Verification",
-  "/visual-dna": "Visual DNA Inspector",
-  "/agent-control": "Agent Control Center",
-  "/approval-hub": "Human Approval Hub",
-  "/brand-passport": "Brand Passport Repository",
-  "/risk-radar": "Brand Risk Radar",
-  "/settings": "System Settings",
-  "/onboarding": "Setup Guide",
+const PAGE_TITLES: Record<string, { section: string; title: string }> = {
+  "/dashboard": { section: "Overview", title: "Command Center" },
+  "/onboarding": { section: "Overview", title: "Setup Guide" },
+  "/brand-dna": { section: "Brand", title: "Brand DNA Studio" },
+  "/brand-memory": { section: "Brand", title: "Brand Memory" },
+  "/knowledge-graph": { section: "Brand", title: "Knowledge Graph" },
+  "/content-intelligence": { section: "Analyse", title: "Content Intelligence" },
+  "/claim-dna": { section: "Analyse", title: "ClaimDNA" },
+  "/visual-dna": { section: "Analyse", title: "Visual DNA" },
+  "/copy-studio": { section: "Create", title: "AI Copy Studio" },
+  "/assistant": { section: "Create", title: "Brand Assistant" },
+  "/approval-hub": { section: "Govern", title: "Approval Hub" },
+  "/brand-passport": { section: "Govern", title: "Brand Passport" },
+  "/risk-radar": { section: "Govern", title: "Risk Radar" },
+  "/agent-control": { section: "Govern", title: "Agent Control" },
+  "/settings": { section: "Workspace", title: "Settings" },
 };
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { setMobileNavOpen } = useShell();
 
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
 
-  const title = PAGE_TITLES[pathname] || "Brand Governance";
+  const page = PAGE_TITLES[pathname] || { section: "BrandVault", title: "Brand Governance" };
 
   return (
-    <header className="h-16 border-b border-white/60 bg-white/55 backdrop-blur-xl px-7 flex items-center justify-between sticky top-0 z-40 select-none shadow-[0_6px_20px_-12px_rgba(10,10,10,0.15)]">
-      {/* Breadcrumb / current page */}
-      <div className="flex items-center space-x-3 w-1/4">
-        <span className="text-xs font-mono text-[#A3A3A3] uppercase">BrandVault</span>
-        <span className="text-xs text-[#E5E5E5]">/</span>
-        <h1 className="text-sm font-bold text-[#0A0A0A] tracking-tight">{title}</h1>
+    <header className="glass-header h-14 px-4 sm:px-6 lg:px-8 flex items-center gap-4 sticky top-0 z-30 select-none">
+      <button
+        onClick={() => setMobileNavOpen(true)}
+        className="lg:hidden p-2 -ml-2 rounded-md text-[#52525B] hover:text-[#0A0A0A] hover:bg-[#F4F4F5]"
+        aria-label="Open navigation"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      <div className="flex items-center gap-2 min-w-0 shrink-0 text-[13px]">
+        <span className="hidden sm:inline text-[#71717A]">{page.section}</span>
+        <span className="hidden sm:inline text-[#D4D4D8]">/</span>
+        <h1 className="font-semibold text-[#0A0A0A] truncate">{page.title}</h1>
       </div>
 
-      {/* Global search (real) */}
-      <GlobalSearch />
+      <div className="flex-1 flex justify-center min-w-0">
+        <GlobalSearch />
+      </div>
 
-      {/* Right action tools */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-1 shrink-0">
         <WorkspaceMenu />
         <NotificationsMenu />
         <HelpMenu />
 
-        {/* Signed-in user + logout */}
-        <div className="flex items-center space-x-2.5 pl-3 border-l border-[#E5E5E5]">
-          <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm uppercase">
+        <div className="flex items-center gap-2.5 pl-3 ml-2 border-l border-[#E4E4E7]">
+          <div
+            className="w-7 h-7 rounded-full bg-[#F4F4F5] border border-[#E4E4E7] text-[#0A0A0A] flex items-center justify-center text-[11px] font-semibold uppercase"
+            aria-hidden
+          >
             {initials(user?.full_name)}
           </div>
-          <div className="hidden lg:block leading-tight">
-            <div className="text-xs font-bold text-[#0A0A0A]">{user?.full_name || "Guest"}</div>
-            <div className="text-[10px] font-mono text-[#737373]">{user?.role || "—"}</div>
+          <div className="hidden xl:block leading-tight">
+            <div className="text-[13px] font-medium text-[#0A0A0A]">{user?.full_name || "Guest"}</div>
+            <div className="text-[11px] text-[#71717A]">{user?.role || "—"}</div>
           </div>
           <button
             onClick={handleLogout}
             title="Sign out"
-            className="p-2 rounded-xl text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5] transition-colors"
+            aria-label="Sign out"
+            className="p-2 rounded-md text-[#71717A] hover:text-[#0A0A0A] hover:bg-[#F4F4F5] transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" strokeWidth={1.75} />
           </button>
         </div>
       </div>

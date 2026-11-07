@@ -24,12 +24,8 @@ export default function SettingsPage() {
     <div className="space-y-6 select-none max-w-4xl">
       {/* Header */}
       <div className="border-b border-[#E5E5E5] pb-5">
-        <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-          <Sliders className="w-3.5 h-3.5 text-[#0A0A0A]" />
-          <span className="font-semibold">System Settings & Architecture // CodeNexus India 2026</span>
-        </div>
-        <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Enterprise Governance Configuration</h2>
-        <p className="text-xs text-[#737373] mt-0.5">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Enterprise Governance Configuration</h2>
+        <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
           Active system parameters, backend health telemetry, database persistence, and team credentials.
         </p>
       </div>

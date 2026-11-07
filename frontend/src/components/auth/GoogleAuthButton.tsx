@@ -34,10 +34,10 @@ export function GoogleAuthButton({ label = "Continue with Google" }: { label?: s
         className="w-full py-2.5 text-xs font-mono font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#0A0A0A] hover:bg-[#F5F5F5] hover:border-[#A3A3A3] disabled:opacity-50 disabled:hover:bg-white disabled:hover:border-[#E5E5E5] disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2.5"
       >
         <GoogleG />
-        <span>{status === "loading" ? "CHECKING…" : label}</span>
+        <span>{status === "loading" ? "Checking…" : label}</span>
       </button>
       {status === "unconfigured" && (
-        <p className="text-[10px] text-[#A3A3A3] mt-1.5 leading-relaxed font-mono">
+        <p className="text-[11px] text-[#A3A3A3] mt-1.5 leading-relaxed font-mono">
           Set <span className="text-[#737373]">GOOGLE_CLIENT_ID</span> and{" "}
           <span className="text-[#737373]">GOOGLE_CLIENT_SECRET</span> on the server to enable.
         </p>

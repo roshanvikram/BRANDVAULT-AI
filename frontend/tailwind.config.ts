@@ -10,10 +10,15 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "Menlo", "Monaco", "Consolas", "monospace"],
+        // `font-mono` was used across the app for labels and metadata. It now
+        // renders in the UI sans with tabular numbers (see globals.css) for a
+        // cleaner, more professional look. Real code values (hashes, ids) use
+        // `font-code`.
+        mono: ["var(--font-geist-sans)", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        code: ["var(--font-geist-mono)", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       colors: {
-        background: "#F7F7F7",
+        background: "#FAFAFA",
         foreground: "#0A0A0A",
         mono: {
           50:  "#FFFFFF",

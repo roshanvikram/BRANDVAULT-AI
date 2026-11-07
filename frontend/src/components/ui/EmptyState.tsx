@@ -32,7 +32,7 @@ export function EmptyState({
     actionHref ? (
       <Link
         href={actionHref}
-        className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-mono font-bold rounded-lg bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all shadow-sm"
+        className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all shadow-sm"
       >
         <span>{actionLabel}</span>
         <ArrowRight className="w-3.5 h-3.5" />
@@ -40,7 +40,7 @@ export function EmptyState({
     ) : (
       <button
         onClick={onAction}
-        className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-mono font-bold rounded-lg bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all shadow-sm"
+        className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all shadow-sm"
       >
         <span>{actionLabel}</span>
         <ArrowRight className="w-3.5 h-3.5" />
@@ -50,7 +50,7 @@ export function EmptyState({
 
   return (
     <div className={`flex flex-col items-center justify-center text-center ${compact ? "py-8" : "py-14"} px-6`}>
-      <div className="w-12 h-12 rounded-2xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-4">
+      <div className="w-12 h-12 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-4">
         <Icon className="w-5 h-5 text-[#0A0A0A]" />
       </div>
       <h3 className="text-sm font-bold tracking-tight text-[#0A0A0A]">{title}</h3>

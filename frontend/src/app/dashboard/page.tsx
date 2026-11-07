@@ -13,16 +13,24 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-const GLASS = "bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_10px_34px_-14px_rgba(10,10,10,0.22)] rounded-2xl";
+const GLASS = "bg-white border border-[#E4E4E7] shadow-[0_1px_2px_rgba(10,10,10,0.04)] rounded-xl";
 
 /* ------------------------------ small widgets ----------------------------- */
 function Sparkline({ data }: { data: number[] }) {
   const max = Math.max(1, ...data);
+  const last = data.length - 1;
   return (
-    <div className="flex items-end gap-[3px] h-9">
-      {data.map((v, i) => (
-        <div key={i} className="flex-1 rounded-sm bg-[#0A0A0A]" style={{ height: `${Math.max(10, (v / max) * 100)}%`, opacity: 0.2 + 0.8 * (v / max) }} />
-      ))}
+    <div className="h-9 flex flex-col justify-end gap-1.5">
+      <div className="flex items-end gap-1 h-6" aria-hidden>
+        {data.map((v, i) => (
+          <div
+            key={i}
+            className={`flex-1 rounded-[2px] ${i === last ? "bg-[#0A0A0A]" : "bg-[#D4D4D8]"}`}
+            style={{ height: `${v === 0 ? 8 : Math.max(16, (v / max) * 100)}%` }}
+          />
+        ))}
+      </div>
+      <div className="text-[11px] text-[#71717A]">Last 6 months</div>
     </div>
   );
 }
@@ -43,8 +51,8 @@ function Gauge({ value, label, sublabel }: { value: number; label: string; subla
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <div className="text-3xl font-bold tracking-tight text-[#0A0A0A]">{value}%</div>
-        <div className="text-[10px] font-mono uppercase tracking-wider text-[#737373] mt-0.5">{label}</div>
-        {sublabel && <div className="text-[9px] font-mono text-[#A3A3A3] mt-0.5 max-w-[120px]">{sublabel}</div>}
+        <div className="text-[11px] font-mono uppercase tracking-wider text-[#737373] mt-0.5">{label}</div>
+        {sublabel && <div className="text-[11px] font-mono text-[#A3A3A3] mt-0.5 max-w-[120px]">{sublabel}</div>}
       </div>
     </div>
   );
@@ -127,18 +135,16 @@ export default function Dashboard() {
       {/* Welcome header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A] flex items-center space-x-2">
-            <span>Welcome back, {firstName}</span><span className="text-xl">👋</span>
-          </h2>
-          <p className="text-xs text-[#737373] mt-0.5">Your AI control room — brand intelligence, governance & compliance.</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Welcome back, {firstName}</h2>
+          <p className="text-[13px] text-[#71717A] mt-1">Brand intelligence, governance and compliance across your workspace.</p>
         </div>
         <div className="flex items-center gap-2.5">
-          <Link href="/content-intelligence" className="px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+          <Link href="/content-intelligence" className="h-9 px-3.5 text-[13px] font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-colors flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5" /><span>New Content Review</span>
           </Link>
           <button onClick={handleRunSampleTest} disabled={isTesting}
-                  className={`px-4 py-2.5 text-xs font-mono font-bold rounded-xl ${GLASS} text-[#0A0A0A] hover:bg-white/90 transition-all flex items-center space-x-2`}>
-            <ShieldCheck className="w-3.5 h-3.5" /><span>{isTesting ? "AUDITING…" : "Verify sample"}</span>
+                  className="h-9 px-3.5 text-[13px] font-medium rounded-lg bg-white border border-[#E4E4E7] text-[#0A0A0A] hover:bg-[#F4F4F5] transition-colors flex items-center gap-2 disabled:opacity-60">
+            <ShieldCheck className="w-3.5 h-3.5" /><span>{isTesting ? "Auditing…" : "Verify sample"}</span>
           </button>
         </div>
       </div>
@@ -148,9 +154,9 @@ export default function Dashboard() {
         <div className={`${GLASS} p-5 space-y-2`}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-[#0A0A0A]">AUDIT COMPLETE: {testResult.title}</span>
-            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-[#0A0A0A] text-white font-bold">Score {testResult.overall_score}/100</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[#0A0A0A] text-white font-medium">Score {testResult.overall_score}/100</span>
           </div>
-          <p className="text-xs text-[#0A0A0A] font-mono bg-white/60 p-3 rounded-xl border border-white/70">&ldquo;{testResult.content}&rdquo;</p>
+          <p className="text-xs text-[#0A0A0A] font-mono bg-white p-3 rounded-xl border border-[#E4E4E7]">&ldquo;{testResult.content}&rdquo;</p>
           <Link href={`/content-intelligence?submissionId=${testResult.id}`} className="text-xs font-mono font-bold text-[#0A0A0A] hover:underline flex items-center space-x-1">
             <span>Inspect in Content Intelligence</span><ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -174,7 +180,7 @@ export default function Dashboard() {
               </div>
               <div className="space-y-1.5">
                 {onboarding.steps.slice(0, 5).map((s) => (
-                  <Link key={s.key} href={s.href} className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white/60 transition-colors group">
+                  <Link key={s.key} href={s.href} className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white transition-colors group">
                     <div className="flex items-center space-x-2.5 min-w-0">
                       <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${s.done ? "bg-[#0A0A0A] text-white" : "border border-[#A3A3A3] text-transparent"}`}>
                         <Check className="w-3 h-3" />
@@ -195,7 +201,7 @@ export default function Dashboard() {
         <div className={`lg:col-span-5 ${GLASS} p-5`}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-bold text-[#0A0A0A]">Governance Pulse</span>
-            <span className="text-[10px] font-mono text-[#A3A3A3] uppercase">Policy coverage</span>
+            <span className="text-[11px] font-mono text-[#A3A3A3] uppercase">Policy coverage</span>
           </div>
           <div className="flex items-center gap-4">
             <Gauge value={d.coverage} label="Coverage" sublabel={`${d.confirmed}/${rules.length} rules active`} />
@@ -203,7 +209,7 @@ export default function Dashboard() {
               {rules.slice(0, 4).map((r) => (
                 <div key={r.id} className="flex items-center justify-between text-[11px]">
                   <span className="text-[#404040] truncate pr-2">{r.title}</span>
-                  <span className={`font-mono text-[9px] px-1.5 py-0.5 rounded shrink-0 ${r.is_confirmed ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
+                  <span className={`font-mono text-[11px] px-1.5 py-0.5 rounded shrink-0 ${r.is_confirmed ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
                     {r.is_confirmed ? "Active" : "Draft"}
                   </span>
                 </div>
@@ -214,13 +220,13 @@ export default function Dashboard() {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard icon={FileSearch} label="Content Reviews" value={submissions.length} footer={<Sparkline data={d.subsSpark} />} />
         <KpiCard icon={Clock} label="Pending Approvals" value={d.pending}
                  footer={<ThinBar part={d.pending} total={submissions.length} caption={`${submissions.length ? Math.round((d.pending / submissions.length) * 100) : 0}% of reviews`} />} />
         <KpiCard icon={AlertTriangle} label="Critical Findings" value={d.critical} footer={<Sparkline data={d.critSpark} />} />
         <KpiCard icon={Award} label="Brand Passports" value={passports.length}
-                 footer={<div className="text-[10px] font-mono text-[#737373] h-9 flex items-end">certified governance records</div>} />
+                 footer={<div className="text-[11px] text-[#71717A] h-9 flex items-end">Certified governance records</div>} />
       </div>
 
       {/* Claim distribution + live runs */}
@@ -254,7 +260,7 @@ export default function Dashboard() {
         </div>
 
         <div className={`lg:col-span-7 ${GLASS} overflow-hidden flex flex-col`}>
-          <div className="p-4 flex items-center justify-between border-b border-white/60">
+          <div className="p-4 flex items-center justify-between border-b border-[#E4E4E7]">
             <div className="flex items-center space-x-2">
               <span className="w-2 h-2 rounded-full bg-[#0A0A0A] animate-pulse" />
               <span className="text-sm font-bold text-[#0A0A0A]">Live Agent Runs</span>
@@ -263,7 +269,7 @@ export default function Dashboard() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="text-[#737373] font-mono uppercase text-[10px] border-b border-white/60">
+              <thead className="text-[#737373] font-mono uppercase text-[11px] border-b border-[#E4E4E7]">
                 <tr>
                   <th className="py-2.5 px-4 font-semibold">Agent</th>
                   <th className="py-2.5 px-3 font-semibold">Task</th>
@@ -275,12 +281,12 @@ export default function Dashboard() {
                 {runs.length === 0 ? (
                   <tr><td colSpan={4} className="py-6 text-center text-[#737373] font-mono text-[11px]">Agents on standby.</td></tr>
                 ) : runs.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/50 transition-colors">
+                  <tr key={r.id} className="hover:bg-white transition-colors">
                     <td className="py-2.5 px-4 font-bold text-[#0A0A0A] whitespace-nowrap">{r.agent_name}</td>
                     <td className="py-2.5 px-3 text-[#737373] truncate max-w-[180px]">{r.task_name}</td>
                     <td className="py-2.5 px-3 font-mono text-[#404040]">{r.execution_time_ms}ms</td>
                     <td className="py-2.5 px-4 text-right">
-                      <span className={`font-mono text-[9px] px-2 py-0.5 rounded-full font-bold ${r.status === "FAILED" ? "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]" : "bg-[#0A0A0A] text-white"}`}>
+                      <span className={`font-mono text-[11px] px-2 py-0.5 rounded-full font-bold ${r.status === "FAILED" ? "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]" : "bg-[#0A0A0A] text-white"}`}>
                         {r.status === "COMPLETED" ? "Done" : r.status === "RUNNING" ? "Live" : r.status}
                       </span>
                     </td>
@@ -294,7 +300,7 @@ export default function Dashboard() {
 
       {/* Recent submissions */}
       <div className={`${GLASS} overflow-hidden`}>
-        <div className="p-4 flex items-center justify-between border-b border-white/60">
+        <div className="p-4 flex items-center justify-between border-b border-[#E4E4E7]">
           <div className="text-sm font-bold text-[#0A0A0A]">Recent Content Submissions</div>
           <Link href="/content-intelligence" className="text-[11px] font-mono font-bold text-[#0A0A0A] hover:underline flex items-center space-x-1">
             <span>View all</span><ChevronRight className="w-3.5 h-3.5" />
@@ -302,7 +308,7 @@ export default function Dashboard() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="text-[#737373] font-mono uppercase text-[10px] border-b border-white/60">
+            <thead className="text-[#737373] font-mono uppercase text-[11px] border-b border-[#E4E4E7]">
               <tr>
                 <th className="py-2.5 px-4 font-semibold">Content</th>
                 <th className="py-2.5 px-3 font-semibold">Author</th>
@@ -315,18 +321,18 @@ export default function Dashboard() {
               {submissions.slice(0, 6).map((s) => {
                 const risk = s.overall_score < 50;
                 return (
-                  <tr key={s.id} className="hover:bg-white/50 transition-colors">
+                  <tr key={s.id} className="hover:bg-white transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center space-x-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-white/70 border border-white/70 flex items-center justify-center shrink-0"><FileText className="w-3.5 h-3.5 text-[#0A0A0A]" /></div>
-                        <div className="truncate max-w-[220px]"><div className="font-bold text-[#0A0A0A] truncate">{s.title}</div><div className="text-[10px] font-mono text-[#737373] truncate">&ldquo;{s.content}&rdquo;</div></div>
+                        <div className="w-7 h-7 rounded-lg bg-white border border-[#E4E4E7] flex items-center justify-center shrink-0"><FileText className="w-3.5 h-3.5 text-[#0A0A0A]" /></div>
+                        <div className="truncate max-w-[220px]"><div className="font-bold text-[#0A0A0A] truncate">{s.title}</div><div className="text-[11px] font-mono text-[#737373] truncate">&ldquo;{s.content}&rdquo;</div></div>
                       </div>
                     </td>
                     <td className="py-3 px-3 font-mono text-[#404040]">{s.author_name}</td>
-                    <td className="py-3 px-3"><span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${risk ? "bg-[#0A0A0A] text-white" : "bg-white/70 text-[#0A0A0A] border border-white/70"}`}>{risk ? "High" : "OK"}</span></td>
-                    <td className="py-3 px-3"><span className="font-mono text-[10px] px-2 py-0.5 rounded-md border border-white/70 bg-white/60 text-[#0A0A0A] font-semibold">{s.status}</span></td>
+                    <td className="py-3 px-3"><span className={`text-[11px] font-mono px-2 py-0.5 rounded-full font-bold ${risk ? "bg-[#0A0A0A] text-white" : "bg-white text-[#0A0A0A] border border-[#E4E4E7]"}`}>{risk ? "High" : "OK"}</span></td>
+                    <td className="py-3 px-3"><span className="font-mono text-[11px] px-2 py-0.5 rounded-md border border-[#E4E4E7] bg-white text-[#0A0A0A] font-semibold">{s.status}</span></td>
                     <td className="py-3 px-4 text-right">
-                      <Link href={`/content-intelligence?submissionId=${s.id}`} className="px-3 py-1 rounded-lg bg-[#0A0A0A] hover:bg-[#262626] text-white font-mono text-[10px] font-bold inline-flex items-center space-x-1">
+                      <Link href={`/content-intelligence?submissionId=${s.id}`} className="px-3 py-1 rounded-lg bg-[#0A0A0A] hover:bg-[#27272A] text-white text-[11px] font-medium inline-flex items-center space-x-1">
                         <span>Inspect</span><ArrowRight className="w-3 h-3" />
                       </Link>
                     </td>
@@ -347,16 +353,13 @@ export default function Dashboard() {
 /* ------------------------------- KPI pieces ------------------------------- */
 function KpiCard({ icon: Icon, label, value, footer }: { icon: any; label: string; value: number; footer: React.ReactNode }) {
   return (
-    <div className={`${GLASS} p-4 flex flex-col justify-between`}>
-      <div className="flex items-center justify-between text-[#737373]">
-        <Icon className="w-4 h-4 text-[#0A0A0A]" />
-        <span className="text-[10px] font-mono text-[#A3A3A3] uppercase">Live</span>
+    <div className={`${GLASS} p-5 flex flex-col justify-between`}>
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] font-medium text-[#52525B]">{label}</span>
+        <Icon className="w-4 h-4 text-[#A1A1AA]" strokeWidth={1.75} aria-hidden />
       </div>
-      <div className="mt-3">
-        <div className="text-3xl font-bold tracking-tight text-[#0A0A0A]">{value}</div>
-        <div className="text-[11px] font-mono text-[#737373] mt-0.5">{label}</div>
-      </div>
-      <div className="mt-3">{footer}</div>
+      <div className="mt-2 text-3xl font-semibold tracking-tight text-[#0A0A0A] tabular-nums">{value}</div>
+      <div className="mt-4">{footer}</div>
     </div>
   );
 }
@@ -365,8 +368,8 @@ function ThinBar({ part, total, caption }: { part: number; total: number; captio
   const pct = total ? (part / total) * 100 : 0;
   return (
     <div className="h-9 flex flex-col justify-end">
-      <div className="h-2 w-full rounded-full bg-black/10 overflow-hidden"><div className="h-full bg-[#0A0A0A] rounded-full" style={{ width: `${pct}%` }} /></div>
-      <div className="text-[10px] font-mono text-[#737373] mt-1.5">{caption}</div>
+      <div className="h-1.5 w-full rounded-full bg-[#E4E4E7] overflow-hidden"><div className="h-full bg-[#0A0A0A] rounded-full" style={{ width: `${pct}%` }} /></div>
+      <div className="text-[11px] text-[#71717A] mt-2">{caption}</div>
     </div>
   );
 }

@@ -46,12 +46,12 @@ export default function SignUpPage() {
           </div>
           <div>
             <div className="font-bold text-sm tracking-tight text-[#0A0A0A]">BRANDVAULT AI</div>
-            <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
+            <div className="text-[11px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
           </div>
         </Link>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6">
           <div className="mb-5">
             <div className="flex items-center space-x-2 text-[#0A0A0A]">
               <ShieldCheck className="w-4 h-4" />
@@ -65,7 +65,7 @@ export default function SignUpPage() {
 
           <form onSubmit={submit} className="space-y-3">
             <div>
-              <label className="text-[10px] font-mono uppercase text-[#737373] font-semibold block mb-1">Full name</label>
+              <label className="text-[11px] font-mono uppercase text-[#737373] font-semibold block mb-1">Full name</label>
               <div className="relative">
                 <User className="w-4 h-4 text-[#A3A3A3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -80,7 +80,7 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-mono uppercase text-[#737373] font-semibold block mb-1">Email</label>
+              <label className="text-[11px] font-mono uppercase text-[#737373] font-semibold block mb-1">Email</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#A3A3A3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -95,7 +95,7 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-mono uppercase text-[#737373] font-semibold block mb-1">Password</label>
+              <label className="text-[11px] font-mono uppercase text-[#737373] font-semibold block mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-[#A3A3A3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -108,12 +108,12 @@ export default function SignUpPage() {
                 />
               </div>
               {pwShort && (
-                <p className="text-[10px] text-[#A3A3A3] mt-1 font-mono">Minimum 8 characters.</p>
+                <p className="text-[11px] text-[#A3A3A3] mt-1 font-mono">Minimum 8 characters.</p>
               )}
             </div>
 
             <div>
-              <label className="text-[10px] font-mono uppercase text-[#737373] font-semibold block mb-1">Confirm password</label>
+              <label className="text-[11px] font-mono uppercase text-[#737373] font-semibold block mb-1">Confirm password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-[#A3A3A3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -129,7 +129,7 @@ export default function SignUpPage() {
                 )}
               </div>
               {mismatch && (
-                <p className="text-[10px] text-[#A3A3A3] mt-1 font-mono">Passwords don&apos;t match.</p>
+                <p className="text-[11px] text-[#A3A3A3] mt-1 font-mono">Passwords don&apos;t match.</p>
               )}
             </div>
 
@@ -145,14 +145,14 @@ export default function SignUpPage() {
               className="w-full py-2.5 text-xs font-mono font-bold rounded-lg bg-[#0A0A0A] text-white hover:bg-[#262626] disabled:opacity-50 transition-all flex items-center justify-center space-x-2 shadow-sm"
             >
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5" />}
-              <span>{busy ? "CREATING…" : "CREATE ACCOUNT"}</span>
+              <span>{busy ? "Creating…" : "Create account"}</span>
             </button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-4">
             <div className="h-px flex-1 bg-[#F0F0F0]" />
-            <span className="text-[10px] font-mono uppercase text-[#A3A3A3]">or</span>
+            <span className="text-[11px] font-mono uppercase text-[#A3A3A3]">or</span>
             <div className="h-px flex-1 bg-[#F0F0F0]" />
           </div>
 

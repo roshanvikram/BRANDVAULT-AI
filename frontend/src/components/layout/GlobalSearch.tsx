@@ -102,7 +102,7 @@ export function GlobalSearch() {
           : <FileText className="w-3.5 h-3.5" />;
 
   return (
-    <div className="flex-1 max-w-md mx-6 relative" ref={boxRef}>
+    <div className="hidden md:block w-full max-w-md relative" ref={boxRef}>
       <div className="relative">
         <Search className="w-4 h-4 text-[#A3A3A3] absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
@@ -113,12 +113,12 @@ export function GlobalSearch() {
           onFocus={() => { setOpen(true); ensureCorpus(); }}
           onKeyDown={onKeyDown}
           placeholder="Search guidelines, claims, rules, or campaigns… (⌘K)"
-          className="w-full pl-10 pr-4 py-2 text-xs bg-white/55 border border-white/70 hover:border-[#D4D4D4] focus:border-[#0A0A0A] focus:bg-white rounded-xl text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none transition-all"
+          className="w-full h-9 pl-10 pr-4 text-[13px] bg-[#F4F4F5] border border-transparent hover:border-[#E4E4E7] focus:border-[#0A0A0A] focus:bg-white rounded-lg text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none transition-all"
         />
       </div>
 
       {open && q.trim() && (
-        <div className="absolute left-0 right-0 mt-2 rounded-xl border border-white/70 bg-white/90 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
+        <div className="absolute left-0 right-0 mt-2 rounded-xl border border-[#E4E4E7] bg-white shadow-[0_12px_32px_-8px_rgba(10,10,10,0.16)] z-50 overflow-hidden">
           {results.length === 0 ? (
             <div className="px-4 py-6 text-center text-xs text-[#737373] font-mono">
               No matches for “{q.trim()}”.
@@ -137,7 +137,7 @@ export function GlobalSearch() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-bold text-[#0A0A0A] truncate">{r.label}</div>
-                    <div className="text-[10px] font-mono text-[#737373] truncate">{r.group} · {r.sub}</div>
+                    <div className="text-[11px] font-mono text-[#737373] truncate">{r.group} · {r.sub}</div>
                   </div>
                   {i === active && <CornerDownLeft className="w-3.5 h-3.5 text-[#A3A3A3] shrink-0" />}
                 </button>

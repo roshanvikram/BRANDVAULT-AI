@@ -36,12 +36,8 @@ export default function AgentControlCenter() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] pb-5">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-            <Bot className="w-3.5 h-3.5 text-[#0A0A0A]" />
-            <span className="font-semibold">Agent Control Center // Real-Time Multi-Agent Orchestration</span>
-          </div>
-          <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Specialist AI Agent Fleet</h2>
-          <p className="text-xs text-[#737373] mt-0.5">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Specialist AI Agent Fleet</h2>
+          <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
             Monitoring live execution telemetry, latency, token throughput, and decision events across autonomous agents.
           </p>
         </div>
@@ -49,10 +45,10 @@ export default function AgentControlCenter() {
         <button
           onClick={loadData}
           disabled={loading}
-          className="px-3.5 py-2 text-xs font-mono font-semibold rounded-lg bg-[#0A0A0A] text-[#FFFFFF] hover:bg-[#262626] transition-colors flex items-center space-x-2 shadow-sm"
+          className="px-3.5 py-2 text-xs font-medium rounded-lg bg-[#0A0A0A] text-[#FFFFFF] hover:bg-[#27272A] transition-colors flex items-center space-x-2 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>REFRESH TELEMETRY</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -71,7 +67,7 @@ export default function AgentControlCenter() {
                     <span className="w-2 h-2 rounded-full bg-[#0A0A0A] animate-pulse" />
                     <span className="text-xs font-bold text-[#0A0A0A]">{agent.name}</span>
                   </div>
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-bold">
+                  <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-bold">
                     {agent.status}
                   </span>
                 </div>
@@ -94,12 +90,12 @@ export default function AgentControlCenter() {
             <Terminal className="w-4 h-4 text-[#0A0A0A]" />
             <h3 className="text-xs font-bold text-[#0A0A0A]">Live Agent Execution Stream (Database Persisted)</h3>
           </div>
-          <span className="text-[10px] font-mono text-[#737373]">Actual Engine Runs ({runs.length})</span>
+          <span className="text-[11px] font-mono text-[#737373]">Actual Engine Runs ({runs.length})</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[10px]">
+            <thead className="bg-[#FFFFFF] border-b border-[#E5E5E5] text-[#737373] font-mono uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Agent</th>
                 <th className="py-3 px-4">Task Description</th>
@@ -123,14 +119,14 @@ export default function AgentControlCenter() {
                     <td className="py-3 px-4 font-bold text-[#0A0A0A] text-[11px]">{run.agent_name}</td>
                     <td className="py-3 px-4 text-[#404040] text-[11px] max-w-xs truncate">{run.task_name}</td>
                     <td className="py-3 px-4">
-                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-bold">
+                      <span className="text-[11px] px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F5F5F5] text-[#0A0A0A] font-bold">
                         {run.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-[#0A0A0A] font-bold text-[11px]">{run.execution_time_ms} ms</td>
-                    <td className="py-3 px-4 text-[#737373] text-[10px] max-w-xs truncate">"{run.input_preview}"</td>
+                    <td className="py-3 px-4 text-[#737373] text-[11px] max-w-xs truncate">"{run.input_preview}"</td>
                     <td className="py-3 px-4 text-[#404040] text-[11px] max-w-xs truncate">{run.output_preview}</td>
-                    <td className="py-3 px-4 text-[#737373] text-[10px] text-right">
+                    <td className="py-3 px-4 text-[#737373] text-[11px] text-right">
                       {new Date(run.created_at).toLocaleTimeString()}
                     </td>
                   </tr>

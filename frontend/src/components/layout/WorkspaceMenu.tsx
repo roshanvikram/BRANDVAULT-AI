@@ -32,15 +32,15 @@ export function WorkspaceMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/55 border border-white/70 text-xs font-mono font-semibold text-[#0A0A0A] hover:bg-white/80 transition-colors"
+        className="hidden 2xl:flex items-center gap-1.5 h-8 px-2.5 rounded-md text-[13px] font-medium text-[#3F3F46] hover:bg-[#F4F4F5] transition-colors"
       >
-        <span className="uppercase">{label}</span>
+        <span>{label}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-white/70 bg-white/85 backdrop-blur-xl shadow-[0_16px_40px_-12px_rgba(10,10,10,0.25)] z-50 overflow-hidden">
-          <div className="px-4 py-2.5 border-b border-[#F0F0F0] text-[10px] font-mono uppercase font-bold text-[#A3A3A3]">
+        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[#E4E4E7] bg-white shadow-[0_12px_32px_-8px_rgba(10,10,10,0.16)] z-50 overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-[#F0F0F0] text-[11px] font-mono uppercase font-bold text-[#A3A3A3]">
             Your Workspaces
           </div>
           <div className="max-h-72 overflow-y-auto py-1">
@@ -64,7 +64,7 @@ export function WorkspaceMenu() {
                       </div>
                       <div>
                         <div className="text-xs font-bold text-[#0A0A0A]">{o.name}</div>
-                        <div className="text-[10px] font-mono text-[#737373] mt-0.5">
+                        <div className="text-[11px] font-mono text-[#737373] mt-0.5">
                           {o.guidelines_count} docs · {o.rules_count} rules · {o.facts_count} facts
                         </div>
                       </div>
@@ -76,7 +76,7 @@ export function WorkspaceMenu() {
             )}
           </div>
           {active && (
-            <div className="px-4 py-2 border-t border-[#F0F0F0] text-[10px] font-mono text-[#737373]">
+            <div className="px-4 py-2 border-t border-[#F0F0F0] text-[11px] font-mono text-[#737373]">
               Signed in as <span className="text-[#0A0A0A] font-semibold">{user?.role}</span>
             </div>
           )}

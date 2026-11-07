@@ -20,11 +20,7 @@ export default function OnboardingPage() {
     <div className="max-w-3xl mx-auto space-y-6 select-none">
       {/* Header */}
       <div className="border-b border-[#E5E5E5] pb-5">
-        <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-          <Rocket className="w-3.5 h-3.5 text-[#0A0A0A]" />
-          <span className="font-semibold">Guided setup // Get your workspace ready</span>
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">Welcome, {firstName} 👋</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">Welcome, {firstName}</h2>
         <p className="text-xs text-[#737373] mt-1">
           A few steps take a brand from zero to certified governance. Each item below reflects your
           <span className="font-semibold text-[#0A0A0A]"> real saved configuration</span> — not a checklist you tick manually.
@@ -45,7 +41,7 @@ export default function OnboardingPage() {
       {status && (
         <>
           {/* Progress */}
-          <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-5">
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-bold text-[#0A0A0A]">Setup progress</div>
               <div className="text-xs font-mono text-[#737373]">{status.completed} of {status.total} complete</div>
@@ -82,7 +78,7 @@ export default function OnboardingPage() {
                     <div className="text-sm font-bold text-[#0A0A0A] flex items-center gap-2">
                       {s.label}
                       {s.count !== null && s.count !== undefined && (
-                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] text-[#404040]">
+                        <span className="text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] text-[#404040]">
                           {s.total !== undefined ? `${s.count}/${s.total}` : s.count}
                         </span>
                       )}
@@ -102,7 +98,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* CTA */}
-          <div className="bg-[#0A0A0A] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-[#0A0A0A] rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-sm font-bold text-white">
                 {status.completion === 100 ? "You're all set." : "Jump in any time."}

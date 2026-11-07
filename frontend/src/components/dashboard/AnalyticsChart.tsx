@@ -63,13 +63,13 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
   const area = `${line} L ${pts[pts.length - 1].x.toFixed(1)},110 L ${pts[0].x.toFixed(1)},110 Z`;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-sm space-y-4">
+    <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-xs font-mono font-bold uppercase text-[#737373]">Activity Trends</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
               Last 6 months
             </span>
           </div>
@@ -93,7 +93,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
         </div>
       </div>
 
-      {/* Metric callout (real totals) */}
+      {/* Metric caellout (real totals) */}
       <div className="flex items-baseline space-x-3">
         <span className="text-3xl font-bold tracking-tight text-[#0A0A0A]">
           {total} {tab === "volume" ? (total === 1 ? "Audit" : "Audits") : "Critical"}
@@ -138,7 +138,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
 
         {hover !== null && (
           <div
-            className="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-full bg-[#0A0A0A] text-white text-[11px] font-mono px-2.5 py-1.5 rounded-lg shadow-lg border border-[#404040]"
+            className="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-full bg-[#0A0A0A] text-white text-[11px] px-2.5 py-1.5 rounded-lg shadow-lg border border-[#404040]"
             style={{ left: `${(pts[hover].x / 500) * 100}%`, top: `${(pts[hover].y / 130) * 100}%` }}
           >
             <div className="font-bold">
@@ -147,7 +147,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
           </div>
         )}
 
-        <div className="flex justify-between items-center text-[10px] font-mono text-[#737373] pt-1 px-1">
+        <div className="flex justify-between items-center text-[11px] font-mono text-[#737373] pt-1 px-1">
           {buckets.map((b) => (
             <span key={b.key}>{b.label}</span>
           ))}

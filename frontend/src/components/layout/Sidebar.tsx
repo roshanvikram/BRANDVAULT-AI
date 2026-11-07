@@ -1,192 +1,233 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ShieldCheck,
+  LayoutDashboard,
   Dna,
   FileSearch,
-  CheckCircle2,
+  BadgeCheck,
   Image as ImageIcon,
   Bot,
-  UserCheck,
+  ClipboardCheck,
   Award,
   Radar,
   Network,
   MessageSquare,
   Brain,
   Wand2,
-  Sliders,
+  Settings,
   Rocket,
-  HelpCircle,
-  ChevronDown,
-  MoreHorizontal,
-  ChevronLeft,
-  ChevronRight
+  PanelLeftClose,
+  PanelLeftOpen,
+  X,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth, initials } from "@/lib/auth";
 import { useOrganization } from "@/lib/useOrganization";
+import { useShell } from "./AppShell";
 
-const mainNavigation = [
-  { name: "Command Center", href: "/dashboard", icon: ShieldCheck },
-  { name: "Brand DNA Studio", href: "/brand-dna", icon: Dna },
-  { name: "Knowledge Graph", href: "/knowledge-graph", icon: Network },
-  { name: "Brand Assistant", href: "/assistant", icon: MessageSquare },
-  { name: "Brand Memory", href: "/brand-memory", icon: Brain },
-  { name: "Content Intelligence", href: "/content-intelligence", icon: FileSearch },
-  { name: "AI Copy Studio", href: "/copy-studio", icon: Wand2 },
-  { name: "ClaimDNA", href: "/claim-dna", icon: CheckCircle2 },
-  { name: "Visual DNA", href: "/visual-dna", icon: ImageIcon },
-  { name: "Agent Control Center", href: "/agent-control", icon: Bot },
-  { name: "Approval Hub", href: "/approval-hub", icon: UserCheck },
-  { name: "Brand Passport", href: "/brand-passport", icon: Award },
-  { name: "Risk Radar", href: "/risk-radar", icon: Radar },
+interface NavItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+// Grouped by the job a person is doing, so a 14-item menu stays scannable.
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Overview",
+    items: [
+      { name: "Command Center", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Setup Guide", href: "/onboarding", icon: Rocket },
+    ],
+  },
+  {
+    label: "Brand",
+    items: [
+      { name: "Brand DNA Studio", href: "/brand-dna", icon: Dna },
+      { name: "Brand Memory", href: "/brand-memory", icon: Brain },
+      { name: "Knowledge Graph", href: "/knowledge-graph", icon: Network },
+    ],
+  },
+  {
+    label: "Analyse",
+    items: [
+      { name: "Content Intelligence", href: "/content-intelligence", icon: FileSearch },
+      { name: "ClaimDNA", href: "/claim-dna", icon: BadgeCheck },
+      { name: "Visual DNA", href: "/visual-dna", icon: ImageIcon },
+    ],
+  },
+  {
+    label: "Create",
+    items: [
+      { name: "AI Copy Studio", href: "/copy-studio", icon: Wand2 },
+      { name: "Brand Assistant", href: "/assistant", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "Govern",
+    items: [
+      { name: "Approval Hub", href: "/approval-hub", icon: ClipboardCheck },
+      { name: "Brand Passport", href: "/brand-passport", icon: Award },
+      { name: "Risk Radar", href: "/risk-radar", icon: Radar },
+      { name: "Agent Control", href: "/agent-control", icon: Bot },
+    ],
+  },
 ];
 
-const secondaryNavigation = [
-  { name: "Setup Guide", href: "/onboarding", icon: Rocket },
-  { name: "Settings", href: "/settings", icon: Sliders },
-];
+const COLLAPSE_KEY = "bv_sidebar_collapsed";
+
+function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; collapsed: boolean }) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      title={collapsed ? item.name : undefined}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex items-center h-9 rounded-lg text-[13px] transition-colors duration-150",
+        collapsed ? "justify-center px-0" : "px-2.5",
+        active
+          ? "bg-[#F4F4F5] text-[#0A0A0A] font-medium"
+          : "text-[#52525B] hover:text-[#0A0A0A] hover:bg-[#F4F4F5]/70"
+      )}
+    >
+      {active && !collapsed && (
+        <span aria-hidden className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-[#0A0A0A]" />
+      )}
+      <Icon
+        aria-hidden
+        className={cn("w-4 h-4 shrink-0", active ? "text-[#0A0A0A]" : "text-[#71717A]")}
+        strokeWidth={1.75}
+      />
+      {!collapsed && <span className="ml-2.5 truncate">{item.name}</span>}
+    </Link>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-  const { user } = useAuth();
   const org = useOrganization();
+  const { mobileNavOpen, setMobileNavOpen } = useShell();
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(COLLAPSE_KEY) === "1");
+    } catch {
+      /* storage unavailable: default expanded */
+    }
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((c) => {
+      try {
+        localStorage.setItem(COLLAPSE_KEY, c ? "0" : "1");
+      } catch {
+        /* ignore */
+      }
+      return !c;
+    });
+  };
+
+  // On mobile the drawer is always shown expanded.
+  const isCollapsed = collapsed && !mobileNavOpen;
 
   return (
-    <aside
-      className={cn(
-        "border-r border-white/60 bg-white/60 backdrop-blur-xl flex flex-col h-screen sticky top-0 select-none shadow-[1px_0_20px_-8px_rgba(10,10,10,0.1)] transition-all duration-200 z-50",
-        collapsed ? "w-20" : "w-[240px]"
-      )}
-    >
-      {/* 1. Brand Wordmark & Logo */}
-      <div className="p-5 border-b border-white/50 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center space-x-3 group">
-          <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
-            BV
-          </div>
-          {!collapsed && (
-            <div>
-              <div className="font-bold text-sm tracking-tight text-[#0A0A0A]">BRANDVAULT</div>
-              <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">AI GOVERNANCE</div>
+    <>
+      {/* Mobile backdrop */}
+      <div
+        aria-hidden
+        onClick={() => setMobileNavOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-[#0A0A0A]/30 lg:hidden transition-opacity",
+          mobileNavOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      />
+      <aside
+        aria-label="Main navigation"
+        className={cn(
+          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-white border-r border-[#E4E4E7] select-none",
+          "transition-[transform,width] duration-200 ease-out",
+          isCollapsed ? "lg:w-[64px]" : "lg:w-[248px]",
+          "w-[272px]",
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+        {/* Brand + organisation */}
+        <div className={cn("h-14 flex items-center border-b border-[#E4E4E7] shrink-0", isCollapsed ? "justify-center" : "px-4 justify-between")}>
+          <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-md bg-[#0A0A0A] text-white flex items-center justify-center text-[11px] font-semibold shrink-0">
+              BV
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <div className="text-[13px] font-semibold text-[#0A0A0A] leading-tight truncate">BrandVault AI</div>
+                <div className="text-[11px] text-[#71717A] leading-tight truncate">{org?.name || "Loading workspace…"}</div>
+              </div>
+            )}
+          </Link>
+          <button
+            onClick={() => setMobileNavOpen(false)}
+            className="lg:hidden p-2 -mr-2 rounded-md text-[#71717A] hover:text-[#0A0A0A] hover:bg-[#F4F4F5]"
+            aria-label="Close navigation"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className={cn("flex-1 overflow-y-auto py-3", isCollapsed ? "px-2" : "px-3")}>
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={group.label} className={cn(gi > 0 && "mt-4")}>
+              {isCollapsed ? (
+                gi > 0 && <div className="mx-2 mb-3 border-t border-[#E4E4E7]" />
+              ) : (
+                <div className="px-2.5 pb-1.5 text-[11px] font-medium text-[#A1A1AA]">{group.label}</div>
+              )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavLink key={item.href} item={item} active={pathname === item.href} collapsed={isCollapsed} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className={cn("border-t border-[#E4E4E7] py-3 space-y-0.5 shrink-0", isCollapsed ? "px-2" : "px-3")}>
+          <NavLink
+            item={{ name: "Settings", href: "/settings", icon: Settings }}
+            active={pathname === "/settings"}
+            collapsed={isCollapsed}
+          />
+          <button
+            onClick={toggleCollapsed}
+            className={cn(
+              "hidden lg:flex items-center h-9 w-full rounded-lg text-[13px] text-[#52525B] hover:text-[#0A0A0A] hover:bg-[#F4F4F5]/70 transition-colors",
+              isCollapsed ? "justify-center" : "px-2.5"
+            )}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen className="w-4 h-4 text-[#71717A]" strokeWidth={1.75} />
+            ) : (
+              <>
+                <PanelLeftClose className="w-4 h-4 text-[#71717A]" strokeWidth={1.75} />
+                <span className="ml-2.5">Collapse</span>
+              </>
+            )}
+          </button>
+          {!isCollapsed && org && (
+            <div className="px-2.5 pt-2 text-[11px] text-[#71717A] tabular-nums">
+              {org.rules_count} rules · {org.facts_count} approved facts
             </div>
           )}
-        </Link>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-[#A3A3A3] hover:text-[#0A0A0A] p-1 rounded-md transition-colors"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
-      </div>
-
-      {/* 2. User Profile Snippet (Matching reference image) */}
-      {!collapsed && (
-        <div className="px-4 py-3 border-b border-white/50 bg-white/40">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-mono font-bold shadow-sm uppercase">
-                {initials(user?.full_name)}
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold text-[#0A0A0A] leading-tight">{user?.full_name || "Guest"}</div>
-                <div className="text-[10px] text-[#737373] font-mono">{user?.role || "—"}</div>
-              </div>
-            </div>
-            <MoreHorizontal className="w-4 h-4 text-[#A3A3A3]" />
-          </div>
         </div>
-      )}
-
-      {/* 3. Main Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-        {!collapsed && (
-          <div className="px-3 pb-1 text-[10px] font-mono tracking-wider uppercase text-[#A3A3A3] font-bold">
-            Platform Menu
-          </div>
-        )}
-        {mainNavigation.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={collapsed ? item.name : undefined}
-              className={cn(
-                "flex items-center px-3.5 py-2.5 text-xs rounded-xl transition-all duration-150 group",
-                isActive
-                  ? "bg-[#0A0A0A] text-white font-semibold shadow-sm"
-                  : "text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5]"
-              )}
-            >
-              <Icon
-                className={cn(
-                  "w-4 h-4 transition-colors shrink-0",
-                  isActive ? "text-white" : "text-[#737373] group-hover:text-[#0A0A0A]"
-                )}
-              />
-              {!collapsed && (
-                <span className="ml-3 truncate">{item.name}</span>
-              )}
-            </Link>
-          );
-        })}
-
-        {!collapsed && (
-          <div className="pt-4 px-3 pb-1 text-[10px] font-mono tracking-wider uppercase text-[#A3A3A3] font-bold">
-            Preferences
-          </div>
-        )}
-        {secondaryNavigation.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={collapsed ? item.name : undefined}
-              className={cn(
-                "flex items-center px-3.5 py-2.5 text-xs rounded-xl transition-all duration-150 group",
-                isActive
-                  ? "bg-[#0A0A0A] text-white font-semibold shadow-sm"
-                  : "text-[#404040] hover:text-[#0A0A0A] hover:bg-[#F5F5F5]"
-              )}
-            >
-              <Icon
-                className={cn(
-                  "w-4 h-4 transition-colors shrink-0",
-                  isActive ? "text-white" : "text-[#737373] group-hover:text-[#0A0A0A]"
-                )}
-              />
-              {!collapsed && (
-                <span className="ml-3 truncate">{item.name}</span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* 4. Organization Switcher & Footer */}
-      {!collapsed && (
-        <div className="p-4 border-t border-white/50">
-          <div className="p-3 rounded-xl bg-white/50 border border-white/60 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-mono text-[#737373] uppercase font-bold">ORGANIZATION</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]" />
-            </div>
-            <div className="text-xs font-bold text-[#0A0A0A]">{org?.name || "—"}</div>
-            <div className="text-[10px] text-[#737373] font-mono">
-              {org ? `${org.rules_count} rules · ${org.facts_count} approved facts` : "Loading…"}
-            </div>
-          </div>
-        </div>
-      )}
-    </aside>
+      </aside>
+    </>
   );
 }

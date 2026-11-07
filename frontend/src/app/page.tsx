@@ -33,13 +33,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0A0A0A] select-none">
       {/* Top bar */}
-      <header className="h-16 border-b border-[#E5E5E5] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="h-16 border-b border-[#E5E5E5] bg-white backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-sm">BV</div>
             <div>
               <div className="font-bold text-sm tracking-tight">BRANDVAULT AI</div>
-              <div className="text-[9px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
+              <div className="text-[11px] text-[#737373] tracking-widest font-mono uppercase">AI Governance</div>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -48,7 +48,7 @@ export default function Home() {
           </Link>
           {!loading && (
             user ? (
-              <Link href="/dashboard" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+              <Link href="/dashboard" className="px-4 py-2 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm">
                 <span>Open dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -58,7 +58,7 @@ export default function Home() {
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign in</span>
                 </Link>
-                <Link href="/signup" className="px-4 py-2 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+                <Link href="/signup" className="px-4 py-2 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm">
                   <span>Create account</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -71,7 +71,7 @@ export default function Home() {
 
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-[#E5E5E5] bg-white text-[10px] font-mono uppercase tracking-wider text-[#737373] mb-6">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-[#E5E5E5] bg-white text-[11px] font-mono uppercase tracking-wider text-[#737373] mb-6">
           <ShieldCheck className="w-3.5 h-3.5 text-[#0A0A0A]" />
           <span>Agentic Brand Governance &amp; Evidence Retrieval</span>
         </div>
@@ -84,7 +84,7 @@ export default function Home() {
           evidence, then routing every decision through authorised human review.
         </p>
         <div className="flex items-center justify-center gap-3 mt-8">
-          <Link href={user ? "/dashboard" : "/signup"} className="px-5 py-3 text-xs font-mono font-bold rounded-xl bg-[#0A0A0A] text-white hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm">
+          <Link href={user ? "/dashboard" : "/signup"} className="px-5 py-3 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-all flex items-center space-x-2 shadow-sm">
             <span>{user ? "Open dashboard" : "Get started"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -96,8 +96,8 @@ export default function Home() {
 
       {/* Workflow strip */}
       <section className="max-w-5xl mx-auto px-6 pb-16">
-        <Link href="/guide" className="block bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all group">
-          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[10px] sm:text-xs font-mono text-[#404040]">
+        <Link href="/guide" className="block bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all group">
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-[11px] sm:text-xs font-mono text-[#404040]">
             {["Brand DNA", "Submit content", "AI analysis", "RAG evidence", "ClaimDNA", "Human approval", "Brand Passport"].map((step, i, arr) => (
               <span key={step} className="flex items-center">
                 <span className="px-2.5 py-1 rounded-lg bg-[#F5F5F5] border border-[#E5E5E5] font-semibold text-[#0A0A0A]">{step}</span>
@@ -121,7 +121,7 @@ export default function Home() {
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="bg-white rounded-2xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all">
+              <div key={f.title} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-5 hover:border-[#A3A3A3] transition-all">
                 <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center mb-3">
                   <Icon className="w-4 h-4 text-[#0A0A0A]" />
                 </div>
@@ -135,7 +135,7 @@ export default function Home() {
 
       {/* CTA */}
       <section className="max-w-6xl mx-auto px-6 pb-20">
-        <div className="bg-[#0A0A0A] rounded-2xl p-8 sm:p-10 text-center">
+        <div className="bg-[#0A0A0A] rounded-xl p-8 sm:p-10 text-center">
           <h2 className="text-2xl font-bold tracking-tight text-white">Ready to govern your brand?</h2>
           <p className="text-xs text-[#A3A3A3] mt-2 max-w-md mx-auto">
             Sign in with a demo account to run the full workflow — analyse, correct, approve, and issue a Brand Passport.
@@ -149,7 +149,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-[#E5E5E5] bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] font-mono text-[#737373]">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-[#737373]">
           <span>BRANDVAULT AI — Protect Every Word. Preserve Every Identity.</span>
           <span>Team BRANDVAULT AI · CodeNexus India 2026</span>
         </div>

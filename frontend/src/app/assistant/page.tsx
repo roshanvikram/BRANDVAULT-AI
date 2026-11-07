@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Sparkles, Send, ShieldCheck, Info, ArrowUpRight, Loader2, MessageSquare } from "lucide-react";
 import { askBrandTwin, TwinAnswer } from "@/lib/api";
 
-const GLASS = "bg-white/70 backdrop-blur-xl border border-white/70 shadow-[0_10px_34px_-14px_rgba(10,10,10,0.22)] rounded-2xl";
+const GLASS = "bg-white border border-[#E4E4E7] shadow-[0_1px_2px_rgba(10,10,10,0.04)] rounded-xl";
 
 const SUGGESTIONS = [
   "What is the approved launch price?",
@@ -47,12 +47,8 @@ export default function AssistantPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-5 select-none">
       {/* Header */}
-      <div className="border-b border-white/50 pb-5">
-        <div className="flex items-center space-x-2 text-xs font-mono text-[#737373] uppercase mb-1">
-          <Sparkles className="w-3.5 h-3.5 text-[#0A0A0A]" />
-          <span className="font-semibold">Brand Assistant // Digital Twin Q&amp;A</span>
-        </div>
-        <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Ask about your brand</h2>
+      <div className="border-b border-[#E4E4E7] pb-5">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Ask about your brand</h2>
         <p className="text-xs text-[#737373] mt-0.5 flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-[#0A0A0A]" />
           Answers come <span className="font-semibold text-[#0A0A0A]">only from your approved brand data</span>, with citations — never invented.
@@ -74,34 +70,34 @@ export default function AssistantPage() {
         {log.map((t, i) =>
           t.role === "user" ? (
             <div key={i} className="flex justify-end">
-              <div className="bg-[#0A0A0A] text-white text-xs font-medium rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[80%]">{t.text}</div>
+              <div className="bg-[#0A0A0A] text-white text-xs font-medium rounded-lg rounded-br-sm px-4 py-2.5 max-w-[80%]">{t.text}</div>
             </div>
           ) : (
             <div key={i} className={`${GLASS} p-4`}>
               <div className="flex items-center space-x-2 mb-2">
                 <div className="w-6 h-6 rounded-lg bg-[#0A0A0A] text-white flex items-center justify-center shrink-0"><Sparkles className="w-3.5 h-3.5" /></div>
                 <span className="text-[11px] font-mono font-bold text-[#0A0A0A]">BrandVault</span>
-                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${t.grounded ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
+                <span className={`text-[11px] font-mono px-1.5 py-0.5 rounded-full ${t.grounded ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
                   {t.grounded ? "grounded" : "not in approved data"}
                 </span>
                 {t.phrased_by?.startsWith("llm:") && t.model && (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]">AI · {t.model}</span>
+                  <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-full bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]">AI · {t.model}</span>
                 )}
               </div>
               <p className="text-xs text-[#0A0A0A] leading-relaxed whitespace-pre-line">{t.answer}</p>
 
               {t.evidence.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-white/50">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold mb-2">Sources ({t.evidence.length})</div>
+                <div className="mt-3 pt-3 border-t border-[#E4E4E7]">
+                  <div className="text-[11px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold mb-2">Sources ({t.evidence.length})</div>
                   <div className="space-y-1.5">
                     {t.evidence.map((e, j) => (
-                      <Link key={j} href={e.href} className="block px-3 py-2 rounded-lg bg-white/60 border border-white/70 hover:bg-white/90 transition-colors group">
+                      <Link key={j} href={e.href} className="block px-3 py-2 rounded-lg bg-white border border-[#E4E4E7] hover:bg-white transition-colors group">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold text-[#0A0A0A] truncate pr-2">{e.label}{e.page ? ` · p.${e.page}` : ""}</span>
                           <ArrowUpRight className="w-3 h-3 text-[#A3A3A3] group-hover:text-[#0A0A0A] shrink-0" />
                         </div>
-                        {e.detail && <div className="text-[10px] text-[#737373] truncate mt-0.5">{e.detail}</div>}
-                        {e.source && <div className="text-[9px] font-mono text-[#A3A3A3] truncate mt-0.5">{e.source}</div>}
+                        {e.detail && <div className="text-[11px] text-[#737373] truncate mt-0.5">{e.detail}</div>}
+                        {e.source && <div className="text-[11px] font-mono text-[#A3A3A3] truncate mt-0.5">{e.source}</div>}
                       </Link>
                     ))}
                   </div>
@@ -138,12 +134,12 @@ export default function AssistantPage() {
           className="flex-1 bg-transparent px-3 py-2 text-xs text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none"
         />
         <button type="submit" disabled={busy || !input.trim()}
-                className="px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-mono font-bold hover:bg-[#262626] disabled:opacity-40 transition-all flex items-center space-x-1.5">
+                className="px-4 py-2 rounded-lg bg-[#0A0A0A] text-white text-xs font-medium hover:bg-[#27272A] disabled:opacity-40 transition-all flex items-center space-x-1.5">
           <Send className="w-3.5 h-3.5" /><span>Ask</span>
         </button>
       </form>
 
-      <p className="text-[10px] font-mono text-[#A3A3A3] text-center flex items-center justify-center gap-1.5">
+      <p className="text-[11px] font-mono text-[#A3A3A3] text-center flex items-center justify-center gap-1.5">
         <Info className="w-3 h-3" /> Deterministic, grounded answers from approved records. It does not take actions or browse the web.
       </p>
     </div>
