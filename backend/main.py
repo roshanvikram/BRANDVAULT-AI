@@ -28,6 +28,14 @@ async def lifespan(app: FastAPI):
         retriever = RagRetriever(db)
         for org in db.query(Organization).all():
             retriever.index_org(org.id)
+        # Demo campaigns for an empty workspace (fresh deploys). Never touches existing data.
+        if settings.SEED_DEMO_CONTENT:
+            from backend.app.services.demo_content import seed_demo_campaigns
+            try:
+                seed_demo_campaigns(db)
+            except Exception as exc:  # demo data must never block startup
+                db.rollback()
+                print(f"[startup] demo campaign seed skipped: {exc}")
         # Durable jobs: re-run (or fail) anything a previous process left unfinished.
         from backend.app.services.jobs import resume_unfinished
         resume_unfinished(db)

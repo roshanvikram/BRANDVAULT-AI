@@ -65,6 +65,8 @@ class Settings(BaseSettings):
     RATE_LIMIT_AI_PER_MIN: int = int(os.getenv("RATE_LIMIT_AI_PER_MIN", "30"))
     # Brand Fraud Intelligence: fetch reported URLs from the server (off by default: SSRF risk).
     FRAUD_URL_FETCH_ENABLED: bool = os.getenv("FRAUD_URL_FETCH_ENABLED", "false").lower() == "true"
+    # Demo campaigns for an empty NOVA TECH workspace (fresh deploys). Set to false for real use.
+    SEED_DEMO_CONTENT: bool = os.getenv("SEED_DEMO_CONTENT", "true").lower() != "false"
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

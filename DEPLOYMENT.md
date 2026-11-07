@@ -54,6 +54,7 @@ The UI signs in automatically as the demo Creator (submit for review) and Review
 | `RATE_LIMIT_AUTH_PER_MIN` | `20` | Login / register requests per minute per IP |
 | `RATE_LIMIT_AI_PER_MIN` | `30` | Analysis / Copy Studio / Assistant requests per minute per IP |
 | `ENVIRONMENT` | `development` | `production` in prod |
+| `SEED_DEMO_CONTENT` | `true` | Seeds 7 example NOVA TECH campaigns (real analyzer output, demo decisions labelled) only when the workspace has no campaigns, so a fresh deploy is not empty. Set `false` for real use |
 | `BACKEND_CORS_ORIGINS` | localhost dev origins | Comma-separated frontend origin(s) in prod, e.g. `https://brandvault.vercel.app` |
 | `ANTHROPIC_API_KEY` | empty | Optional — enables the LLM layer; unset = heuristic-only |
 | `FRONTEND_URL` | `http://localhost:3000` | Public SPA origin; Google OAuth redirects back here after sign-in |
