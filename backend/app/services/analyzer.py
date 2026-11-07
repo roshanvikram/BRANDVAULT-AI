@@ -104,7 +104,13 @@ class ContentAnalyzerService:
     # ------------------------------------------------------------------ #
     #  Main analysis pipeline
     # ------------------------------------------------------------------ #
-    def analyze_submission(self, org_id: str, title: str, content: str, submission_id: str = None, author_name: str = "Creator") -> Submission:
+    def analyze_submission(self, org_id: str, title: str, content: str, submission_id: str = None,
+                           author_name: str = "Creator", dry_run: bool = False):
+        """Analyse content. With dry_run=True nothing is saved: the same checks run,
+        a plain-dict snapshot is returned and the transaction is rolled back
+        (used by Campaign Stress Testing)."""
+        if dry_run and submission_id:
+            raise ValueError("dry_run analyses new text only; it never touches an existing submission.")
         org = self.db.query(Organization).filter(Organization.id == org_id).first()
         if not org:
             raise ValueError(f"Organization with id {org_id} not found.")
@@ -358,6 +364,18 @@ class ContentAnalyzerService:
             id=str(uuid.uuid4()), org_id=org_id, action="CONTENT_ANALYZED", actor=author_name,
             details=f"Analyzed content '{title}' (Length: {len(content)} chars). Score: {final_score}/100 with {len(findings_list)} findings.",
         )
+        if dry_run:
+            snapshot = {
+                "score": final_score,
+                "findings": [{"category": f.issue_category, "severity": f.severity, "text": f.original_text,
+                              "explanation": f.explanation, "rule": f.rule_reference, "evidence": f.evidence_source,
+                              "suggestion": f.suggested_correction, "engine": f.analysis_engine or "heuristic"}
+                             for f in findings_list],
+                "claims": [{"text": c.claim_text, "status": c.status, "category": c.category,
+                            "explanation": c.explanation, "source": c.source_reference} for c in claims_list],
+            }
+            self.db.rollback()  # discard the temporary submission, findings and agent-run rows
+            return snapshot
         self.db.add(audit)
         self.db.commit()
         self.db.refresh(submission)

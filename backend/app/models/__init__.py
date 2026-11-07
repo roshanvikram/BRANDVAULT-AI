@@ -25,6 +25,7 @@ from backend.app.models.product import Product, ProductFact
 from backend.app.models.integrity import CampaignIntegrityCheck
 from backend.app.models.asset import BrandAsset, AssetInvestigation
 from backend.app.models.governance import LaunchCheckConfig, LaunchReadinessReport
+from backend.app.models.intelligence import SimulationRun, SimilarityDismissal, OfficialDomain, FraudIncident, FeedbackRecord
 
 __all__ = [
     "User",
@@ -38,6 +39,11 @@ __all__ = [
     "AssetInvestigation",
     "LaunchCheckConfig",
     "LaunchReadinessReport",
+    "SimulationRun",
+    "SimilarityDismissal",
+    "OfficialDomain",
+    "FraudIncident",
+    "FeedbackRecord",
     "Organization",
     "BrandGuideline",
     "DocumentChunk",

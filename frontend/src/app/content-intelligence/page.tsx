@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -128,6 +129,9 @@ function ContentIntelligenceContent() {
             <span className="text-[11px] text-slate-500">Autonomous Evidence Verification</span>
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Marketing Copy Review Studio</h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link href="/content-intelligence/similarity" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Similarity detector →</Link>
+          </div>
           <p className="text-[13px] text-slate-600 mt-0.5">Check copy against your Brand DNA, review evidence for each finding and apply one-click corrections.</p>
         </div>
 

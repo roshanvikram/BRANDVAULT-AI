@@ -63,6 +63,8 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() != "false"
     RATE_LIMIT_AUTH_PER_MIN: int = int(os.getenv("RATE_LIMIT_AUTH_PER_MIN", "20"))
     RATE_LIMIT_AI_PER_MIN: int = int(os.getenv("RATE_LIMIT_AI_PER_MIN", "30"))
+    # Brand Fraud Intelligence: fetch reported URLs from the server (off by default: SSRF risk).
+    FRAUD_URL_FETCH_ENABLED: bool = os.getenv("FRAUD_URL_FETCH_ENABLED", "false").lower() == "true"
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

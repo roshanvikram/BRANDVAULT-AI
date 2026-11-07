@@ -1007,3 +1007,104 @@ export interface ReviewerIntel {
 export const fetchReviewerIntel = () => getJSON<ReviewerIntel>("/governance/reviewer-intelligence", "Failed to load reviewer intelligence");
 export const proposeGuidelineRule = (p: { title: string; rule_text: string }) =>
   postJSON<{ id: string; title: string; is_confirmed: boolean }>("/governance/reviewer-intelligence/propose", p, "Could not create draft rule");
+
+// ------------------------------------------------------------------ //
+//  Phase 3 — Campaign Stress Testing
+// ------------------------------------------------------------------ //
+export interface SimFinding { category: string; severity: string; text: string; explanation: string; rule: string; suggestion: string; engine: string; }
+export interface SimTruth { status: string; attribute_label: string; submitted_value: string; approved_value: string | null; source_document: string | null; }
+export interface Simulation {
+  id: string; hypothetical: true; scenario: string; scenario_label: string; params: Record<string, string>; changes: string[];
+  original: { text: string; score: number; findings: SimFinding[]; product_truth: SimTruth[] };
+  simulated: { text: string; score: number; findings: SimFinding[]; product_truth: SimTruth[] };
+  score_delta: number; score_comparable: boolean; introduced: SimFinding[]; resolved: SimFinding[]; not_rechecked: SimFinding[]; unchanged: number;
+  product_truth_changes: SimTruth[]; translation: { verdict: string; score: number; language: string; findings: { severity: string; title: string }[] } | null;
+  recommendations: string[]; note: string; engine: string;
+}
+export const fetchScenarios = () => getJSON<{ scenarios: { key: string; label: string }[] }>("/simulation/scenarios", "Failed to load scenarios");
+export const runSimulation = (submission_id: string, scenario: string, params: Record<string, string>) =>
+  postJSON<Simulation>("/simulation/run", { submission_id, scenario, params }, "Simulation failed");
+
+// ------------------------------------------------------------------ //
+//  Phase 3 — Content Similarity
+// ------------------------------------------------------------------ //
+export interface SimilarityMatch {
+  kind: string; id: string; ref: string; pair_key: string; title: string; status: string; date: string | null; author: string | null;
+  submission_id: string | null; label: string; similarity: number;
+  methods: { exact: boolean; shingle_jaccard: number; tfidf_cosine: number; matching_sentences: number };
+  matching_sentences: { submitted: string; existing: string; similarity: number }[]; excerpt: string;
+  dismissed: boolean; dismissed_reason: string | null; recommendation: string;
+}
+export interface SimilarityResult { sha256: string; matches: SimilarityMatch[]; compared: number; note: string; thresholds: Record<string, number>; }
+export const checkSimilarity = (p: { text?: string; submission_id?: string; include_dismissed?: boolean }) =>
+  postJSON<SimilarityResult>("/similarity/check", p, "Similarity check failed");
+export const fetchSimilarityClusters = () =>
+  getJSON<{ clusters: { size: number; exact_duplicates: boolean; first_seen: string | null; representative: string; members: { id: string; title: string; status: string; date: string | null }[] }[] }>("/similarity/clusters", "Failed to load clusters");
+export const dismissSimilarity = (pair_key: string, reason: string) => postJSON<{ dismissed: boolean }>("/similarity/dismiss", { pair_key, reason }, "Could not dismiss");
+export const restoreSimilarity = (pair_key: string) => postJSON<{ restored: boolean }>("/similarity/restore", { pair_key, reason: "restored" }, "Could not restore");
+export interface ImageSimilarity { sha256: string; compared: number; note: string; matches: { kind: string; id: string; title: string; label: string; phash_distance: number; dhash_distance: number; similarity: number; date: string | null }[]; }
+export function checkImageSimilarity(file: File): Promise<ImageSimilarity> {
+  const f = new FormData();
+  f.append("file", file);
+  return postForm<ImageSimilarity>("/similarity/image", f, "Image comparison failed");
+}
+
+// ------------------------------------------------------------------ //
+//  Phase 3 — Brand Fraud Intelligence
+// ------------------------------------------------------------------ //
+export type IncidentStatus = "Under Investigation" | "Confirmed" | "False Positive" | "Resolved" | "Escalated";
+export interface FraudFinding { type: string; severity: "high" | "medium" | "low" | "info"; title: string; evidence: string; confidence: number; }
+export interface FraudIncident {
+  id: string; number: string; source_url: string | null; source_kind: string; detected_issue: string; confidence: number;
+  risk: "high" | "medium" | "low"; status: IncidentStatus; recommended_response: string; has_evidence_file: boolean;
+  created_by: string; created_at: string | null; updated_at: string | null;
+  findings?: FraudFinding[]; text_excerpt?: string | null; history?: { status: string; by: string; note: string; at: string }[]; evidence_sha256?: string | null;
+}
+export const fetchOfficialDomains = () => getJSON<{ id: string; domain: string; added_by: string }[]>("/fraud/domains", "Failed to load domains");
+export const addOfficialDomain = (domain: string) => postJSON<{ id: string; domain: string; added_by: string }[]>("/fraud/domains", { domain }, "Could not add domain");
+export async function removeOfficialDomain(id: string) {
+  const res = await apiFetch(`${API_BASE}/fraud/domains/${id}`, { method: "DELETE" });
+  if (!res.ok) return engineError(res, "Could not remove domain");
+  return res.json();
+}
+export function investigateFraud(input: { url?: string; text?: string; file?: File }): Promise<FraudIncident> {
+  const f = new FormData();
+  if (input.url) f.append("url", input.url);
+  if (input.text) f.append("text", input.text);
+  if (input.file) f.append("file", input.file);
+  return postForm<FraudIncident>("/fraud/investigate", f, "Investigation failed");
+}
+export const fetchIncidents = () => getJSON<FraudIncident[]>("/fraud/incidents", "Failed to load incidents");
+export const fetchIncident = (id: string) => getJSON<FraudIncident>(`/fraud/incidents/${id}`, "Failed to load incident");
+export const setIncidentStatus = (id: string, status: IncidentStatus, note: string) =>
+  postJSON<FraudIncident>(`/fraud/incidents/${id}/status`, { status, note }, "Could not update status");
+
+// ------------------------------------------------------------------ //
+//  Phase 3 — Reputation Early Warning
+// ------------------------------------------------------------------ //
+export interface ReputationOverview {
+  window_days: number; records: number;
+  sentiment: { positive: number; neutral: number; negative: number; negative_share: number | null };
+  engines: Record<string, number>;
+  categories: { category: string; mentions: number; negative: number; negative_share: number; samples: string[] }[];
+  recurring_phrases: { phrase: string; count: number }[];
+  products: { product: string; total: number; negative: number; positive: number; negative_share: number }[];
+  campaign_related: { submission_id: string; title: string; negative_mentions: number; disputed: string[]; samples: string[] }[];
+  trend: { week: string; total: number; negative: number; negative_share: number }[]; trend_note: string | null; negative_rising: boolean;
+  emerging: { category: string; last_14_days: number; previous_14_days: number }[];
+  risks: { theme: string; level: "high" | "medium"; why: string; investigate: string }[];
+  sources: Record<string, number>; batches: { batch_id: string; source: string; records: number }[]; note: string;
+}
+export const fetchReputation = (days = 90) => getJSON<ReputationOverview>(`/reputation/overview?days=${days}`, "Failed to load reputation");
+export function uploadFeedback(file: File): Promise<{ batch_id: string; imported: number; skipped: number; problems: string[] }> {
+  const f = new FormData();
+  f.append("file", file);
+  return postForm("/reputation/upload", f, "Upload failed");
+}
+export const addFeedback = (p: { text: string; rating?: number; channel?: string }) =>
+  postJSON<{ batch_id: string; imported: number }>("/reputation/feedback", p, "Could not add feedback");
+export async function removeFeedbackBatch(batchId: string) {
+  const res = await apiFetch(`${API_BASE}/reputation/batches/${batchId}`, { method: "DELETE" });
+  if (!res.ok) return engineError(res, "Could not remove batch");
+  return res.json();
+}

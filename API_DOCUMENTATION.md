@@ -27,6 +27,25 @@
 | GET | `/` | Product/team metadata, status banner |
 | GET | `/api/v1/health` | Liveness + DB connectivity |
 
+## Advanced intelligence (Phase 3)
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/simulation/scenarios` | Available what-if scenarios |
+| POST | `/api/v1/simulation/run` | `{submission_id, scenario, params}` → original vs simulated findings, score change, Product Truth changes, translation check, recommendations (422 when the scenario can't be simulated honestly) |
+| GET | `/api/v1/simulation/runs` | Saved hypothetical runs |
+| POST | `/api/v1/similarity/check` | `{text}` or `{submission_id}` (excludes itself and its passport) → near-duplicates, similar campaigns, reused sentences |
+| GET | `/api/v1/similarity/clusters` | Groups of repeated campaigns |
+| POST | `/api/v1/similarity/dismiss` · `/restore` | `{pair_key, reason}`: hide or restore a pair (reason recorded) |
+| POST | `/api/v1/similarity/image` | Multipart image → similar official assets (pHash) |
+| GET | `/api/v1/fraud/domains` | Official domains; POST / DELETE `/fraud/domains[/{id}]` are Admin-only |
+| POST | `/api/v1/fraud/investigate` | Multipart `url`, `text`, `file` → opens an incident with risk, confidence, signals, recommended response |
+| GET | `/api/v1/fraud/incidents` · `/fraud/incidents/{id}` · `/fraud/incidents/{id}/evidence` | Incident list, detail, preserved screenshot |
+| POST | `/api/v1/fraud/incidents/{id}/status` | Reviewer/Admin: `{status, note}` appended to history |
+| POST | `/api/v1/reputation/upload` | Reviewer/Admin: CSV/JSON feedback (≤ 5 MB) |
+| POST | `/api/v1/reputation/feedback` | Add one record; GET lists records |
+| GET | `/api/v1/reputation/overview?days=` | Sentiment, categories, phrases, products, campaign disputes, trend, early warnings |
+| DELETE | `/api/v1/reputation/batches/{id}` | Admin: remove an upload batch |
+
 ## Governance intelligence (Phase 2)
 | Method | Path | Purpose |
 |---|---|---|

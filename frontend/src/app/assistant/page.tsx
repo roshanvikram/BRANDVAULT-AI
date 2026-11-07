@@ -51,6 +51,9 @@ export default function AssistantPage() {
           <span>Brand Intelligence Assistant</span>
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ask about your brand</h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link href="/assistant/simulator" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Campaign stress testing →</Link>
+          </div>
         <p className="text-xs text-slate-600 mt-1 flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
           Answers come <span className="font-semibold text-slate-900">only from your approved brand data</span>, with citations — never invented.
