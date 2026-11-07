@@ -94,8 +94,8 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
         "relative flex items-center h-9 rounded-xl text-[13px] transition-all duration-150 group",
         collapsed ? "justify-center px-0" : "px-3 justify-between",
         active
-          ? "bg-indigo-50/90 text-indigo-700 font-semibold shadow-sm ring-1 ring-indigo-200"
-          : "text-slate-600 hover:text-indigo-600 hover:bg-slate-100/70"
+          ? "bg-white text-slate-900 font-semibold shadow-[0_1px_2px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/90"
+          : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
       )}
     >
       <div className="flex items-center min-w-0">
@@ -103,7 +103,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
           aria-hidden
           className={cn(
             "w-4 h-4 shrink-0 transition-colors",
-            active ? "text-indigo-600" : "text-slate-400 group-hover:text-indigo-600"
+            active ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"
           )}
           strokeWidth={active ? 2 : 1.75}
         />
@@ -161,7 +161,7 @@ export function Sidebar() {
       <aside
         aria-label="Main navigation"
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-white/95 backdrop-blur-xl border-r border-slate-200 select-none",
+          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-[#F7F8FB] border-r border-slate-200/80 select-none",
           "transition-[transform,width] duration-200 ease-out",
           isCollapsed ? "lg:w-[68px]" : "lg:w-[256px]",
           "w-[272px]",
@@ -169,7 +169,7 @@ export function Sidebar() {
         )}
       >
         {/* Brand + organisation */}
-        <div className={cn("h-16 flex items-center border-b border-slate-100 shrink-0", isCollapsed ? "justify-center" : "px-4 justify-between")}>
+        <div className={cn("h-16 flex items-center border-b border-slate-200/60 shrink-0", isCollapsed ? "justify-center" : "px-4 justify-between")}>
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0 group">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 text-white flex items-center justify-center text-xs font-bold shadow-md shadow-indigo-200 shrink-0 group-hover:scale-105 transition-transform">
               BV
@@ -199,7 +199,7 @@ export function Sidebar() {
               {isCollapsed ? (
                 gi > 0 && <div className="mx-2 mb-3 border-t border-slate-100" />
               ) : (
-                <div className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
                   {group.label}
                 </div>
               )}
@@ -213,7 +213,7 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className={cn("border-t border-slate-100 py-3 space-y-1 shrink-0 bg-slate-50/50", isCollapsed ? "px-2" : "px-3")}>
+        <div className={cn("border-t border-slate-200/60 py-3 space-y-1 shrink-0", isCollapsed ? "px-2" : "px-3")}>
           <NavLink
             item={{ name: "Settings", href: "/settings", icon: Settings }}
             active={pathname === "/settings"}
@@ -239,12 +239,15 @@ export function Sidebar() {
           </button>
 
           {!isCollapsed && org && (
-            <div className="px-3 pt-2 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-200/50 mt-1">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="truncate max-w-[120px] font-medium">{org.name}</span>
-              </span>
-              <span className="font-semibold text-slate-700 tabular-nums">{org.rules_count} rules</span>
+            <div className="mt-2 rounded-xl bg-white ring-1 ring-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.04)] p-3">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate font-semibold text-slate-800">{org.name}</span>
+                </span>
+                <span className="text-slate-500 tabular-nums shrink-0">{org.rules_count} rules</span>
+              </div>
+              <div className="mt-1 text-[11px] text-slate-400">Brand DNA workspace</div>
             </div>
           )}
         </div>

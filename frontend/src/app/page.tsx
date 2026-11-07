@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { HeroSculpture } from "@/components/home/HeroSculpture";
+import { FeatureBento } from "@/components/home/FeatureBento";
 
 const NAV = [
   { label: "Platform", href: "#platform" },
@@ -287,33 +288,11 @@ export default function Home() {
             One workspace for brand governance
           </h2>
           <p className="mt-3 text-[15px] text-slate-600 leading-relaxed font-normal">
-            Core modules backed by real deterministic analysis, evidence grounding, and persistent database records.
+            Deterministic checks first, AI where it helps, and a person signs off on every decision.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Dna, title: "Brand DNA Studio", desc: "Turn guidelines, approved facts and terminology into structured brand knowledge.", bg: "bg-indigo-50 text-indigo-600 border-indigo-100" },
-            { icon: FileSearch, title: "Content Intelligence", desc: "Audit copy against your Brand DNA with evidence behind every finding.", bg: "bg-purple-50 text-purple-600 border-purple-100" },
-            { icon: BadgeCheck, title: "ClaimDNA", desc: "Classify claims as supported, unsupported, contradicted or outdated.", bg: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-            { icon: ImageIcon, title: "Visual DNA", desc: "Measure colour palette and contrast of creatives against your brand.", bg: "bg-sky-50 text-sky-600 border-sky-100" },
-            { icon: ClipboardCheck, title: "Approval Hub", desc: "Role-gated human review. AI recommends, people decide.", bg: "bg-amber-50 text-amber-700 border-amber-100" },
-            { icon: Award, title: "Brand Passport", desc: "A SHA-256 fingerprinted record for every approved version.", bg: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-            { icon: Radar, title: "Risk Radar", desc: "Explained risk indicators computed from your real review history.", bg: "bg-rose-50 text-rose-600 border-rose-100" },
-            { icon: Bot, title: "Agent Control", desc: "Every analysis agent run is persisted, timed and inspectable.", bg: "bg-violet-50 text-violet-600 border-violet-100" },
-          ].map((f) => {
-            const Icon = f.icon;
-            return (
-              <div key={f.title} className="group rounded-2xl bg-white border border-slate-200/80 p-6 hover:border-indigo-300 hover:shadow-medium transition-all">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${f.bg} group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-5 h-5" strokeWidth={2} />
-                </div>
-                <div className="mt-4 text-[15px] font-bold text-slate-900 tracking-tight">{f.title}</div>
-                <div className="mt-1.5 text-[13px] text-slate-600 leading-relaxed">{f.desc}</div>
-              </div>
-            );
-          })}
-        </div>
+        <FeatureBento />
       </section>
 
       {/* ============================ SECURITY ============================ */}

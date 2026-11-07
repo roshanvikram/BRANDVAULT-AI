@@ -54,7 +54,7 @@ export function Header() {
   const page = PAGE_TITLES[pathname] || { section: "BrandVault", title: "Brand Governance" };
 
   return (
-    <header className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-4 sticky top-0 z-30 select-none bg-white/85 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+    <header className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-4 sticky top-0 z-30 select-none bg-white/80 backdrop-blur-xl border-b border-slate-200/70">
       <button
         onClick={() => setMobileNavOpen(true)}
         className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
@@ -67,7 +67,7 @@ export function Header() {
       <div className="flex items-center gap-2 min-w-0 shrink-0 text-[13px]">
         <span className="hidden sm:inline font-medium text-slate-400">{page.section}</span>
         <span className="hidden sm:inline text-slate-300">/</span>
-        <h1 className="font-bold text-slate-900 tracking-tight truncate">{page.title}</h1>
+        <h1 className="font-semibold text-slate-900 tracking-tight truncate">{page.title}</h1>
       </div>
 
       <div className="flex-1 flex justify-center min-w-0">
@@ -88,8 +88,8 @@ export function Header() {
             {initials(user?.full_name)}
           </div>
           <div className="hidden xl:block leading-tight">
-            <div className="text-[13px] font-bold text-slate-900">{user?.full_name || "Guest"}</div>
-            <div className="text-[11px] font-medium text-indigo-600">{user?.role || "—"}</div>
+            <div className="text-[13px] font-semibold text-slate-900">{user?.full_name || "Guest"}</div>
+            <div className="text-[11px] font-medium text-slate-500">{user?.role || "—"}</div>
           </div>
           <button
             onClick={handleLogout}
