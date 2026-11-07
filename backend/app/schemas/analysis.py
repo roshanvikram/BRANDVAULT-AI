@@ -44,6 +44,7 @@ class ContentAnalyzeRequest(BaseModel):
     content: str
     author_name: Optional[str] = "Marketing Creator"
     submission_id: Optional[str] = None
+    department: Optional[str] = None
 
 
 class ApplyCorrectionRequest(BaseModel):
@@ -61,6 +62,7 @@ class SubmissionResponse(BaseModel):
     version: int
     status: str
     author_name: str
+    department: Optional[str] = None
     author_role: str
     overall_score: int
     findings: List[FindingResponse] = []

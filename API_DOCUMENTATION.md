@@ -27,6 +27,18 @@
 | GET | `/` | Product/team metadata, status banner |
 | GET | `/api/v1/health` | Liveness + DB connectivity |
 
+## Governance intelligence (Phase 2)
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/launch/checks` | The 12 checks, which are mandatory, approval validity |
+| PUT | `/api/v1/launch/config` | Admin: `{mandatory: [...], approval_validity_days}` |
+| POST | `/api/v1/launch/{submission_id}/check` | Run and persist a readiness report (state, checks with evidence, routing, unresolved findings) |
+| GET | `/api/v1/launch/{submission_id}/reports` | Readiness history |
+| GET | `/api/v1/governance/lifecycle` | Lifecycle items, counts, alerts, campaigns using outdated information |
+| GET | `/api/v1/analytics/consistency` | Filters: `date_from`, `date_to`, `product`, `department`, `category`, `severity` → KPIs, heatmaps, compliance, trends |
+| GET | `/api/v1/governance/reviewer-intelligence` | Decision patterns, recommendations, turnaround, queue |
+| POST | `/api/v1/governance/reviewer-intelligence/propose` | Admin: create an unconfirmed draft rule |
+
 ## Product Truth & Knowledge Gaps
 | Method | Path | Purpose |
 |---|---|---|

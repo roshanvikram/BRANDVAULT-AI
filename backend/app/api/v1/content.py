@@ -79,6 +79,10 @@ def analyze_content(payload: ContentAnalyzeRequest, db: Session = Depends(get_db
         # Attribution comes from the authenticated identity.
         author_name=current.full_name,
     )
+    if payload.department is not None:
+        submission.department = payload.department.strip()[:100] or None
+        db.commit()
+        db.refresh(submission)
     return submission
 
 @router.get("/submissions", response_model=List[SubmissionResponse])

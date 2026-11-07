@@ -19,6 +19,8 @@ class Submission(Base):
     status: Mapped[str] = mapped_column(String(50), default="Draft") # Draft, Submitted, Analysing, Analysed, Pending Review, Approved, Rejected, Revision Requested
     author_name: Mapped[str] = mapped_column(String(100), default="Marketing Creator")
     author_role: Mapped[str] = mapped_column(String(50), default="Creator")
+    # Optional owning team (e.g. "Marketing", "Retail"), used for department analytics.
+    department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     overall_score: Mapped[int] = mapped_column(Integer, default=100) # 0-100 Brand Health / Compliance Score
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

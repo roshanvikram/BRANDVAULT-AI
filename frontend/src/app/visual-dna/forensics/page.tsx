@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ScanSearch, Upload, Loader2, Library, History, AlertOctagon, AlertTriangle, CheckCircle2, Info, ArrowRight } from "lucide-react";
 import {
@@ -82,6 +83,7 @@ export default function ForensicsPage() {
         back={{ href: "/visual-dna", label: "Visual DNA" }}
         eyebrow="Brand Asset Forensics" icon={<ScanSearch className="w-3.5 h-3.5" />}
         title="Find official assets in any image — and how they were changed"
+        actions={<Link href="/visual-dna/lifecycle" className="h-9 px-3 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700">Lifecycle &amp; expiry</Link>}
         description="Upload an ad, banner or social post. BrandVault locates your official logos and assets with computer vision and measures stretching, rotation, cropping, recolouring, outdated versions and near-duplicates. Similarity is evidence for review, not proof of misuse."
       />
 

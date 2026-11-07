@@ -24,6 +24,8 @@ _ADDITIVE_COLUMNS = [
     ("agent_runs", "org_id", "VARCHAR(36)"),
     ("approval_records", "submission_version", "INTEGER"),
     ("approval_records", "content_hash", "VARCHAR(64)"),
+    # Phase 2 — department analytics.
+    ("submissions", "department", "VARCHAR(100)"),
 ]
 
 

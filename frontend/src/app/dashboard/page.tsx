@@ -150,7 +150,8 @@ export default function Dashboard() {
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back, {firstName} 👋</h2>
           <p className="text-[13px] text-slate-500 mt-1">Brand intelligence, real-time claim verification and governance telemetry.</p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link href="/dashboard/consistency" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Consistency heatmap</Link>
           <Link href="/content-intelligence" className="h-9 px-4 text-[13px] font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm shadow-indigo-200 transition-all flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5" /><span>New Content Review</span>
           </Link>

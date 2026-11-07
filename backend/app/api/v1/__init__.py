@@ -18,6 +18,7 @@ from backend.app.api.v1.memory import router as memory_router
 from backend.app.api.v1.translation_guard import router as translation_guard_router
 from backend.app.api.v1.products import router as products_router
 from backend.app.api.v1.assets import router as assets_router
+from backend.app.api.v1.governance import router as governance_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -39,4 +40,5 @@ api_router.include_router(memory_router)
 api_router.include_router(translation_guard_router)
 api_router.include_router(products_router)
 api_router.include_router(assets_router)
+api_router.include_router(governance_router)
 

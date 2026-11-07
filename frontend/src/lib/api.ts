@@ -919,3 +919,91 @@ export function investigateAsset(file: File): Promise<Investigation> {
 }
 export const fetchInvestigations = () => getJSON<Investigation[]>("/assets/investigations", "Failed to load investigations");
 export const fetchInvestigation = (id: string) => getJSON<Investigation>(`/assets/investigations/${id}`, "Failed to load investigation");
+
+// ------------------------------------------------------------------ //
+//  Phase 2 — Launch Readiness
+// ------------------------------------------------------------------ //
+export type CheckStatus = "pass" | "fail" | "warn" | "pending" | "not_applicable" | "unavailable";
+export type LaunchState = "Ready for Review" | "Blocked by Critical Issues" | "Pending Approval" | "Approved for Launch" | "Expired Approval" | "Requires Reanalysis";
+export interface LaunchCheck { key: string; label: string; status: CheckStatus; detail: string; evidence: string[]; route_to: string | null; mandatory: boolean; }
+export interface LaunchReport {
+  id?: string; state: LaunchState; checks: LaunchCheck[]; counts: Record<CheckStatus, number>;
+  submission: { id: string; title: string; version: number; status: string; score: number; author: string };
+  unresolved_findings: { id: string; category: string; severity: string; text: string; suggestion: string }[];
+  blocking: string[]; route_to: string[]; mandatory: string[]; note: string; evaluated_at: string;
+}
+export interface LaunchPolicy { checks: { key: string; label: string; mandatory: boolean }[]; approval_validity_days: number; updated_by: string | null; updated_at: string | null; }
+export const fetchLaunchPolicy = () => getJSON<LaunchPolicy>("/launch/checks", "Failed to load launch policy");
+export async function saveLaunchPolicy(p: { mandatory: string[]; approval_validity_days: number }): Promise<LaunchPolicy> {
+  const res = await apiFetch(`${API_BASE}/launch/config`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+  if (!res.ok) return engineError(res, "Could not save policy");
+  return res.json();
+}
+export const runLaunchCheck = (submissionId: string) => postJSON<LaunchReport>(`/launch/${submissionId}/check`, {}, "Readiness check failed");
+export const fetchLaunchReports = (submissionId: string) =>
+  getJSON<{ id: string; state: LaunchState; version: number; created_by: string; created_at: string | null }[]>(`/launch/${submissionId}/reports`, "Failed to load history");
+/** Ask for human review (a creator may do this; it does not approve anything). */
+export const sendForReview = (submissionId: string, version: number, comments: string) =>
+  postJSON<Submission>("/approval/decide", { submission_id: submissionId, decision: "Pending Review", comments, expected_version: version }, "Could not send for review");
+
+// ------------------------------------------------------------------ //
+//  Phase 2 — Asset Lifecycle
+// ------------------------------------------------------------------ //
+export type LifecycleState = "Draft" | "Pending Approval" | "Approved" | "Active" | "Expiring Soon" | "Expired" | "Superseded" | "Archived";
+export interface LifecycleItem {
+  kind: "asset" | "product_fact" | "approved_fact" | "guideline" | "approval"; id: string; name: string; category: string;
+  state: LifecycleState; valid_until: string | null; detail: string; usage: number | null; last_seen: string | null;
+  seen_in: { id: string; file_name: string; risk: string }[]; replacement_available: boolean | null; href: string;
+}
+export interface Lifecycle {
+  counts: Record<LifecycleState, number>; items: LifecycleItem[];
+  alerts: { level: "warning" | "critical"; text: string; href: string }[];
+  affected_campaigns: { submission_id: string; title: string; status: string; outdated: string[] }[];
+  expiring_window_days: number; approval_validity_days: number; generated_at: string;
+}
+export const fetchLifecycle = () => getJSON<Lifecycle>("/governance/lifecycle", "Failed to load lifecycle");
+
+// ------------------------------------------------------------------ //
+//  Phase 2 — Brand Consistency analytics
+// ------------------------------------------------------------------ //
+export interface Heatmap { rows: string[]; columns: string[]; cells: number[][]; max: number; }
+export interface ConsistencyFilters { date_from?: string; date_to?: string; severity?: string; category?: string; product?: string; department?: string; }
+export interface Consistency {
+  org: { id: string; name: string }; filters: ConsistencyFilters;
+  options: { categories: string[]; severities: string[]; products: string[]; departments: string[] };
+  kpis: { campaigns: number; findings: number; critical: number; unresolved: number; avg_score: number | null; decisions: number; approval_rate: number | null };
+  heatmaps: { product: Heatmap; department: Heatmap; month: Heatmap };
+  compliance: {
+    campaigns: { id: string; title: string; score: number; status: string; version: number; products: string[]; department: string; findings: number; critical: number; created_at: string | null }[];
+    products: { name: string; campaigns: number; avg_score: number; critical_findings: number }[];
+    departments: { name: string; campaigns: number; avg_score: number; critical_findings: number }[];
+  };
+  terminology_repeats: { term: string; count: number; suggested: string }[];
+  trends: { months: string[]; score: { month: string; avg_score: number }[]; claims: Record<string, string | number>[]; approvals: Record<string, string | number>[]; visual_findings: { month: string; count: number }[] };
+  visual: { logo_misuse: Record<string, number>; colour_deviations: number; investigations: number };
+  unresolved: Record<string, string | number>[];
+  basis: { months_covered: number; first: string | null; last: string | null; demonstration_data: boolean; note: string };
+}
+export function fetchConsistency(f: ConsistencyFilters): Promise<Consistency> {
+  const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v) as [string, string][]).toString();
+  return getJSON<Consistency>(`/analytics/consistency${q ? `?${q}` : ""}`, "Failed to load analytics");
+}
+
+// ------------------------------------------------------------------ //
+//  Phase 2 — AI Reviewer Intelligence
+// ------------------------------------------------------------------ //
+export interface ReviewerIntel {
+  decisions_analysed: number; data_sufficient: boolean; data_note: string;
+  overridden_findings: { rule: string; category: string; severity: string; count: number; examples: { submission_id: string; title: string; text: string }[]; comments: string[] }[];
+  unanticipated_rejections: { submission_id: string; title: string; score: number; decision: string; reviewer_comment: string }[];
+  disagreements: { rule: string; decisions: Record<string, number>; reviewers_involved: number }[];
+  rejected_terminology: { term: string; count: number }[];
+  repeated_corrections: { from: string; to: string; count: number }[];
+  turnaround: { decisions_timed: number; median_hours: number | null; max_hours: number | null };
+  queue: { waiting: number; oldest: { submission_id: string; title: string; status: string; waiting_hours: number }[] };
+  recommendations: { kind: string; title: string; detail: string; evidence: unknown[]; reviewer_comments: string[]; proposed_rule: string }[];
+  principles: string; generated_at: string;
+}
+export const fetchReviewerIntel = () => getJSON<ReviewerIntel>("/governance/reviewer-intelligence", "Failed to load reviewer intelligence");
+export const proposeGuidelineRule = (p: { title: string; rule_text: string }) =>
+  postJSON<{ id: string; title: string; is_confirmed: boolean }>("/governance/reviewer-intelligence/propose", p, "Could not create draft rule");

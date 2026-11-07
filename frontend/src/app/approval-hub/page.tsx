@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   UserCheck,
@@ -88,6 +89,10 @@ export default function ApprovalHub() {
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/approval-hub/readiness" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Launch readiness</Link>
+          <Link href="/approval-hub/insights" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Reviewer intelligence</Link>
+        </div>
         {/* Decisions are always recorded as the signed-in user (server-enforced). */}
         <div className="flex items-center gap-2 h-9 px-3.5 rounded-xl border border-slate-200/80 bg-white shadow-soft text-[13px]">
           <span className="text-slate-500">Signed in as</span>

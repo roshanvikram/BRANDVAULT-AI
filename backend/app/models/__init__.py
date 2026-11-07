@@ -24,6 +24,7 @@ from backend.app.models.multilingual import MultilingualCampaign, CampaignTransl
 from backend.app.models.product import Product, ProductFact
 from backend.app.models.integrity import CampaignIntegrityCheck
 from backend.app.models.asset import BrandAsset, AssetInvestigation
+from backend.app.models.governance import LaunchCheckConfig, LaunchReadinessReport
 
 __all__ = [
     "User",
@@ -35,6 +36,8 @@ __all__ = [
     "CampaignIntegrityCheck",
     "BrandAsset",
     "AssetInvestigation",
+    "LaunchCheckConfig",
+    "LaunchReadinessReport",
     "Organization",
     "BrandGuideline",
     "DocumentChunk",
