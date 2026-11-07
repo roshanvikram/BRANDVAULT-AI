@@ -3,34 +3,67 @@
 @tailwind utilities;
 
 /* ============================================================
-   BRANDVAULT AI — Professional Monochrome design system
-   Swiss / minimal: neutral greys, one near-black accent, solid
-   surfaces with hairline borders, sans-serif throughout.
+   BRANDVAULT AI — Modern Light Color Design System
+   Sophisticated light palette: Slate/Sky/Indigo canvas,
+   vibrant primary indigo accent, soft pastel semantic badges,
+   and clean white elevated surfaces.
    ============================================================ */
 
 :root {
-  --background: #FAFAFA;
+  --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --background: #F8FAFC;
   --surface: #FFFFFF;
-  --surface-muted: #F4F4F5;
-  --border: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --foreground: #0A0A0A;
-  --text-secondary: #3F3F46;
-  --text-muted: #71717A;
-  --ring: #0A0A0A;
+  --surface-muted: #F1F5F9;
+  --surface-hover: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --foreground: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  
+  /* Primary Brand (Indigo & Violet) */
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
+  --primary-border: #C7D2FE;
+  
+  /* Semantic Light Accents */
+  --success: #10B981;
+  --success-light: #ECFDF5;
+  --success-border: #A7F3D0;
+  --success-text: #047857;
 
-  /* Kept for components that still reference the old glass tokens. */
-  --glass-bg: #FFFFFF;
-  --glass-bg-strong: #FFFFFF;
-  --glass-bg-subtle: #FAFAFA;
-  --glass-border: var(--border);
-  --glass-border-strong: var(--border-strong);
-  --glass-blur: none;
-  --glass-blur-strong: none;
+  --warning: #F59E0B;
+  --warning-light: #FFFBEB;
+  --warning-border: #FDE68A;
+  --warning-text: #B45309;
 
-  --shadow-soft: 0 1px 2px rgba(10, 10, 10, 0.04);
-  --shadow-medium: 0 1px 3px rgba(10, 10, 10, 0.06), 0 1px 2px rgba(10, 10, 10, 0.04);
-  --shadow-float: 0 12px 32px -8px rgba(10, 10, 10, 0.16), 0 2px 6px rgba(10, 10, 10, 0.06);
+  --danger: #F43F5E;
+  --danger-light: #FFF1F2;
+  --danger-border: #FECDD3;
+  --danger-text: #BE123C;
+
+  --info: #0284C7;
+  --info-light: #F0F9FF;
+  --info-border: #BAE6FD;
+  --info-text: #0369A1;
+
+  --ring: #4F46E5;
+
+  /* Glass tokens with light color tint */
+  --glass-bg: rgba(255, 255, 255, 0.90);
+  --glass-bg-strong: rgba(255, 255, 255, 0.96);
+  --glass-bg-subtle: rgba(248, 250, 252, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-border-strong: #CBD5E1;
+  --glass-blur: blur(12px);
+  --glass-blur-strong: blur(20px);
+
+  --shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(79, 70, 229, 0.04);
+  --shadow-medium: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(79, 70, 229, 0.04);
+  --shadow-float: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(79, 70, 229, 0.08);
+  --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
 }
 
 *, *::before, *::after {
@@ -44,21 +77,27 @@ html {
 
 body {
   background-color: var(--background);
+  /* Atmospheric light canvas with subtle pastel gradients */
+  background-image:
+    radial-gradient(1200px 600px at 15% -10%, rgba(238, 242, 255, 0.85) 0%, rgba(238, 242, 255, 0) 70%),
+    radial-gradient(1000px 500px at 90% -5%, rgba(240, 253, 250, 0.70) 0%, rgba(240, 253, 250, 0) 65%),
+    radial-gradient(800px 600px at 50% 100%, rgba(254, 243, 199, 0.35) 0%, rgba(254, 243, 199, 0) 70%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-geist-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  /* Inter: tabular-friendly, disambiguated glyphs for a crisp enterprise feel */
   font-feature-settings: 'cv11' 1, 'ss01' 1, 'calt' 1;
-  letter-spacing: -0.006em;
+  letter-spacing: -0.008em;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4 {
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  color: #0F172A;
 }
 
-/* Metadata / labels (formerly monospace): sans with aligned numbers. */
+/* Metadata / labels: sans with tabular numbers */
 .font-mono {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -69,132 +108,102 @@ h1, h2, h3, h4 {
   letter-spacing: 0.06em;
 }
 
-/* Genuine code values: hashes, ids, tokens. */
-.font-code {
-  font-variant-ligatures: none;
-  letter-spacing: 0;
-}
-
-::selection {
-  background: #0A0A0A;
+/* Primary actions: indigo/violet gradient with soft glow */
+.btn-primary {
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
   color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28);
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.38);
+  transform: translateY(-1px);
 }
 
-/* Visible keyboard focus everywhere (mouse clicks stay clean). */
-:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-  border-radius: 6px;
+/* Secondary actions: white with light border */
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  color: #0F172A;
+  border-color: #CBD5E1;
 }
 
-button, [role="button"], a, summary, label[for], select {
-  cursor: pointer;
+/* Colored Badge Utilities */
+.badge-indigo {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
 }
-button:disabled {
-  cursor: not-allowed;
+.badge-emerald {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
 }
-
-/* ============================================================
-   SURFACES (legacy "glass" class names now render as solid cards)
-   ============================================================ */
-
-.glass,
-.glass-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-soft);
+.badge-amber {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
 }
-
-.glass-floating {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-float);
+.badge-rose {
+  background-color: #FFF1F2;
+  color: #BE123C;
+  border: 1px solid #FECDD3;
 }
-
-.glass-sidebar {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+.badge-sky {
+  background-color: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
 }
-
-.glass-header {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: saturate(180%) blur(8px);
-  -webkit-backdrop-filter: saturate(180%) blur(8px);
-  border-bottom: 1px solid var(--border);
+.badge-purple {
+  background-color: #FAF5FF;
+  color: #7E22CE;
+  border: 1px solid #E9D5FF;
 }
 
-.font-technical {
-  font-family: var(--font-geist-mono), 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0;
+/* Selection */
+::selection {
+  background: #C7D2FE;
+  color: #1E1B4B;
 }
 
-/* ============================================================
-   SCROLLBARS
-   ============================================================ */
-
+/* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(10, 10, 10, 0.12);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  background: #CBD5E1;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(10, 10, 10, 0.24);
-  background-clip: padding-box;
+  background: #94A3B8;
 }
 
-/* ============================================================
-   PRINT — BRAND PASSPORT
-   ============================================================ */
-
-@media print {
-  body {
-    background-color: #ffffff !important;
-    color: #0a0a0a !important;
-  }
-  .no-print {
-    display: none !important;
-  }
+/* Glass cards */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(79, 70, 229, 0.05);
 }
 
-/* ============================================================
-   MOTION
-   ============================================================ */
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.skeleton {
-  background: linear-gradient(90deg, #F4F4F5 25%, #EBEBED 50%, #F4F4F5 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 6px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+.glass-floating {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid #CBD5E1;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(79, 70, 229, 0.08);
 }

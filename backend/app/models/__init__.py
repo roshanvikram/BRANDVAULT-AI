@@ -20,10 +20,21 @@ from backend.app.models.passport import (
 )
 from backend.app.models.user import User
 from backend.app.models.job import Job
+from backend.app.models.multilingual import MultilingualCampaign, CampaignTranslation
+from backend.app.models.product import Product, ProductFact
+from backend.app.models.integrity import CampaignIntegrityCheck
+from backend.app.models.asset import BrandAsset, AssetInvestigation
 
 __all__ = [
     "User",
     "Job",
+    "MultilingualCampaign",
+    "CampaignTranslation",
+    "Product",
+    "ProductFact",
+    "CampaignIntegrityCheck",
+    "BrandAsset",
+    "AssetInvestigation",
     "Organization",
     "BrandGuideline",
     "DocumentChunk",

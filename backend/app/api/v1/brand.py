@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 import datetime
 from typing import List, Optional
@@ -25,6 +26,8 @@ def _audit(db: Session, org_id: str, action: str, actor: User, details: str) -> 
                     actor=f"{actor.full_name} ({actor.role})", details=details))
 
 router = APIRouter(prefix="/brand", tags=["Brand DNA Studio"])
+
+PAGE_MARKER = re.compile(r"---\s*Page\s+(\d+)\s*---")
 
 @router.get("/workspaces", response_model=List[OrganizationResponse])
 def get_workspaces(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
@@ -130,11 +133,19 @@ async def upload_guideline(
 
     # Chunking & Rule Extraction
     paragraphs = [p.strip() for p in raw_text.split("\n\n") if len(p.strip()) > 30]
-    for idx, para in enumerate(paragraphs[:10]):
+    # Real page numbers come from the "--- Page N ---" markers written above;
+    # plain-text uploads have no pages and count as page 1.
+    MAX_PARAGRAPHS = 200
+    current_page = 1
+    for idx, para in enumerate(paragraphs[:MAX_PARAGRAPHS]):
+        page_marks = PAGE_MARKER.findall(para)
+        para_page = int(page_marks[0]) if page_marks else current_page
+        if page_marks:
+            current_page = int(page_marks[-1])
         chunk = DocumentChunk(
             id=str(uuid.uuid4()),
             guideline_id=guideline_id,
-            page_number=(idx // 3) + 1,
+            page_number=para_page,
             chunk_index=idx,
             content=para
         )
@@ -150,7 +161,7 @@ async def upload_guideline(
                 rule_text=para[:300],
                 severity="CRITICAL" if any(w in para.lower() for w in ["strictly", "prohibited"]) else "WARNING",
                 source_document=file.filename,
-                page_reference=(idx // 3) + 1,
+                page_reference=para_page,
                 is_active=True,
                 is_confirmed=False # Requires admin confirmation!
             )

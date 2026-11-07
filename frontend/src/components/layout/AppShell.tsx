@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         children
       ) : (
         <ShellContext.Provider value={{ mobileNavOpen, setMobileNavOpen }}>
-          <div className="flex min-h-screen w-full bg-[#FAFAFA]">
+          <div className="flex min-h-screen w-full">
             <Sidebar />
             <div className="flex-1 min-w-0 flex flex-col min-h-screen">
               <Header />

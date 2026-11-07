@@ -6,12 +6,6 @@ import { fetchWorkspaces, Organization } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useClickOutside } from "@/lib/useClickOutside";
 
-/**
- * Workspace indicator + menu. Shows the organisations returned by the backend
- * (GET /brand/workspaces) and marks the one the signed-in user belongs to as
- * active. A Creator/Reviewer is scoped to a single org, so this reflects real
- * tenancy rather than offering a switch the API would reject.
- */
 export function WorkspaceMenu() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -32,52 +26,57 @@ export function WorkspaceMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="hidden 2xl:flex items-center gap-1.5 h-8 px-2.5 rounded-md text-[13px] font-medium text-[#3F3F46] hover:bg-[#F4F4F5] transition-colors"
+        className="hidden md:flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold bg-slate-100/90 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 transition-colors"
       >
+        <Building2 className="w-3.5 h-3.5 text-indigo-600" />
         <span>{label}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[#E4E4E7] bg-white shadow-[0_12px_32px_-8px_rgba(10,10,10,0.16)] z-50 overflow-hidden">
-          <div className="px-4 py-2.5 border-b border-[#F0F0F0] text-[11px] font-mono uppercase font-bold text-[#A3A3A3]">
-            Your Workspaces
+        <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white shadow-xl z-50 overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50/60">
+            Workspaces
           </div>
-          <div className="max-h-72 overflow-y-auto py-1">
+          <div className="max-h-72 overflow-y-auto py-1.5">
             {orgs === null ? (
-              <div className="px-4 py-6 flex items-center justify-center text-[#737373]">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="px-4 py-6 flex items-center justify-center text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
               </div>
             ) : orgs.length === 0 ? (
-              <div className="px-4 py-6 text-center text-xs text-[#737373] font-mono">No workspaces found.</div>
+              <div className="px-4 py-6 text-center text-xs text-slate-500">No workspaces found.</div>
             ) : (
               orgs.map((o) => {
                 const isActive = o.id === user?.org_id;
                 return (
                   <div
                     key={o.id}
-                    className={`px-4 py-2.5 flex items-start justify-between ${isActive ? "bg-[#FAFAFA]" : ""}`}
+                    className={`px-4 py-2.5 flex items-start justify-between transition-colors ${
+                      isActive ? "bg-indigo-50/70" : "hover:bg-slate-50"
+                    }`}
                   >
                     <div className="flex items-start space-x-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-[#0A0A0A] text-white flex items-center justify-center shrink-0">
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        isActive ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-100 text-slate-500"
+                      }`}>
                         <Building2 className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-[#0A0A0A]">{o.name}</div>
-                        <div className="text-[11px] font-mono text-[#737373] mt-0.5">
+                        <div className={`text-xs font-bold ${isActive ? "text-indigo-900" : "text-slate-900"}`}>{o.name}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">
                           {o.guidelines_count} docs · {o.rules_count} rules · {o.facts_count} facts
                         </div>
                       </div>
                     </div>
-                    {isActive && <Check className="w-4 h-4 text-[#0A0A0A] shrink-0 mt-0.5" />}
+                    {isActive && <Check className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />}
                   </div>
                 );
               })
             )}
           </div>
           {active && (
-            <div className="px-4 py-2 border-t border-[#F0F0F0] text-[11px] font-mono text-[#737373]">
-              Signed in as <span className="text-[#0A0A0A] font-semibold">{user?.role}</span>
+            <div className="px-4 py-2 border-t border-slate-100 text-[11px] text-slate-500 bg-slate-50/40">
+              Role: <span className="text-indigo-700 font-semibold">{user?.role}</span>
             </div>
           )}
         </div>

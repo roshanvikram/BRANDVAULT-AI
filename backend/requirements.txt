@@ -17,3 +17,7 @@ pytest>=8.0.0
 psycopg2-binary>=2.9.9
 alembic>=1.13.0
 
+# Brand Asset Forensics (image fingerprints, logo localisation)
+pillow>=10.0.0
+numpy>=1.26.0
+opencv-python-headless>=4.9.0

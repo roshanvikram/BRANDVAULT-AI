@@ -115,7 +115,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
   return (
     <div className="w-full">
       {/* Player frame */}
-      <div className="rounded-xl border border-[#E5E5E5] bg-[#0A0A0A] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-[#E4E4E7] bg-white shadow-[0_1px_2px_rgba(10,10,10,0.04),0_16px_40px_-24px_rgba(10,10,10,0.18)] overflow-hidden">
         {/* Screen */}
         <div className="relative bg-[#FAFAFA] aspect-video flex items-center justify-center overflow-hidden">
           {step.shot ? (
@@ -147,7 +147,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
               className="absolute inset-0 flex items-center justify-center bg-black/5 hover:bg-black/10 transition-colors group"
               aria-label={done ? "Replay walkthrough" : "Play walkthrough"}
             >
-              <span className="w-14 h-14 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <span className="w-14 h-14 rounded-full bg-[#F4F4F5] text-[#0A0A0A] ring-1 ring-inset ring-[#E4E4E7] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                 {done ? <RotateCcw className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
               </span>
             </button>
@@ -155,25 +155,25 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 w-full bg-[#262626]">
-          <div className="h-full bg-white transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
+        <div className="h-1 w-full bg-[#E4E4E7]">
+          <div className="h-full bg-[#0A0A0A] transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
         </div>
 
         {/* Controls */}
-        <div className="px-4 py-3 flex items-center justify-between text-white">
+        <div className="px-4 py-3 flex items-center justify-between text-[#0A0A0A]">
           <div className="flex items-center space-x-1">
-            <button onClick={prev} disabled={index === 0} title="Previous step" className="p-2 rounded-lg hover:bg-[#262626] disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
+            <button onClick={prev} disabled={index === 0} title="Previous step" className="p-2 rounded-lg hover:bg-[#F4F4F5] disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
               <SkipBack className="w-4 h-4" />
             </button>
-            <button onClick={togglePlay} title={playing ? "Pause" : "Play"} className="p-2 rounded-lg hover:bg-[#262626] transition-colors">
+            <button onClick={togglePlay} title={playing ? "Pause" : "Play"} className="p-2 rounded-lg hover:bg-[#F4F4F5] transition-colors">
               {playing ? <Pause className="w-5 h-5" /> : done ? <RotateCcw className="w-5 h-5" /> : <Play className="w-5 h-5" />}
             </button>
-            <button onClick={next} disabled={index === steps.length - 1} title="Next step" className="p-2 rounded-lg hover:bg-[#262626] disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
+            <button onClick={next} disabled={index === steps.length - 1} title="Next step" className="p-2 rounded-lg hover:bg-[#F4F4F5] disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
               <SkipForward className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="text-[11px] font-mono text-[#A3A3A3]">
+          <div className="text-[11px] font-mono text-[#71717A]">
             Step {index + 1} / {steps.length}
           </div>
 
@@ -181,7 +181,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
             onClick={() => setNarrate((v) => !v)}
             disabled={!voiceSupported}
             title={!voiceSupported ? "Voice not supported in this browser" : narrate ? "Mute narration" : "Unmute narration"}
-            className="p-2 rounded-lg hover:bg-[#262626] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+            className="p-2 rounded-lg hover:bg-[#F4F4F5] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
           >
             {narrate && voiceSupported ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -194,7 +194,7 @@ export function WalkthroughPlayer({ steps }: { steps: WalkStep[] }) {
               key={s.n}
               onClick={() => goTo(i)}
               title={`Step ${s.n}`}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-white" : "w-1.5 bg-[#404040] hover:bg-[#737373]"}`}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-[#0A0A0A]" : "w-1.5 bg-[#D4D4D8] hover:bg-[#A1A1AA]"}`}
             />
           ))}
         </div>

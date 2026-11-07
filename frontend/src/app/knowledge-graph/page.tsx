@@ -7,17 +7,17 @@ import { fetchBrandGraph, BrandGraph, GraphNode, GraphNodeType } from "@/lib/api
 
 /* ----------------------------- node styling ------------------------------- */
 const STYLE: Record<GraphNodeType, { r: number; fill: string; stroke: string; text: string; label: string }> = {
-  brand:     { r: 26, fill: "#0A0A0A", stroke: "#0A0A0A", text: "#FFFFFF", label: "Brand" },
-  category:  { r: 17, fill: "#171717", stroke: "#171717", text: "#FFFFFF", label: "Category" },
-  guideline: { r: 12, fill: "#FFFFFF", stroke: "#0A0A0A", text: "#0A0A0A", label: "Guideline" },
-  campaign:  { r: 12, fill: "#FFFFFF", stroke: "#0A0A0A", text: "#0A0A0A", label: "Campaign" },
-  rule:      { r: 9,  fill: "#F5F5F5", stroke: "#404040", text: "#0A0A0A", label: "Rule" },
-  fact:      { r: 9,  fill: "#F5F5F5", stroke: "#404040", text: "#0A0A0A", label: "Fact" },
-  term:      { r: 9,  fill: "#F5F5F5", stroke: "#404040", text: "#0A0A0A", label: "Term" },
-  evidence:  { r: 7,  fill: "#FFFFFF", stroke: "#A3A3A3", text: "#737373", label: "Evidence" },
-  finding:   { r: 7,  fill: "#FFFFFF", stroke: "#737373", text: "#404040", label: "Finding" },
-  claim:     { r: 7,  fill: "#FFFFFF", stroke: "#737373", text: "#404040", label: "Claim" },
-  passport:  { r: 11, fill: "#0A0A0A", stroke: "#0A0A0A", text: "#FFFFFF", label: "Passport" },
+  brand:     { r: 26, fill: "#4F46E5", stroke: "#818CF8", text: "#FFFFFF", label: "Brand" },
+  category:  { r: 17, fill: "#7C3AED", stroke: "#C084FC", text: "#FFFFFF", label: "Category" },
+  guideline: { r: 12, fill: "#0284C7", stroke: "#38BDF8", text: "#FFFFFF", label: "Guideline" },
+  campaign:  { r: 12, fill: "#6366F1", stroke: "#A5B4FC", text: "#FFFFFF", label: "Campaign" },
+  rule:      { r: 10, fill: "#F59E0B", stroke: "#FDE68A", text: "#FFFFFF", label: "Rule" },
+  fact:      { r: 10, fill: "#10B981", stroke: "#A7F3D0", text: "#FFFFFF", label: "Fact" },
+  term:      { r: 10, fill: "#EC4899", stroke: "#FBCFE8", text: "#FFFFFF", label: "Term" },
+  evidence:  { r: 8,  fill: "#06B6D4", stroke: "#BAE6FD", text: "#FFFFFF", label: "Evidence" },
+  finding:   { r: 8,  fill: "#F43F5E", stroke: "#FECDD3", text: "#FFFFFF", label: "Finding" },
+  claim:     { r: 8,  fill: "#8B5CF6", stroke: "#DDD6FE", text: "#FFFFFF", label: "Claim" },
+  passport:  { r: 13, fill: "#059669", stroke: "#6EE7B7", text: "#FFFFFF", label: "Passport" },
 };
 const RING = 165;
 

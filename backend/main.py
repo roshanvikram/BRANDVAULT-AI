@@ -14,6 +14,8 @@ async def lifespan(app: FastAPI):
     # Startup: create tables, apply additive migrations, seed baseline brand
     Base.metadata.create_all(bind=engine)
     run_light_migrations(engine)
+    from backend.app.db.migrations import fix_chunk_page_numbers
+    fix_chunk_page_numbers(engine)
     db = SessionLocal()
     try:
         seed_sample_brand(db)

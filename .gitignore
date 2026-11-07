@@ -50,3 +50,6 @@ yarn-error.log*
 
 # Local dev token-signing key (generated)
 backend/.secret_key
+
+# Uploaded brand assets and investigation evidence (local storage)
+backend/storage/

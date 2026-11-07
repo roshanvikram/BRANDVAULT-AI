@@ -5,8 +5,6 @@ import Link from "next/link";
 import { Sparkles, Send, ShieldCheck, Info, ArrowUpRight, Loader2, MessageSquare } from "lucide-react";
 import { askBrandTwin, TwinAnswer } from "@/lib/api";
 
-const GLASS = "bg-white border border-[#E4E4E7] shadow-[0_1px_2px_rgba(10,10,10,0.04)] rounded-xl";
-
 const SUGGESTIONS = [
   "What is the approved launch price?",
   "Which brand rules are most often violated?",
@@ -45,24 +43,31 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5 select-none">
+    <div className="max-w-3xl mx-auto space-y-6 select-none">
       {/* Header */}
-      <div className="border-b border-[#E4E4E7] pb-5">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">Ask about your brand</h2>
-        <p className="text-xs text-[#737373] mt-0.5 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#0A0A0A]" />
-          Answers come <span className="font-semibold text-[#0A0A0A]">only from your approved brand data</span>, with citations — never invented.
+      <div className="border-b border-slate-200/80 pb-5">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50/80 text-[11px] font-bold uppercase tracking-wider text-indigo-700 mb-2">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+          <span>Brand Intelligence Assistant</span>
+        </div>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ask about your brand</h2>
+        <p className="text-xs text-slate-600 mt-1 flex items-center gap-1.5">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          Answers come <span className="font-semibold text-slate-900">only from your approved brand data</span>, with citations — never invented.
         </p>
       </div>
 
       {/* Conversation */}
       <div ref={scrollRef} className="space-y-4 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
         {log.length === 0 && (
-          <div className={`${GLASS} p-6 text-center`}>
-            <MessageSquare className="w-8 h-8 mx-auto text-[#A3A3A3] mb-3" />
-            <p className="text-xs text-[#737373] max-w-sm mx-auto leading-relaxed">
+          <div className="bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/40 border border-indigo-100/80 shadow-soft rounded-2xl p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-indigo-500/20">
+              <MessageSquare className="w-6 h-6" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-900 mb-1">Grounded Brand Intelligence</h3>
+            <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
               Ask a question about your pricing, approved claims, brand rules, prohibited terms, or brand voice.
-              Every answer is grounded in your organisation&apos;s approved records.
+              Every answer is verified against your organisation&apos;s approved records.
             </p>
           </div>
         )}
@@ -70,34 +75,40 @@ export default function AssistantPage() {
         {log.map((t, i) =>
           t.role === "user" ? (
             <div key={i} className="flex justify-end">
-              <div className="bg-[#0A0A0A] text-white text-xs font-medium rounded-lg rounded-br-sm px-4 py-2.5 max-w-[80%]">{t.text}</div>
+              <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-xs font-medium rounded-2xl rounded-br-sm px-5 py-3 max-w-[80%] shadow-md shadow-indigo-500/15">
+                {t.text}
+              </div>
             </div>
           ) : (
-            <div key={i} className={`${GLASS} p-4`}>
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 rounded-lg bg-[#0A0A0A] text-white flex items-center justify-center shrink-0"><Sparkles className="w-3.5 h-3.5" /></div>
-                <span className="text-[11px] font-mono font-bold text-[#0A0A0A]">BrandVault</span>
-                <span className={`text-[11px] font-mono px-1.5 py-0.5 rounded-full ${t.grounded ? "bg-[#0A0A0A] text-white" : "bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]"}`}>
-                  {t.grounded ? "grounded" : "not in approved data"}
+            <div key={i} className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-5">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-900">BrandVault Twin</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${t.grounded ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
+                  {t.grounded ? "Grounded in approved DNA" : "Not found in approved data"}
                 </span>
                 {t.phrased_by?.startsWith("llm:") && t.model && (
-                  <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-full bg-[#F5F5F5] text-[#737373] border border-[#E5E5E5]">AI · {t.model}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">AI · {t.model}</span>
                 )}
               </div>
-              <p className="text-xs text-[#0A0A0A] leading-relaxed whitespace-pre-line">{t.answer}</p>
+              <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-line font-medium">{t.answer}</p>
 
               {t.evidence.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#E4E4E7]">
-                  <div className="text-[11px] font-mono uppercase tracking-wider text-[#A3A3A3] font-bold mb-2">Sources ({t.evidence.length})</div>
+                <div className="mt-4 pt-3.5 border-t border-slate-100">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Sources ({t.evidence.length})</div>
                   <div className="space-y-1.5">
                     {t.evidence.map((e, j) => (
-                      <Link key={j} href={e.href} className="block px-3 py-2 rounded-lg bg-white border border-[#E4E4E7] hover:bg-white transition-colors group">
+                      <Link key={j} href={e.href} className="block px-3.5 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200/60 hover:bg-indigo-50/50 hover:border-indigo-200 transition-colors group">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-[#0A0A0A] truncate pr-2">{e.label}{e.page ? ` · p.${e.page}` : ""}</span>
-                          <ArrowUpRight className="w-3 h-3 text-[#A3A3A3] group-hover:text-[#0A0A0A] shrink-0" />
+                          <span className="text-xs font-bold text-indigo-900 group-hover:text-indigo-600 transition-colors truncate pr-2">
+                            {e.label}{e.page ? ` · p.${e.page}` : ""}
+                          </span>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
                         </div>
-                        {e.detail && <div className="text-[11px] text-[#737373] truncate mt-0.5">{e.detail}</div>}
-                        {e.source && <div className="text-[11px] font-mono text-[#A3A3A3] truncate mt-0.5">{e.source}</div>}
+                        {e.detail && <div className="text-[11px] text-slate-600 truncate mt-0.5">{e.detail}</div>}
+                        {e.source && <div className="text-[10px] font-mono text-slate-400 truncate mt-0.5">{e.source}</div>}
                       </Link>
                     ))}
                   </div>
@@ -108,8 +119,8 @@ export default function AssistantPage() {
         )}
 
         {busy && (
-          <div className={`${GLASS} p-4 flex items-center space-x-2 text-[#737373]`}>
-            <Loader2 className="w-4 h-4 animate-spin" /><span className="text-xs font-mono">Searching your approved brand data…</span>
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-4 flex items-center space-x-2 text-indigo-600">
+            <Loader2 className="w-4 h-4 animate-spin" /><span className="text-xs font-semibold">Searching your approved brand data…</span>
           </div>
         )}
       </div>
@@ -118,7 +129,7 @@ export default function AssistantPage() {
       {log.length === 0 && (
         <div className="flex flex-wrap gap-2">
           {SUGGESTIONS.map((s) => (
-            <button key={s} onClick={() => ask(s)} className={`${GLASS} px-3 py-1.5 text-[11px] font-medium text-[#404040] hover:text-[#0A0A0A] transition-colors`}>
+            <button key={s} onClick={() => ask(s)} className="px-3.5 py-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm">
               {s}
             </button>
           ))}
@@ -126,21 +137,21 @@ export default function AssistantPage() {
       )}
 
       {/* Composer */}
-      <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className={`${GLASS} p-2 flex items-center gap-2 sticky bottom-2`}>
+      <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-2 flex items-center gap-2 sticky bottom-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about pricing, claims, rules, terminology…"
-          className="flex-1 bg-transparent px-3 py-2 text-xs text-[#0A0A0A] placeholder-[#A3A3A3] focus:outline-none"
+          className="flex-1 bg-transparent px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none"
         />
         <button type="submit" disabled={busy || !input.trim()}
-                className="px-4 py-2 rounded-lg bg-[#0A0A0A] text-white text-xs font-medium hover:bg-[#27272A] disabled:opacity-40 transition-all flex items-center space-x-1.5">
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-semibold disabled:opacity-40 transition-all flex items-center space-x-1.5 shadow-md shadow-indigo-500/20">
           <Send className="w-3.5 h-3.5" /><span>Ask</span>
         </button>
       </form>
 
-      <p className="text-[11px] font-mono text-[#A3A3A3] text-center flex items-center justify-center gap-1.5">
-        <Info className="w-3 h-3" /> Deterministic, grounded answers from approved records. It does not take actions or browse the web.
+      <p className="text-[11px] font-medium text-slate-400 text-center flex items-center justify-center gap-1.5">
+        <Info className="w-3.5 h-3.5 text-indigo-500" /> Deterministic, grounded answers from approved records. Never invents policy.
       </p>
     </div>
   );

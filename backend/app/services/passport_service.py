@@ -5,6 +5,7 @@ import datetime
 from sqlalchemy.orm import Session
 from backend.app.models.submission import Submission, ApprovalRecord, Revision
 from backend.app.models.passport import BrandPassport, AuditLog
+from backend.app.models.brand import BrandGuideline
 
 def content_fingerprint(submission: Submission) -> str:
     """SHA-256 over content + version + org — the value an approval is locked to."""
@@ -13,6 +14,26 @@ def content_fingerprint(submission: Submission) -> str:
     hasher.update(str(submission.version).encode("utf-8"))
     hasher.update(submission.org_id.encode("utf-8"))
     return hasher.hexdigest()
+
+
+def normalise_content(text: str) -> str:
+    """Canonical form for integrity hashing: Unicode NFC, unified whitespace."""
+    import unicodedata
+    import re as _re
+    return _re.sub(r"\s+", " ", unicodedata.normalize("NFC", text or "")).strip()
+
+
+def content_sha256(text: str) -> str:
+    return hashlib.sha256(normalise_content(text).encode("utf-8")).hexdigest()
+
+
+def guideline_version_for(db: Session, org_id: str) -> str:
+    """The guideline actually in force: the most recently uploaded document."""
+    g = (db.query(BrandGuideline).filter(BrandGuideline.org_id == org_id)
+         .order_by(BrandGuideline.created_at.desc()).first())
+    if g is None:
+        return "No guideline on record"
+    return f"{g.filename} (uploaded {g.created_at:%Y-%m-%d})" if g.created_at else g.filename
 
 
 class PassportService:
@@ -63,7 +84,8 @@ class PassportService:
 
         # If approved, generate Brand Passport!
         if decision == "Approved":
-            self.generate_brand_passport(submission, reviewer_name)
+            self.db.flush()
+            self.generate_brand_passport(submission, reviewer_name, approval_id=approval.id)
 
         # Audit log
         audit = AuditLog(
@@ -79,7 +101,8 @@ class PassportService:
         self.db.refresh(submission)
         return submission
 
-    def generate_brand_passport(self, submission: Submission, reviewer_name: str) -> BrandPassport:
+    def generate_brand_passport(self, submission: Submission, reviewer_name: str,
+                                approval_id: str | None = None) -> BrandPassport:
         existing = self.db.query(BrandPassport).filter(BrandPassport.submission_id == submission.id).first()
         content_hash = content_fingerprint(submission)
         if existing and existing.content_hash == content_hash and existing.verification_status != "SUPERSEDED":
@@ -110,6 +133,20 @@ class PassportService:
             "certified_timestamp": datetime.datetime.utcnow().isoformat() + "Z",
             "cryptographic_fingerprint": content_hash
         }
+        guideline_version = guideline_version_for(self.db, submission.org_id)
+        passport_data["fingerprint"] = {
+            "campaign_id": submission.id,
+            "brand_id": submission.org_id,
+            "content_sha256": content_sha256(submission.content),
+            "version_bound_hash": content_hash,
+            "asset_hashes": [],  # text campaign: no files attached
+            "approved_version": submission.version,
+            "guideline_version": guideline_version,
+            "approval_reference": approval_id,
+            "approver": reviewer_name,
+            "timestamp": passport_data["certified_timestamp"],
+            "revision_number": len(submission.revisions),
+        }
 
         org = submission.organization
         brand_name = org.name if org else "Unknown organisation"
@@ -132,6 +169,7 @@ class PassportService:
             existing.verification_status = verification_status
             existing.final_score = submission.overall_score
             existing.audited_by = f"Reviewer: {reviewer_name} (BRANDVAULT Governance)"
+            existing.guideline_version = guideline_version
             existing.passport_data = passport_data
             existing.issued_at = datetime.datetime.utcnow()
             return existing
@@ -143,7 +181,7 @@ class PassportService:
             brand_name=brand_name,
             content_title=submission.title,
             content_hash=content_hash,
-            guideline_version="v2.4",
+            guideline_version=guideline_version,
             verification_status=verification_status,
             final_score=submission.overall_score,
             audited_by=f"Reviewer: {reviewer_name} (BRANDVAULT Governance)",

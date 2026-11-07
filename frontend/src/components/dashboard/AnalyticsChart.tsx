@@ -11,10 +11,7 @@ type Tab = "volume" | "findings";
 
 /**
  * Activity chart computed entirely from real submission data — the last six
- * months bucketed by each submission's created_at. "Review Volume" counts
- * submissions; "Critical Findings" counts CRITICAL findings. No fabricated
- * series: if a month has no activity it reads zero, and the month-over-month
- * delta is derived from the two most recent buckets.
+ * months bucketed by each submission's created_at.
  */
 export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
   const [tab, setTab] = useState<Tab>("volume");
@@ -63,73 +60,106 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
   const area = `${line} L ${pts[pts.length - 1].x.toFixed(1)},110 L ${pts[0].x.toFixed(1)},110 Z`;
 
   return (
-    <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-sm space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_20px_-8px_rgba(79,70,229,0.06)] space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-mono font-bold uppercase text-[#737373]">Activity Trends</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#F5F5F5] text-[#0A0A0A] font-semibold">
+            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Activity Trends</span>
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
               Last 6 months
             </span>
           </div>
-          <div className="text-xl font-bold tracking-tight text-[#0A0A0A] mt-1">Brand Governance Activity</div>
-          <div className="text-xs text-[#737373] mt-0.5">Computed from your submission history</div>
+          <div className="text-lg font-bold tracking-tight text-slate-900 mt-1">Brand Governance Activity</div>
+          <div className="text-xs text-slate-500">Live analytics across marketing reviews & verified claims</div>
         </div>
 
-        <div className="flex items-center bg-[#F5F5F5] p-1 rounded-xl border border-[#E5E5E5] text-xs font-mono">
+        {/* Tab switch */}
+        <div className="flex items-center bg-slate-100/80 p-1 rounded-xl border border-slate-200 text-xs self-start sm:self-auto">
           <button
             onClick={() => setTab("volume")}
-            className={`px-3 py-1 rounded-lg transition-all ${tab === "volume" ? "bg-[#0A0A0A] text-white font-bold shadow-sm" : "text-[#737373] hover:text-[#0A0A0A]"}`}
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              tab === "volume"
+                ? "bg-white text-indigo-700 font-semibold shadow-sm ring-1 ring-slate-200/60"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
           >
             Review Volume
           </button>
           <button
             onClick={() => setTab("findings")}
-            className={`px-3 py-1 rounded-lg transition-all ${tab === "findings" ? "bg-[#0A0A0A] text-white font-bold shadow-sm" : "text-[#737373] hover:text-[#0A0A0A]"}`}
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              tab === "findings"
+                ? "bg-white text-rose-700 font-semibold shadow-sm ring-1 ring-slate-200/60"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
           >
             Critical Findings
           </button>
         </div>
       </div>
 
-      {/* Metric caellout (real totals) */}
-      <div className="flex items-baseline space-x-3">
-        <span className="text-3xl font-bold tracking-tight text-[#0A0A0A]">
-          {total} {tab === "volume" ? (total === 1 ? "Audit" : "Audits") : "Critical"}
+      {/* Metric callout */}
+      <div className="flex items-baseline space-x-3 pt-1">
+        <span className="text-3xl font-extrabold tracking-tight text-slate-900">
+          {total} <span className="text-xl font-medium text-slate-600">{tab === "volume" ? (total === 1 ? "Audit" : "Audits") : "Issues"}</span>
         </span>
         {(last > 0 || prev > 0) && (
-          <span className="text-xs font-mono font-semibold text-[#0A0A0A] bg-[#F5F5F5] border border-[#E5E5E5] px-2 py-0.5 rounded-md">
-            {delta >= 0 ? "+" : ""}{delta}% vs last month
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 border ${
+            delta >= 0 
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+              : "bg-slate-100 text-slate-700 border-slate-200"
+          }`}>
+            <span>{delta >= 0 ? "+" : ""}{delta}%</span>
+            <span className="text-[10px] text-slate-500 font-normal">vs last month</span>
           </span>
         )}
       </div>
 
-      {/* Chart */}
+      {/* Chart SVG */}
       <div className="relative h-44 w-full pt-2">
         <svg viewBox="0 0 500 130" className="w-full h-full overflow-visible">
           <defs>
-            <linearGradient id="monoAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0A0A0A" stopOpacity="0.18" />
-              <stop offset="60%" stopColor="#404040" stopOpacity="0.06" />
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.00" />
+            <linearGradient id="chartIndigoGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.22" />
+              <stop offset="60%" stopColor="#818CF8" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#EEF2FF" stopOpacity="0.00" />
+            </linearGradient>
+            <linearGradient id="chartRoseGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.22" />
+              <stop offset="60%" stopColor="#FB7185" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#FFF1F2" stopOpacity="0.00" />
             </linearGradient>
           </defs>
 
-          <line x1="0" y1="20" x2="500" y2="20" stroke="#F0F0F0" strokeDasharray="3 3" />
-          <line x1="0" y1="60" x2="500" y2="60" stroke="#F0F0F0" strokeDasharray="3 3" />
-          <line x1="0" y1="100" x2="500" y2="100" stroke="#F0F0F0" strokeDasharray="3 3" />
+          {/* Grid lines */}
+          <line x1="0" y1="20" x2="500" y2="20" stroke="#E2E8F0" strokeDasharray="3 3" />
+          <line x1="0" y1="60" x2="500" y2="60" stroke="#E2E8F0" strokeDasharray="3 3" />
+          <line x1="0" y1="100" x2="500" y2="100" stroke="#E2E8F0" strokeDasharray="3 3" />
 
-          <path d={area} fill="url(#monoAreaGrad)" />
-          <path d={line} fill="none" stroke="#0A0A0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Area fill */}
+          <path d={area} fill={tab === "volume" ? "url(#chartIndigoGrad)" : "url(#chartRoseGrad)"} />
 
+          {/* Line */}
+          <path
+            d={line}
+            fill="none"
+            stroke={tab === "volume" ? "#4F46E5" : "#F43F5E"}
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Dots */}
           {pts.map((p, i) => (
             <circle
               key={i}
               cx={p.x}
               cy={p.y}
-              r="4"
-              className="fill-white stroke-[#0A0A0A] stroke-2 cursor-pointer transition-all"
+              r="4.5"
+              className={`fill-white stroke-2 cursor-pointer transition-all hover:scale-125 ${
+                tab === "volume" ? "stroke-[#4F46E5]" : "stroke-[#F43F5E]"
+              }`}
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover(null)}
             />
@@ -138,16 +168,19 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
 
         {hover !== null && (
           <div
-            className="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-full bg-[#0A0A0A] text-white text-[11px] px-2.5 py-1.5 rounded-lg shadow-lg border border-[#404040]"
+            className="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-full bg-white text-slate-900 text-xs px-3 py-1.5 rounded-lg shadow-lg border border-slate-200"
             style={{ left: `${(pts[hover].x / 500) * 100}%`, top: `${(pts[hover].y / 130) * 100}%` }}
           >
-            <div className="font-bold">
-              {buckets[hover].label}: {series[hover]} {tab === "volume" ? "audits" : "critical"}
+            <div className="font-bold flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${tab === "volume" ? "bg-indigo-600" : "bg-rose-500"}`} />
+              <span>{buckets[hover].label}:</span>
+              <span className="font-extrabold">{series[hover]}</span>
+              <span className="text-slate-500 font-normal">{tab === "volume" ? "audits" : "critical"}</span>
             </div>
           </div>
         )}
 
-        <div className="flex justify-between items-center text-[11px] font-mono text-[#737373] pt-1 px-1">
+        <div className="flex justify-between items-center text-[11px] font-medium text-slate-500 pt-1 px-1">
           {buckets.map((b) => (
             <span key={b.key}>{b.label}</span>
           ))}

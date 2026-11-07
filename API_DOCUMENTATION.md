@@ -27,6 +27,42 @@
 | GET | `/` | Product/team metadata, status banner |
 | GET | `/api/v1/health` | Liveness + DB connectivity |
 
+## Product Truth & Knowledge Gaps
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/products` | Products with facts (status, source, page, excerpt), attribute list, whether AI extraction is available |
+| POST | `/api/v1/products/verify` | `{text}` → per-claim status, submitted vs approved value, source document, page, excerpt, suggestion |
+| POST | `/api/v1/products` | Admin: create product |
+| POST | `/api/v1/products/{id}/facts` | Admin: add an approved fact (supersedes the previous value for that attribute) |
+| POST | `/api/v1/products/facts/{id}/approve` · `/reject` | Admin: decide on a pending (AI-proposed) fact |
+| POST | `/api/v1/products/extract` → GET `/api/v1/products/extract/{job_id}` | Admin: background AI extraction from guidelines (503 if no AI model) |
+| GET | `/api/v1/products/knowledge-gaps` | Completeness, prioritised gap items with evidence and actions, product coverage matrix, recommended documents |
+
+## Campaign integrity
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/passport/verify` | multipart `text` or `file` (.txt/.md; images return Unable to Verify) → result, similarity, word diff, fingerprint |
+| GET | `/api/v1/passport/integrity-checks` | Append-only verification log |
+| GET | `/api/v1/passport/{number}/fingerprint` | Fingerprint of one passport |
+
+## Brand Asset Library & Forensics
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/assets` | Library with status, current flag, hashes, colours, recommended replacement |
+| POST | `/api/v1/assets` | Admin: multipart upload (`file`, `name`, `kind`, `version_label`, optional `supersedes_id`) |
+| POST | `/api/v1/assets/{id}/status` | Admin: change status (e.g. archived) |
+| GET | `/api/v1/assets/{id}/file` | Official file (same organisation only) |
+| POST | `/api/v1/assets/investigate` | multipart `file` → risk, matches, located logo polygon/bbox, measured modifications, findings |
+| GET | `/api/v1/assets/investigations[/{id}[/file]]` | Investigation history and preserved evidence |
+
+## Translation Guard
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/translation-guard/languages` | Detected languages, languages with qualifier/negation checks, whether AI is available (public) |
+| POST | `/api/v1/translation-guard/analyze` | `{title, source_text, translations:[{label?, text}] (1-8, ≤5000 chars each), use_ai}` → campaign with per-translation verdict, scores, findings, figures table, corrected translation. Auth + AI rate limit |
+| GET | `/api/v1/translation-guard/campaigns` | Recent campaigns for the caller's organisation |
+| GET | `/api/v1/translation-guard/campaigns/{id}` | One campaign (404 for other organisations) |
+
 ## Brand DNA
 | Method | Path | Purpose |
 |---|---|---|

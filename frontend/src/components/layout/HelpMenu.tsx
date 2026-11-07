@@ -43,7 +43,7 @@ export function HelpMenu() {
           <div className="p-3 space-y-1.5">
             {STEPS.map((s) => (
               <div key={s.n} className="flex items-start space-x-2.5 px-1.5 py-1">
-                <div className="w-5 h-5 rounded-md bg-[#0A0A0A] text-white text-[11px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-md bg-[#F4F4F5] text-[#0A0A0A] ring-1 ring-inset ring-[#E4E4E7] text-[11px] font-mono font-bold flex items-center justify-center shrink-0 mt-0.5">
                   {s.n}
                 </div>
                 <div>

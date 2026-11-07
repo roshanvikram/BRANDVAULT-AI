@@ -7,8 +7,6 @@ import {
 import { fetchBrandMemory, applyMemoryTerminology, BrandMemory, MemoryInsight, MemoryProposal } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-const GLASS = "bg-white border border-[#E4E4E7] shadow-[0_1px_2px_rgba(10,10,10,0.04)] rounded-xl";
-
 const INSIGHT_ICON: Record<string, any> = {
   accepted_correction: Check,
   recurring_violation: Repeat,
@@ -48,83 +46,89 @@ export default function BrandMemoryPage() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E4E4E7] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">What your governance history is telling you</h2>
-          <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
-            Patterns learned from real reviews. BrandVault never edits policy automatically — proposals need an administrator.
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-purple-200 bg-purple-50 text-[11px] font-bold uppercase tracking-wider text-purple-700 mb-2">
+            <Brain className="w-3.5 h-3.5 text-purple-600" />
+            <span>Continuous Brand Learning</span>
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">What your governance history is telling you</h2>
+          <p className="text-xs text-slate-600 mt-1 max-w-2xl">
+            Patterns learned from real reviews. BrandVault never edits policy automatically — proposals require administrator confirmation.
           </p>
         </div>
         <button onClick={load} disabled={loading}
-          className="px-3.5 py-2 text-xs font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] transition-colors flex items-center space-x-2">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
+          className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors flex items-center space-x-2 shadow-sm self-start sm:self-auto">
+          <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${loading ? "animate-spin" : ""}`} />
+          <span>Refresh analysis</span>
         </button>
       </div>
 
-      {!mem && <div className="flex items-center justify-center py-16 text-[#737373]"><Loader2 className="w-5 h-5 animate-spin" /></div>}
+      {!mem && <div className="flex items-center justify-center py-16 text-indigo-600"><Loader2 className="w-6 h-6 animate-spin" /></div>}
 
       {mem && (
         <>
-          {/* Summary */}
+          {/* Summary KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Accepted corrections", value: mem.summary.applied_corrections ?? 0 },
-              { label: "Recurring patterns", value: mem.summary.recurring_patterns ?? 0 },
-              { label: "Contradictions", value: mem.summary.contradictions ?? 0 },
-              { label: "Policy proposals", value: mem.summary.proposals ?? 0 },
+              { label: "Accepted corrections", value: mem.summary.applied_corrections ?? 0, bg: "from-emerald-500/10 to-teal-500/5", border: "border-emerald-200", text: "text-emerald-700" },
+              { label: "Recurring patterns", value: mem.summary.recurring_patterns ?? 0, bg: "from-amber-500/10 to-orange-500/5", border: "border-amber-200", text: "text-amber-700" },
+              { label: "Contradictions", value: mem.summary.contradictions ?? 0, bg: "from-rose-500/10 to-pink-500/5", border: "border-rose-200", text: "text-rose-700" },
+              { label: "Policy proposals", value: mem.summary.proposals ?? 0, bg: "from-indigo-500/10 to-purple-500/5", border: "border-indigo-200", text: "text-indigo-700" },
             ].map((s) => (
-              <div key={s.label} className={`${GLASS} p-4`}>
-                <div className="text-3xl font-bold tracking-tight text-[#0A0A0A]">{s.value}</div>
-                <div className="text-[11px] font-mono text-[#737373] mt-0.5">{s.label}</div>
+              <div key={s.label} className={`bg-gradient-to-br ${s.bg} bg-white rounded-2xl border ${s.border} shadow-soft p-5`}>
+                <div className={`text-3xl font-extrabold tracking-tight ${s.text}`}>{s.value}</div>
+                <div className="text-xs font-bold text-slate-600 mt-1">{s.label}</div>
               </div>
             ))}
           </div>
 
           {/* Proposals */}
-          <div className={`${GLASS} p-5 space-y-4`}>
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Lightbulb className="w-4 h-4 text-[#0A0A0A]" />
-                <span className="text-sm font-bold text-[#0A0A0A]">Proposed policy improvements</span>
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
+                  <Lightbulb className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold text-slate-900">Proposed policy improvements</span>
               </div>
               {!isAdmin && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#737373]"><Lock className="w-3 h-3" /> Administrator applies</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full"><Lock className="w-3.5 h-3.5" /> Administrator action required</span>
               )}
             </div>
             {mem.proposals.length === 0 ? (
-              <div className="text-xs text-[#737373] py-2">
-                No new proposals — your terminology already covers the recurring issues in your history.
+              <div className="text-xs text-slate-500 py-3 bg-slate-50 rounded-xl px-4">
+                No new proposals — your approved terminology already covers the recurring issues in your history.
               </div>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {mem.proposals.map((p: MemoryProposal) => {
                   const st = applied[p.prohibited_term];
                   return (
-                    <div key={p.prohibited_term} className="p-3.5 rounded-xl bg-white border border-[#E4E4E7] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div key={p.prohibited_term} className="p-4 rounded-xl bg-gradient-to-r from-amber-50/40 via-white to-indigo-50/30 border border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-xs flex-wrap">
-                          <span className="font-mono font-bold text-[#A3A3A3] line-through">{p.prohibited_term}</span>
-                          <ArrowRight className="w-3 h-3 text-[#A3A3A3]" />
-                          <span className="font-mono font-bold text-[#0A0A0A]">{p.preferred_term}</span>
+                          <span className="font-bold text-rose-500 line-through bg-rose-50 px-2 py-0.5 rounded border border-rose-200">{p.prohibited_term}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{p.preferred_term}</span>
                         </div>
-                        <div className="text-[11px] text-[#737373] mt-0.5">Add as approved terminology · {p.reason}</div>
+                        <div className="text-xs text-slate-600 mt-1">Add as approved terminology · {p.reason}</div>
                       </div>
                       <div className="shrink-0">
                         {st === "applied" ? (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-[#0A0A0A]"><Check className="w-3.5 h-3.5" /> Added to Brand DNA</span>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl"><Check className="w-3.5 h-3.5" /> Added to Brand DNA</span>
                         ) : st === "exists" ? (
-                          <span className="text-[11px] font-mono text-[#737373]">Already exists</span>
+                          <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl">Already exists</span>
                         ) : st && st !== "applying" ? (
-                          <span className="text-[11px] font-mono text-[#737373]">{st}</span>
+                          <span className="text-xs font-semibold text-rose-600">{st}</span>
                         ) : (
                           <button
                             onClick={() => apply(p)}
                             disabled={!isAdmin || st === "applying"}
                             title={isAdmin ? "Add this to your terminology" : "Only an Administrator can apply"}
-                            className="px-3 py-1.5 text-[11px] font-medium rounded-lg bg-[#0A0A0A] text-white hover:bg-[#27272A] disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-1.5"
+                            className="px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all inline-flex items-center gap-1.5 shadow-md shadow-indigo-500/20"
                           >
-                            {st === "applying" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                            {st === "applying" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                             <span>Add to terminology</span>
                           </button>
                         )}
@@ -137,26 +141,28 @@ export default function BrandMemoryPage() {
           </div>
 
           {/* Insights */}
-          <div className={`${GLASS} p-5 space-y-3`}>
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 text-[#0A0A0A]" />
-              <span className="text-sm font-bold text-[#0A0A0A]">Learned insights</span>
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-soft p-6 space-y-4">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-slate-900">Learned governance patterns</span>
             </div>
             {mem.insights.length === 0 ? (
-              <div className="text-xs text-[#737373]">Not enough history yet — analyse some content to build memory.</div>
+              <div className="text-xs text-slate-500 py-3 bg-slate-50 rounded-xl px-4">Not enough review history yet — analyse content to build memory patterns.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {mem.insights.map((ins: MemoryInsight, i: number) => {
                   const Icon = INSIGHT_ICON[ins.type] || Info;
                   return (
-                    <div key={i} className="p-3.5 rounded-xl bg-white border border-[#E4E4E7] flex items-start gap-3">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-[#E4E4E7] flex items-center justify-center shrink-0 text-[#0A0A0A]"><Icon className="w-3.5 h-3.5" /></div>
+                    <div key={i} className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-soft transition-all flex items-start gap-3.5">
+                      <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0"><Icon className="w-4 h-4" /></div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-[#0A0A0A] flex items-center gap-2">
+                        <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
                           {ins.title}
-                          <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] text-[#404040]">×{ins.count}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700">×{ins.count}</span>
                         </div>
-                        <div className="text-[11px] text-[#737373] mt-0.5 leading-relaxed">{ins.detail}</div>
+                        <div className="text-xs text-slate-600 mt-1 leading-relaxed">{ins.detail}</div>
                       </div>
                     </div>
                   );
@@ -165,8 +171,8 @@ export default function BrandMemoryPage() {
             )}
           </div>
 
-          <p className="text-[11px] font-mono text-[#A3A3A3] flex items-center gap-1.5">
-            <Info className="w-3 h-3" /> {mem.note}
+          <p className="text-xs text-slate-400 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 text-indigo-500" /> {mem.note}
           </p>
         </>
       )}

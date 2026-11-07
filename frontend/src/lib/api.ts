@@ -665,3 +665,257 @@ export async function fetchRiskIntelligence(orgId?: string): Promise<RiskIntelli
   return res.json();
 }
 
+
+// ------------------------------------------------------------------ //
+//  Translation Guard — multilingual claim consistency
+// ------------------------------------------------------------------ //
+export type TGSeverity = "CRITICAL" | "WARNING" | "INFO";
+export interface TGFinding {
+  type: string;
+  severity: TGSeverity;
+  title: string;
+  explanation: string;
+  original: string;
+  translated: string;
+  suggestion: string;
+  evidence: string;
+  engine: string; // "deterministic" | "llm:<provider>"
+  confirmed_by_ai?: boolean;
+}
+export interface TGNumberRow {
+  source: string | null;
+  translation: string | null;
+  status: "match" | "changed" | "qualifier" | "missing" | "additional";
+}
+export interface TGScores {
+  numerical_consistency: number | null;
+  claim_consistency: number | null;
+  terminology_consistency: number | null;
+  completeness: number | null;
+  negation_consistency: number | null;
+  semantic_similarity: number | null;
+}
+export interface TGTranslation {
+  id: string;
+  label: string | null;
+  text: string;
+  detected_lang: string;
+  overall_score: number;
+  verdict: "Consistent" | "Review recommended" | "Needs revision";
+  language: { code: string; name: string; confidence: number; method: string };
+  qualifier_check_supported: boolean;
+  scores: TGScores;
+  findings: TGFinding[];
+  numbers: TGNumberRow[];
+  corrected_translation: string;
+  cultural_notes: string[];
+  engine: string;
+  model: string;
+}
+export interface TGCampaignSummary {
+  id: string;
+  title: string;
+  source_lang: string;
+  source_language: string;
+  overall_score: number;
+  verdict: TGTranslation["verdict"];
+  engine: string;
+  created_by: string | null;
+  created_at: string | null;
+  languages: string[];
+}
+export interface TGCampaign extends TGCampaignSummary {
+  source_text: string;
+  translations: TGTranslation[];
+}
+export interface TGLanguages {
+  detected: { code: string; name: string }[];
+  qualifier_and_negation_checks: { code: string; name: string }[];
+  ai_available: boolean;
+}
+
+async function tgError(res: Response, fallback: string): Promise<never> {
+  const body = await res.json().catch(() => null);
+  const detail = typeof body?.detail === "string" ? body.detail : Array.isArray(body?.detail) ? body.detail[0]?.msg : null;
+  throw new Error(res.status === 429 ? detail || "Too many requests — wait a moment." : detail || fallback);
+}
+
+export async function fetchTGLanguages(): Promise<TGLanguages> {
+  const res = await apiFetch(`${API_BASE}/translation-guard/languages`, { cache: "no-store" });
+  if (!res.ok) return tgError(res, "Failed to load supported languages");
+  return res.json();
+}
+export async function runTranslationGuard(payload: {
+  title: string;
+  source_text: string;
+  translations: { label?: string; text: string }[];
+  use_ai?: boolean;
+}): Promise<TGCampaign> {
+  const res = await apiFetch(`${API_BASE}/translation-guard/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) return tgError(res, "Translation Guard analysis failed");
+  return res.json();
+}
+export async function fetchTGCampaigns(): Promise<TGCampaignSummary[]> {
+  const res = await apiFetch(`${API_BASE}/translation-guard/campaigns`, { cache: "no-store" });
+  if (!res.ok) return tgError(res, "Failed to load campaigns");
+  return res.json();
+}
+export async function fetchTGCampaign(id: string): Promise<TGCampaign> {
+  const res = await apiFetch(`${API_BASE}/translation-guard/campaigns/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (!res.ok) return tgError(res, "Failed to load campaign");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
+//  Shared helpers for the intelligence engines
+// ------------------------------------------------------------------ //
+async function engineError(res: Response, fallback: string): Promise<never> {
+  const body = await res.json().catch(() => null);
+  const d = body?.detail;
+  throw new Error(typeof d === "string" ? d : Array.isArray(d) ? d[0]?.msg || fallback : fallback);
+}
+async function getJSON<T>(path: string, fallback: string): Promise<T> {
+  const res = await apiFetch(`${API_BASE}${path}`, { cache: "no-store" });
+  if (!res.ok) return engineError(res, fallback);
+  return res.json();
+}
+async function postJSON<T>(path: string, body: unknown, fallback: string): Promise<T> {
+  const res = await apiFetch(`${API_BASE}${path}`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body ?? {}),
+  });
+  if (!res.ok) return engineError(res, fallback);
+  return res.json();
+}
+async function postForm<T>(path: string, form: FormData, fallback: string): Promise<T> {
+  const res = await apiFetch(`${API_BASE}${path}`, { method: "POST", body: form });
+  if (!res.ok) return engineError(res, fallback);
+  return res.json();
+}
+/** Load an auth-protected image as an object URL for an img tag. Caller revokes it. */
+export async function fetchProtectedImage(path: string): Promise<string> {
+  const res = await apiFetch(`${API_BASE}${path}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Image unavailable");
+  return URL.createObjectURL(await res.blob());
+}
+
+// ------------------------------------------------------------------ //
+//  Product Truth Engine
+// ------------------------------------------------------------------ //
+export interface ProductFactOut {
+  id: string; attribute: string; attribute_label: string; value_text: string; value_num: number | null;
+  unit: string | null; qualifier: string; source_document: string | null; page_reference: number | null;
+  evidence_excerpt: string | null; status: "pending" | "approved" | "rejected" | "superseded";
+  is_current: boolean; expired: boolean; origin: string; valid_until: string | null;
+  approved_by: string | null; approved_at: string | null; created_by: string | null; created_at: string | null;
+}
+export interface ProductOut { id: string; name: string; model_number: string | null; category: string | null; status: string; facts: ProductFactOut[]; }
+export interface ProductsResponse { products: ProductOut[]; attributes: Record<string, string>; ai_extraction_available: boolean; }
+export type TruthStatus = "Supported" | "Contradicted" | "Outdated" | "Unsupported" | "Needs Human Review";
+export interface TruthClaim {
+  status: TruthStatus; attribute: string; attribute_label: string; product: string | null; product_inferred: boolean;
+  claim_text: string; sentence: string; submitted_value: string; approved_value: string | null;
+  source_document: string | null; page_reference: number | null; evidence_excerpt: string | null;
+  explanation: string; suggestion: string; fact_id: string | null;
+}
+export interface TruthResult {
+  language: string; products_detected: string[]; product_inferred: boolean; claims: TruthClaim[];
+  summary: Record<TruthStatus, number>; verdict: string;
+}
+export const fetchProducts = () => getJSON<ProductsResponse>("/products", "Failed to load products");
+export const verifyProductClaims = (text: string) => postJSON<TruthResult>("/products/verify", { text }, "Verification failed");
+export const createProduct = (p: { name: string; model_number?: string; category?: string }) =>
+  postJSON<ProductOut>("/products", p, "Could not create product");
+export const addProductFact = (productId: string, f: { attribute: string; value_text: string; source_document: string; page_reference?: number; evidence_excerpt?: string }) =>
+  postJSON<ProductFactOut>(`/products/${productId}/facts`, f, "Could not add fact");
+export const approveProductFact = (id: string) => postJSON<ProductFactOut>(`/products/facts/${id}/approve`, {}, "Could not approve");
+export const rejectProductFact = (id: string) => postJSON<ProductFactOut>(`/products/facts/${id}/reject`, {}, "Could not reject");
+export interface ExtractionJob {
+  id: string; job_id?: string; status: string; stage: string; error: string | null;
+  result?: { proposed: number; rejected_unverifiable: number; duplicates: number; note?: string } | null;
+}
+export const startFactExtraction = () => postJSON<ExtractionJob>("/products/extract", {}, "Could not start extraction");
+export const fetchExtractionJob = (id: string) => getJSON<ExtractionJob>(`/products/extract/${id}`, "Could not read job");
+
+// ------------------------------------------------------------------ //
+//  Knowledge Gap Detector
+// ------------------------------------------------------------------ //
+export type GapStatus = "ok" | "missing" | "conflict" | "weak" | "stale";
+export interface GapItem {
+  key: string; label: string; status: GapStatus; priority: "high" | "medium" | "low"; group: string;
+  detail: string; recommendation: string; evidence: { source: string; page: number | null; excerpt: string } | null;
+  action: { label: string; href: string } | null;
+}
+export interface KnowledgeGaps {
+  org: { id: string; name: string }; completeness: number; counts: Record<GapStatus, number>; items: GapItem[];
+  products: { product: string; product_id: string; attributes: { attribute: string; label: string; status: GapStatus; value?: string; pending: boolean }[] }[];
+  recommended_documents: string[]; basis: string; generated_at: string;
+}
+export const fetchKnowledgeGaps = () => getJSON<KnowledgeGaps>("/products/knowledge-gaps", "Failed to analyse knowledge gaps");
+
+// ------------------------------------------------------------------ //
+//  Campaign DNA Fingerprint (integrity)
+// ------------------------------------------------------------------ //
+export type IntegrityResult = "Verified Match" | "Modified After Approval" | "Unknown Version" | "New Unapproved Campaign" | "Unable to Verify";
+export interface IntegrityCheck {
+  id: string; result: IntegrityResult; explanation: string; similarity: number | null; input_kind: string;
+  input_name: string | null; input_sha256: string; matched_passport_number: string | null;
+  matched_submission_id: string | null; checked_by: string; created_at: string | null;
+  details: { diff?: { change: string; approved: string; submitted: string }[]; fingerprint?: Record<string, unknown>; hint?: string };
+}
+export function verifyCampaignIntegrity(input: { text?: string; file?: File }): Promise<IntegrityCheck> {
+  const form = new FormData();
+  if (input.file) form.append("file", input.file);
+  else form.append("text", input.text || "");
+  return postForm<IntegrityCheck>("/passport/verify", form, "Verification failed");
+}
+export const fetchIntegrityChecks = () => getJSON<IntegrityCheck[]>("/passport/integrity-checks", "Failed to load history");
+
+// ------------------------------------------------------------------ //
+//  Brand Asset Library + Forensics
+// ------------------------------------------------------------------ //
+export interface BrandAssetOut {
+  id: string; name: string; kind: string; version_label: string; status: string; current: boolean;
+  width: number; height: number; mime: string; sha256: string; phash: string;
+  colours: { dominant?: { hex: string; share: number }[] }; supersedes_id: string | null; superseded_by_id: string | null;
+  valid_until: string | null; uploaded_by: string; approved_by: string | null; created_at: string | null;
+  replacement: { id: string; name: string; version_label: string } | null;
+}
+export interface ForensicFinding {
+  type: string; severity: "high" | "medium" | "low" | "info"; title: string; measurement: string;
+  explanation: string; recommendation: string; confidence: number;
+}
+export interface ForensicMatch {
+  asset_id: string; asset_name: string; asset_kind: string; version_label: string; asset_status: string; current: boolean;
+  similarity: number; phash_distance: number; identical_file: boolean;
+  logo_match: {
+    method: string; confidence: number; polygon: number[][]; bbox: number[]; rotation_deg: number;
+    scale_x: number; scale_y: number; out_of_frame: number; delta_e: number | null; verification: number;
+  } | null;
+  findings: ForensicFinding[]; replacement: { id: string; name: string; version_label: string } | null;
+}
+export interface Investigation {
+  id: string; file_name: string; risk: "high" | "medium" | "low" | "none"; summary: string; width: number; height: number;
+  sha256: string; investigated_by: string; elapsed_ms: number | null; created_at: string | null;
+  matches?: ForensicMatch[]; note?: string; compared?: number;
+}
+export const fetchAssets = () => getJSON<BrandAssetOut[]>("/assets", "Failed to load assets");
+export function uploadBrandAsset(input: { file: File; name: string; kind: string; version_label: string; supersedes_id?: string }): Promise<BrandAssetOut> {
+  const form = new FormData();
+  form.append("file", input.file);
+  form.append("name", input.name);
+  form.append("kind", input.kind);
+  form.append("version_label", input.version_label);
+  if (input.supersedes_id) form.append("supersedes_id", input.supersedes_id);
+  return postForm<BrandAssetOut>("/assets", form, "Upload failed");
+}
+export function investigateAsset(file: File): Promise<Investigation> {
+  const form = new FormData();
+  form.append("file", file);
+  return postForm<Investigation>("/assets/investigate", form, "Investigation failed");
+}
+export const fetchInvestigations = () => getJSON<Investigation[]>("/assets/investigations", "Failed to load investigations");
+export const fetchInvestigation = (id: string) => getJSON<Investigation>(`/assets/investigations/${id}`, "Failed to load investigation");
