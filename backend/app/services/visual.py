@@ -254,7 +254,7 @@ def analyze_and_persist(db, org_id: str, filename: str, data: bytes, author_name
     submission.findings = findings
 
     run = AgentRun(
-        id=str(uuid.uuid4()), agent_name="Visual DNA Agent",
+        id=str(uuid.uuid4()), org_id=org_id, agent_name="Visual DNA Agent",
         task_name="Deterministic colour-palette & contrast measurement",
         status="COMPLETED",
         execution_time_ms=round((time.perf_counter() - start) * 1000),

@@ -58,6 +58,7 @@ export default function ApprovalHub() {
       // attributes the decision to the authenticated identity.
       const res = await submitApprovalDecision({
         submission_id: selectedSub.id,
+        expected_version: selectedSub.version,
         decision: decision,
         comments: comments,
         reviewer_name: user?.full_name || reviewerName,

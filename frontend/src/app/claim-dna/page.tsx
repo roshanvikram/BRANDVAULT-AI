@@ -73,7 +73,6 @@ export default function ClaimDNA() {
     setRunningTest(true);
     try {
       const res = await analyzeContent({
-        org_id: "nova-tech-org-001",
         title: "ClaimDNA Custom Verification",
         content: customClaim
       });
@@ -123,7 +122,7 @@ export default function ClaimDNA() {
           className="px-4 py-2.5 text-xs font-mono font-semibold rounded-lg bg-[#0A0A0A] text-[#FFFFFF] hover:bg-[#262626] transition-all flex items-center space-x-2 shadow-sm"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>{runningTest ? "AUDITING..." : "EXECUTE NOVA TECH BENCHMARK AUDIT"}</span>
+          <span>{runningTest ? "AUDITING..." : "RUN SAMPLE CLAIM AUDIT"}</span>
         </button>
       </div>
 
@@ -131,7 +130,7 @@ export default function ClaimDNA() {
       <div className="p-5 rounded-xl border border-[#E5E5E5] bg-[#FFFFFF] shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-[#0A0A0A]">Instant Claim Verification</span>
-          <span className="text-[10px] font-mono text-[#737373]">Checks against NOVA TECH Knowledge Base (Launch Price: ₹79,999)</span>
+          <span className="text-[10px] font-mono text-[#737373]">Audits a sample launch claim against your organisation’s approved facts</span>
         </div>
         <div className="flex gap-2">
           <input

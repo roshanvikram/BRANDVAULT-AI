@@ -30,6 +30,8 @@ class AgentRun(Base):
     __tablename__ = "agent_runs"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    # Tenant scope. NULL only for legacy runs recorded before Phase 1a.
+    org_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     agent_name: Mapped[str] = mapped_column(String(100), nullable=False) # Orchestrator, Brand Voice, Terminology, ClaimDNA, Suggestion, Guideline Gap
     task_name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="COMPLETED") # RUNNING, COMPLETED, FAILED

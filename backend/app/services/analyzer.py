@@ -108,6 +108,7 @@ class ContentAnalyzerService:
         org = self.db.query(Organization).filter(Organization.id == org_id).first()
         if not org:
             raise ValueError(f"Organization with id {org_id} not found.")
+        self._org_id = org_id  # tenant scope for agent-run records
 
         rules = self.db.query(BrandRule).filter(BrandRule.org_id == org_id, BrandRule.is_active == True).all()
         facts = self.db.query(ApprovedFact).filter(ApprovedFact.org_id == org_id).all()
@@ -121,10 +122,14 @@ class ContentAnalyzerService:
         if submission_id:
             submission = self.db.query(Submission).filter(Submission.id == submission_id).first()
             if submission:
+                if submission.org_id != org_id:
+                    # Never let one organisation overwrite another's submission.
+                    raise PermissionError("Submission belongs to a different organisation.")
+                changed = submission.content != content or submission.title != title
                 submission.findings.clear()
                 submission.claim_verifications.clear()
-                submission.content = content
-                submission.title = title
+                if changed:
+                    self._new_version(submission, content, title, author_name)
                 submission.status = "Analysed"
             else:
                 submission_id = str(uuid.uuid4())
@@ -450,7 +455,23 @@ class ContentAnalyzerService:
         )
         return extra_deductions
 
-    def apply_correction(self, submission_id: str, finding_id: str, target_text: str, replacement_text: str) -> Submission:
+    def _new_version(self, submission: Submission, content: str, title: str, actor: str) -> None:
+        """Record a new content version. Any approval or passport issued for an
+        earlier version no longer applies (version-locked approvals)."""
+        from backend.app.models.submission import Revision
+        from backend.app.services.passport_service import PassportService
+        submission.version = (submission.version or 1) + 1
+        submission.content = content
+        submission.title = title
+        self.db.add(Revision(
+            id=str(uuid.uuid4()), submission_id=submission.id, version=submission.version,
+            content=content, change_summary=f"Content edited — version {submission.version}; prior approvals no longer apply",
+            created_by=actor,
+        ))
+        PassportService(self.db).supersede_for_submission(submission)
+
+    def apply_correction(self, submission_id: str, finding_id: str, target_text: str, replacement_text: str,
+                         actor_name: Optional[str] = None) -> Submission:
         submission = self.db.query(Submission).filter(Submission.id == submission_id).first()
         if not submission:
             raise ValueError(f"Submission {submission_id} not found.")
@@ -458,22 +479,25 @@ class ContentAnalyzerService:
         if not finding:
             raise ValueError(f"Finding {finding_id} not found.")
 
-        if target_text and target_text in submission.content:
-            submission.content = submission.content.replace(target_text, replacement_text, 1)
-        elif finding.original_text in submission.content:
-            submission.content = submission.content.replace(finding.original_text, replacement_text, 1)
+        new_content = submission.content
+        if target_text and target_text in new_content:
+            new_content = new_content.replace(target_text, replacement_text, 1)
+        elif finding.original_text in new_content:
+            new_content = new_content.replace(finding.original_text, replacement_text, 1)
 
         finding.is_applied = True
         self.db.commit()
+        # analyze_submission sees the changed content, bumps the version and re-analyses.
         return self.analyze_submission(
-            org_id=submission.org_id, title=submission.title, content=submission.content,
-            submission_id=submission.id, author_name=submission.author_name,
+            org_id=submission.org_id, title=submission.title, content=new_content,
+            submission_id=submission.id, author_name=actor_name or submission.author_name,
         )
 
     def _record_agent_run(self, agent_name: str, task_name: str, elapsed_seconds: float, input_preview: str, output_preview: str, details: dict, status: str = "COMPLETED"):
         elapsed_us = max(1, round(elapsed_seconds * 1_000_000))
         run = AgentRun(
-            id=str(uuid.uuid4()), agent_name=agent_name, task_name=task_name, status=status,
+            id=str(uuid.uuid4()), org_id=getattr(self, "_org_id", None),
+            agent_name=agent_name, task_name=task_name, status=status,
             execution_time_ms=round(elapsed_seconds * 1000),
             execution_time_us=elapsed_us,
             tokens_used=max(45, len(input_preview) // 3),

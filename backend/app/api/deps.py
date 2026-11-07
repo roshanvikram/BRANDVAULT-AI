@@ -53,3 +53,18 @@ def ensure_same_org(user: User, resource_org_id: str) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cross-organisation access is not permitted.",
         )
+
+
+def resolve_org(requested_org_id: Optional[str], user: User) -> str:
+    """Tenant scope for a request: always the caller's own organisation.
+
+    The org comes from the authenticated token. A client may still send an
+    `org_id` (older callers do); it is accepted only when it matches, so a
+    request can never read or write another organisation's records.
+    """
+    if requested_org_id and requested_org_id != user.org_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cross-organisation access is not permitted.",
+        )
+    return user.org_id

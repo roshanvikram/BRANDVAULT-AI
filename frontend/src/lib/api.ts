@@ -35,10 +35,32 @@ export function authHeaders(): Record<string, string> {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
+/**
+ * fetch() with the signed-in user's bearer token attached. The backend scopes
+ * every request to the caller's organisation from this token (Phase 1a), so
+ * pages never send an org id. A 401 on an authenticated call means the session
+ * expired: the token is cleared and the user is sent back to sign in.
+ */
+export async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = { ...authHeaders(), ...((init.headers as Record<string, string>) || {}) };
+  const res = await fetch(url, { ...init, headers });
+  if (res.status === 401 && headers.Authorization && !url.includes("/auth/")) {
+    clearToken();
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+      window.location.href = "/login";
+    }
+  }
+  return res;
+}
+
+function orgQuery(orgId?: string, prefix: "?" | "&" = "?"): string {
+  return orgId ? `${prefix}org_id=${encodeURIComponent(orgId)}` : "";
+}
+
 export async function login(email: string, password: string): Promise<AuthUser> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}/auth/login`, {
+    res = await apiFetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -59,7 +81,7 @@ export async function register(payload: {
   email: string;
   password: string;
 }): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  const res = await apiFetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -81,7 +103,7 @@ export async function register(payload: {
 // Whether the server has Google OAuth configured (client id + secret present).
 export async function fetchGoogleAuthStatus(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_BASE}/auth/google/status`, { cache: "no-store" });
+    const res = await apiFetch(`${API_BASE}/auth/google/status`, { cache: "no-store" });
     if (!res.ok) return false;
     const data = await res.json();
     return Boolean(data.configured);
@@ -98,7 +120,7 @@ export function googleLoginUrl(): string {
 export async function fetchCurrentUser(): Promise<AuthUser | null> {
   const t = getToken();
   if (!t) return null;
-  const res = await fetch(`${API_BASE}/auth/me`, { headers: { ...authHeaders() }, cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/auth/me`, { headers: { ...authHeaders() }, cache: "no-store" });
   if (!res.ok) { clearToken(); return null; }
   return res.json();
 }
@@ -250,28 +272,28 @@ export interface AgentRun {
 }
 
 export async function fetchHealth(): Promise<HealthInfo> {
-  const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/health`, { cache: "no-store" });
   if (!res.ok) throw new Error("Health check failed");
   return res.json();
 }
 
 export async function fetchWorkspaces(): Promise<Organization[]> {
-  const res = await fetch(`${API_BASE}/brand/workspaces`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/brand/workspaces`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load workspaces");
   return res.json();
 }
 
-export async function fetchGuidelines(orgId: string = "nova-tech-org-001"): Promise<BrandGuideline[]> {
-  const res = await fetch(`${API_BASE}/brand/guidelines?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchGuidelines(orgId?: string): Promise<BrandGuideline[]> {
+  const res = await apiFetch(`${API_BASE}/brand/guidelines${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load guidelines");
   return res.json();
 }
 
-export async function uploadGuideline(orgId: string, file: File): Promise<BrandGuideline> {
+export async function uploadGuideline(orgId: string | undefined, file: File): Promise<BrandGuideline> {
   const formData = new FormData();
-  formData.append("org_id", orgId);
+  if (orgId) formData.append("org_id", orgId);
   formData.append("file", file);
-  const res = await fetch(`${API_BASE}/brand/guidelines/upload`, {
+  const res = await apiFetch(`${API_BASE}/brand/guidelines/upload`, {
     method: "POST",
     body: formData,
   });
@@ -279,43 +301,43 @@ export async function uploadGuideline(orgId: string, file: File): Promise<BrandG
   return res.json();
 }
 
-export async function fetchRules(orgId: string = "nova-tech-org-001", category?: string): Promise<BrandRule[]> {
+export async function fetchRules(orgId?: string, category?: string): Promise<BrandRule[]> {
   const url = new URL(`${API_BASE}/brand/rules`);
-  url.searchParams.set("org_id", orgId);
+  if (orgId) url.searchParams.set("org_id", orgId);
   if (category) url.searchParams.set("category", category);
-  const res = await fetch(url.toString(), { cache: "no-store" });
+  const res = await apiFetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch brand rules");
   return res.json();
 }
 
 export async function confirmRule(ruleId: string): Promise<BrandRule> {
-  const res = await fetch(`${API_BASE}/brand/rules/${ruleId}/confirm`, {
+  const res = await apiFetch(`${API_BASE}/brand/rules/${ruleId}/confirm`, {
     method: "PATCH",
   });
   if (!res.ok) throw new Error("Failed to confirm rule");
   return res.json();
 }
 
-export async function fetchFacts(orgId: string = "nova-tech-org-001"): Promise<ApprovedFact[]> {
-  const res = await fetch(`${API_BASE}/brand/facts?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchFacts(orgId?: string): Promise<ApprovedFact[]> {
+  const res = await apiFetch(`${API_BASE}/brand/facts${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch approved facts");
   return res.json();
 }
 
-export async function fetchTerms(orgId: string = "nova-tech-org-001"): Promise<TerminologyRule[]> {
-  const res = await fetch(`${API_BASE}/brand/terms?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchTerms(orgId?: string): Promise<TerminologyRule[]> {
+  const res = await apiFetch(`${API_BASE}/brand/terms${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch terminology rules");
   return res.json();
 }
 
 export async function analyzeContent(payload: {
-  org_id: string;
+  org_id?: string;
   title: string;
   content: string;
   submission_id?: string;
   author_name?: string;
 }): Promise<Submission> {
-  const res = await fetch(`${API_BASE}/content/analyze`, {
+  const res = await apiFetch(`${API_BASE}/content/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -330,7 +352,7 @@ export async function applyCorrection(payload: {
   target_text: string;
   replacement_text: string;
 }): Promise<Submission> {
-  const res = await fetch(`${API_BASE}/content/apply-correction`, {
+  const res = await apiFetch(`${API_BASE}/content/apply-correction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -339,14 +361,14 @@ export async function applyCorrection(payload: {
   return res.json();
 }
 
-export async function fetchSubmissions(orgId: string = "nova-tech-org-001"): Promise<Submission[]> {
-  const res = await fetch(`${API_BASE}/content/submissions?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchSubmissions(orgId?: string): Promise<Submission[]> {
+  const res = await apiFetch(`${API_BASE}/content/submissions${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch submissions");
   return res.json();
 }
 
 export async function fetchSubmissionDetail(id: string): Promise<Submission> {
-  const res = await fetch(`${API_BASE}/content/submissions/${id}`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/content/submissions/${id}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch submission detail");
   return res.json();
 }
@@ -370,14 +392,14 @@ export interface EvidenceMap {
   summary: Record<EvidenceState, number>;
   total: number;
 }
-export async function fetchEvidenceMap(orgId: string = "nova-tech-org-001"): Promise<EvidenceMap> {
-  const res = await fetch(`${API_BASE}/claim/evidence-map?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchEvidenceMap(orgId?: string): Promise<EvidenceMap> {
+  const res = await apiFetch(`${API_BASE}/claim/evidence-map${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch evidence map");
   return res.json();
 }
 
 export async function runSampleNovaTest(): Promise<Submission> {
-  const res = await fetch(`${API_BASE}/claim/test-sample`, {
+  const res = await apiFetch(`${API_BASE}/claim/test-sample`, {
     method: "POST",
   });
   if (!res.ok) throw new Error("Failed to run sample test");
@@ -388,40 +410,47 @@ export async function submitApprovalDecision(payload: {
   submission_id: string;
   decision: "Approved" | "Rejected" | "Revision Requested";
   comments: string;
+  /** Version the reviewer looked at; the server refuses a stale decision (409). */
+  expected_version?: number;
   reviewer_name?: string;
   reviewer_role?: string;
 }): Promise<Submission> {
-  const res = await fetch(`${API_BASE}/approval/decide`, {
+  const res = await apiFetch(`${API_BASE}/approval/decide`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
   });
   if (res.status === 401) throw new Error("Sign in required to submit a decision.");
   if (res.status === 403) throw new Error("Your role is not permitted to make this decision.");
+  if (res.status === 409) {
+    // The content changed after the reviewer opened it — show the server's reason.
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.detail || "This submission changed after you opened it. Reload and review the current version.");
+  }
   if (!res.ok) throw new Error("Failed to submit approval decision");
   return res.json();
 }
 
 export async function fetchPassports(): Promise<BrandPassport[]> {
-  const res = await fetch(`${API_BASE}/passport/list`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/passport/list`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch brand passports");
   return res.json();
 }
 
 export async function fetchPassportBySubmission(id: string): Promise<BrandPassport> {
-  const res = await fetch(`${API_BASE}/passport/by-submission/${id}`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/passport/by-submission/${id}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Passport not found for this submission");
   return res.json();
 }
 
 export async function fetchAgentStats(): Promise<any> {
-  const res = await fetch(`${API_BASE}/agent/stats`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/agent/stats`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch agent statistics");
   return res.json();
 }
 
 export async function fetchAgentRuns(): Promise<AgentRun[]> {
-  const res = await fetch(`${API_BASE}/agent/runs`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/agent/runs`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch agent runs");
   return res.json();
 }
@@ -441,11 +470,11 @@ export interface VisualAnalysis {
   ocr: { available: boolean; text: string | null; reason?: string };
 }
 
-export async function analyzeImage(orgId: string, file: File): Promise<VisualAnalysis> {
+export async function analyzeImage(orgId: string | undefined, file: File): Promise<VisualAnalysis> {
   const formData = new FormData();
-  formData.append("org_id", orgId);
+  if (orgId) formData.append("org_id", orgId);
   formData.append("file", file);
-  const res = await fetch(`${API_BASE}/visual/analyze`, { method: "POST", body: formData });
+  const res = await apiFetch(`${API_BASE}/visual/analyze`, { method: "POST", body: formData });
   if (res.status === 415) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || "This image format is not supported for pixel analysis (use PNG or BMP).");
@@ -470,12 +499,12 @@ export interface CopyRewrite {
 export interface CopyStudioStatus { llm_available: boolean; provider: string; model: string; }
 
 export async function fetchCopyStudioStatus(): Promise<CopyStudioStatus> {
-  const res = await fetch(`${API_BASE}/copy-studio/status`, { cache: "no-store" });
+  const res = await apiFetch(`${API_BASE}/copy-studio/status`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load Copy Studio status");
   return res.json();
 }
-export async function rewriteCopy(content: string, orgId: string = "nova-tech-org-001"): Promise<CopyRewrite> {
-  const res = await fetch(`${API_BASE}/copy-studio/rewrite`, {
+export async function rewriteCopy(content: string, orgId?: string): Promise<CopyRewrite> {
+  const res = await apiFetch(`${API_BASE}/copy-studio/rewrite`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content, org_id: orgId }),
@@ -504,8 +533,8 @@ export interface TwinAnswer {
   phrased_by?: string;   // "llm:<provider>" when the LLM rephrased the grounded answer
   model?: string;
 }
-export async function askBrandTwin(question: string, orgId: string = "nova-tech-org-001"): Promise<TwinAnswer> {
-  const res = await fetch(`${API_BASE}/twin/ask`, {
+export async function askBrandTwin(question: string, orgId?: string): Promise<TwinAnswer> {
+  const res = await apiFetch(`${API_BASE}/twin/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question, org_id: orgId }),
@@ -534,8 +563,8 @@ export interface OnboardingStatus {
   completion: number;
   is_demo: boolean;
 }
-export async function fetchOnboardingStatus(orgId: string = "nova-tech-org-001"): Promise<OnboardingStatus> {
-  const res = await fetch(`${API_BASE}/onboarding/status?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchOnboardingStatus(orgId?: string): Promise<OnboardingStatus> {
+  const res = await apiFetch(`${API_BASE}/onboarding/status${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load onboarding status");
   return res.json();
 }
@@ -552,15 +581,15 @@ export interface BrandMemory {
   summary: Record<string, number>;
   note: string;
 }
-export async function fetchBrandMemory(orgId: string = "nova-tech-org-001"): Promise<BrandMemory> {
-  const res = await fetch(`${API_BASE}/memory/insights?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchBrandMemory(orgId?: string): Promise<BrandMemory> {
+  const res = await apiFetch(`${API_BASE}/memory/insights${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load brand memory");
   return res.json();
 }
 export async function applyMemoryTerminology(payload: {
-  org_id: string; prohibited_term: string; preferred_term: string; explanation?: string;
+  org_id?: string; prohibited_term: string; preferred_term: string; explanation?: string;
 }): Promise<{ created: boolean; message?: string }> {
-  const res = await fetch(`${API_BASE}/memory/apply-terminology`, {
+  const res = await apiFetch(`${API_BASE}/memory/apply-terminology`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
@@ -599,14 +628,14 @@ export interface BrandGraph {
   stats: Record<string, number>;
 }
 
-export async function fetchBrandGraph(orgId: string = "nova-tech-org-001"): Promise<BrandGraph> {
-  const res = await fetch(`${API_BASE}/graph/brand?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchBrandGraph(orgId?: string): Promise<BrandGraph> {
+  const res = await apiFetch(`${API_BASE}/graph/brand${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load knowledge graph");
   return res.json();
 }
 
-export async function fetchRiskRadar(orgId: string = "nova-tech-org-001"): Promise<any> {
-  const res = await fetch(`${API_BASE}/radar/metrics?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchRiskRadar(orgId?: string): Promise<any> {
+  const res = await apiFetch(`${API_BASE}/radar/metrics${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch risk radar metrics");
   return res.json();
 }
@@ -630,8 +659,8 @@ export interface RiskIntelligence {
   basis: string;
   history: Record<string, number>;
 }
-export async function fetchRiskIntelligence(orgId: string = "nova-tech-org-001"): Promise<RiskIntelligence> {
-  const res = await fetch(`${API_BASE}/radar/intelligence?org_id=${orgId}`, { cache: "no-store" });
+export async function fetchRiskIntelligence(orgId?: string): Promise<RiskIntelligence> {
+  const res = await apiFetch(`${API_BASE}/radar/intelligence${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch risk intelligence");
   return res.json();
 }

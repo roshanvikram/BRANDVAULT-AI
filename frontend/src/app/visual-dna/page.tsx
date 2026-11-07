@@ -29,7 +29,7 @@ export default function VisualDNAInspector() {
     setError(null);
     setResult(null);
     try {
-      const res = await analyzeImage("nova-tech-org-001", file);
+      const res = await analyzeImage(undefined, file);
       setResult(res);
     } catch (err: any) {
       setError(err?.message || "Visual analysis failed.");

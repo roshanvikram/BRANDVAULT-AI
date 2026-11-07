@@ -6,12 +6,15 @@ from backend.app.db.session import get_db
 from backend.app.services.rag import RagRetriever
 from backend.app.services.seed import NOVA_ORG_ID
 
+from backend.app.models.user import User
+from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
+
 router = APIRouter(prefix="/rag", tags=["RAG Retrieval"])
 
 
 class RagSearchRequest(BaseModel):
     query: str = Field(min_length=1)
-    org_id: str = NOVA_ORG_ID
+    org_id: Optional[str] = None
     top_k: int = Field(default=3, ge=1, le=20)
 
 
@@ -24,9 +27,11 @@ class RagSearchResponse(BaseModel):
 
 
 @router.post("/search", response_model=RagSearchResponse)
-def rag_search(payload: RagSearchRequest, db: Session = Depends(get_db)):
+def rag_search(payload: RagSearchRequest, db: Session = Depends(get_db),
+               current: User = Depends(get_current_user)):
     """Hybrid (TF-IDF cosine + keyword) retrieval over org-isolated guideline
     chunks. Returns ranked passages with real page citations and scores."""
+    payload.org_id = resolve_org(payload.org_id, current)
     retriever = RagRetriever(db)
     results = retriever.search(payload.org_id, payload.query, top_k=payload.top_k)
     return RagSearchResponse(

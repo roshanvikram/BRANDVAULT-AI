@@ -36,6 +36,7 @@ from backend.app.schemas.auth import (
     GoogleStatusResponse,
 )
 from backend.app.api.deps import get_current_user
+from backend.app.core.ratelimit import rate_limit
 from backend.app.services.seed import NOVA_ORG_ID
 from backend.app.models.brand import Organization
 
@@ -69,7 +70,8 @@ def _mint(user: User) -> str:
 
 
 # ----------------------------- local auth ---------------------------------- #
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(rate_limit("auth", settings.RATE_LIMIT_AUTH_PER_MIN))])
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     email = payload.email.lower().strip()
     if db.query(User).filter(User.email == email).first():
@@ -94,7 +96,8 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     return TokenResponse(access_token=_mint(user), user=user)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse,
+             dependencies=[Depends(rate_limit("auth", settings.RATE_LIMIT_AUTH_PER_MIN))])
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
     # Verify even when the user is missing / federated to reduce enumeration.

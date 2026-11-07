@@ -15,6 +15,13 @@ router = APIRouter(prefix="/approval", tags=["Approval Hub"])
 AUTHORITATIVE_DECISIONS = {"Approved", "Rejected", "Revision Requested"}
 
 
+def _check_submission_org(db: Session, submission_id: str, user: User) -> None:
+    sub = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not sub:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
+    ensure_same_org(user, sub.org_id)
+
+
 @router.post("/decide", response_model=SubmissionResponse)
 def submit_decision(
     payload: ApprovalActionRequest,
@@ -36,6 +43,13 @@ def submit_decision(
 
     ensure_same_org(current, submission.org_id)
 
+    # Version lock: refuse a decision made against a version the reviewer did not see.
+    if payload.expected_version is not None and payload.expected_version != submission.version:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Submission changed to version {submission.version} after you opened it (you reviewed version {payload.expected_version}). Reload and review the current version.",
+        )
+
     if payload.decision in AUTHORITATIVE_DECISIONS and current.role not in (ROLE_REVIEWER, ROLE_ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -54,10 +68,14 @@ def submit_decision(
     return submission
 
 @router.get("/history/{submission_id}", response_model=List[ApprovalRecordResponse])
-def get_approval_history(submission_id: str, db: Session = Depends(get_db)):
+def get_approval_history(submission_id: str, db: Session = Depends(get_db),
+                         current: User = Depends(get_current_user)):
+    _check_submission_org(db, submission_id, current)
     return db.query(ApprovalRecord).filter(ApprovalRecord.submission_id == submission_id).order_by(ApprovalRecord.created_at.desc()).all()
 
 @router.get("/revisions/{submission_id}", response_model=List[RevisionResponse])
-def get_revisions(submission_id: str, db: Session = Depends(get_db)):
+def get_revisions(submission_id: str, db: Session = Depends(get_db),
+                  current: User = Depends(get_current_user)):
+    _check_submission_org(db, submission_id, current)
     return db.query(Revision).filter(Revision.submission_id == submission_id).order_by(Revision.created_at.desc()).all()
 

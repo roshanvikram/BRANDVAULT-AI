@@ -78,6 +78,8 @@ class TestVisualApi(unittest.TestCase):
 
         app.dependency_overrides[get_db] = _override
         cls.client = TestClient(app)
+        r = cls.client.post("/api/v1/auth/login", json={"email": "creator@novatech.demo", "password": "Creator@2026"})
+        cls.client.headers["Authorization"] = f"Bearer {r.json()['access_token']}"
 
     @classmethod
     def tearDownClass(cls):

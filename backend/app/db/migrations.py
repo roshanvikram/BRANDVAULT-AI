@@ -19,6 +19,10 @@ _ADDITIVE_COLUMNS = [
     ("findings", "analysis_engine", "TEXT DEFAULT 'heuristic'"),
     ("users", "auth_provider", "TEXT DEFAULT 'password'"),
     ("users", "google_sub", "TEXT"),
+    # Phase 1a — tenant-scoped agent runs + version-locked approvals.
+    ("agent_runs", "org_id", "VARCHAR(36)"),
+    ("approval_records", "submission_version", "INTEGER"),
+    ("approval_records", "content_hash", "VARCHAR(64)"),
 ]
 
 

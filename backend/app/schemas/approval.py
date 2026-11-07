@@ -8,6 +8,8 @@ class ApprovalActionRequest(BaseModel):
     reviewer_role: str = "Reviewer"
     decision: str # Approved, Rejected, Revision Requested
     comments: str
+    # Optional version lock: the version the reviewer actually looked at.
+    expected_version: Optional[int] = None
 
 class ApprovalRecordResponse(BaseModel):
     id: str
@@ -16,6 +18,8 @@ class ApprovalRecordResponse(BaseModel):
     reviewer_role: str
     decision: str
     comments: str
+    submission_version: Optional[int] = None
+    content_hash: Optional[str] = None
     created_at: datetime.datetime
 
     class Config:

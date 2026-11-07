@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, initials } from "@/lib/auth";
+import { useOrganization } from "@/lib/useOrganization";
 
 const mainNavigation = [
   { name: "Command Center", href: "/dashboard", icon: ShieldCheck },
@@ -53,6 +54,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
+  const org = useOrganization();
 
   return (
     <aside
@@ -178,8 +180,10 @@ export function Sidebar() {
               <span className="text-[9px] font-mono text-[#737373] uppercase font-bold">ORGANIZATION</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]" />
             </div>
-            <div className="text-xs font-bold text-[#0A0A0A]">NOVA TECH</div>
-            <div className="text-[10px] text-[#737373] font-mono">Launch Price: ₹79,999</div>
+            <div className="text-xs font-bold text-[#0A0A0A]">{org?.name || "—"}</div>
+            <div className="text-[10px] text-[#737373] font-mono">
+              {org ? `${org.rules_count} rules · ${org.facts_count} approved facts` : "Loading…"}
+            </div>
           </div>
         </div>
       )}

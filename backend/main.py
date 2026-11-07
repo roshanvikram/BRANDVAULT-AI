@@ -26,6 +26,9 @@ async def lifespan(app: FastAPI):
         retriever = RagRetriever(db)
         for org in db.query(Organization).all():
             retriever.index_org(org.id)
+        # Durable jobs: re-run (or fail) anything a previous process left unfinished.
+        from backend.app.services.jobs import resume_unfinished
+        resume_unfinished(db)
     finally:
         db.close()
     yield

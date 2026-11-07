@@ -6,6 +6,7 @@ records — never a hardcoded "done". Each step reports whether it is satisfied,
 a live count, and where to complete it. The guided onboarding wizard renders
 directly from this, so progress always reflects the actual saved configuration.
 """
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,11 +17,16 @@ from backend.app.models.user import User, ROLE_ADMIN, ROLE_REVIEWER
 from backend.app.models.submission import Submission
 from backend.app.models.passport import BrandPassport
 
+from backend.app.models.user import User
+from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
+
 router = APIRouter(prefix="/onboarding", tags=["Onboarding"])
 
 
 @router.get("/status")
-def onboarding_status(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
+def onboarding_status(org_id: Optional[str] = None, db: Session = Depends(get_db),
+        current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     org = db.query(Organization).filter(Organization.id == org_id).first()
     if not org:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")

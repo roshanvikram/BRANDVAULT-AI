@@ -59,7 +59,6 @@ function ContentIntelligenceContent() {
     setReviewMessage(null);
     try {
       const res = await analyzeContent({
-        org_id: "nova-tech-org-001",
         title: title || "Untitled Campaign",
         content: content,
         submission_id: submission?.id

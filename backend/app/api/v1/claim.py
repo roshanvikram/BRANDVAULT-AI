@@ -1,3 +1,4 @@
+from typing import Optional
 from typing import List, Dict, Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -6,6 +7,9 @@ from backend.app.models.submission import ClaimVerification, Submission
 from backend.app.schemas.analysis import ClaimVerificationResponse, SubmissionResponse
 from backend.app.services.analyzer import ContentAnalyzerService
 from backend.app.services.seed import NOVA_ORG_ID
+
+from backend.app.models.user import User
+from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
 
 router = APIRouter(prefix="/claim", tags=["ClaimDNA"])
 
@@ -21,12 +25,19 @@ _EVIDENCE_STATE = {
 
 
 @router.get("/verifications", response_model=List[ClaimVerificationResponse])
-def get_verifications(submission_id: str, db: Session = Depends(get_db)):
+def get_verifications(submission_id: str, db: Session = Depends(get_db),
+                      current: User = Depends(get_current_user)):
+    sub = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not sub:
+        return []
+    ensure_same_org(current, sub.org_id)
     return db.query(ClaimVerification).filter(ClaimVerification.submission_id == submission_id).all()
 
 
 @router.get("/evidence-map")
-def evidence_map(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def evidence_map(org_id: Optional[str] = None, db: Session = Depends(get_db),
+        current: User = Depends(get_current_user)) -> Dict[str, Any]:
+    org_id = resolve_org(org_id, current)
     """Claim-to-evidence relationships across the org, with the evidence state,
     source reliability and freshness for each claim (R2-7)."""
     claims = (
@@ -74,7 +85,7 @@ def evidence_map(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Di
     return {"items": items, "summary": summary, "total": len(items)}
 
 @router.post("/test-sample", response_model=SubmissionResponse)
-def run_sample_nova_test(db: Session = Depends(get_db)):
+def run_sample_nova_test(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     """
     Executes the standard test example from specification:
     Brand: NOVA TECH
@@ -85,9 +96,10 @@ def run_sample_nova_test(db: Session = Depends(get_db)):
     service = ContentAnalyzerService(db)
     test_content = "Introducing the world's fastest AI laptop! 10x faster than every competitor. Now only ₹69,999!"
     return service.analyze_submission(
-        org_id=NOVA_ORG_ID,
+        # Runs against the caller's own Brand DNA (tenant-scoped).
+        org_id=current.org_id,
         title="NovaBook AI Pro 16 Launch Campaign (Test Submission)",
         content=test_content,
-        author_name="Marketing Launch Specialist"
+        author_name=current.full_name
     )
 

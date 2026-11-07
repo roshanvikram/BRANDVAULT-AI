@@ -5,15 +5,21 @@ from backend.app.db.session import get_db
 from backend.app.models.passport import AgentRun
 from backend.app.schemas.passport import AgentRunResponse
 
+from backend.app.models.user import User
+from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
+
 router = APIRouter(prefix="/agent", tags=["Agent Control Center"])
 
 @router.get("/runs", response_model=List[AgentRunResponse])
-def get_agent_runs(limit: int = 50, db: Session = Depends(get_db)):
-    return db.query(AgentRun).order_by(AgentRun.created_at.desc()).limit(limit).all()
+def get_agent_runs(limit: int = 50, db: Session = Depends(get_db),
+                   current: User = Depends(get_current_user)):
+    # Runs recorded before Phase 1a have no org and are not shown to any tenant.
+    return db.query(AgentRun).filter(AgentRun.org_id == current.org_id).order_by(AgentRun.created_at.desc()).limit(limit).all()
 
 @router.get("/stats")
-def get_agent_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
-    runs = db.query(AgentRun).all()
+def get_agent_stats(db: Session = Depends(get_db),
+                    current: User = Depends(get_current_user)) -> Dict[str, Any]:
+    runs = db.query(AgentRun).filter(AgentRun.org_id == current.org_id).all()
     total_runs = len(runs)
 
     # Agent steps run sub-millisecond, so integer-ms averaging rounded to 0.

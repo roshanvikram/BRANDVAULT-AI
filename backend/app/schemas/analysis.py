@@ -38,7 +38,8 @@ class ClaimVerificationResponse(BaseModel):
 
 
 class ContentAnalyzeRequest(BaseModel):
-    org_id: str
+    # Optional: the server scopes to the caller's organisation from the token.
+    org_id: Optional[str] = None
     title: str
     content: str
     author_name: Optional[str] = "Marketing Creator"

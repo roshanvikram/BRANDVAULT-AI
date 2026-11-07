@@ -56,7 +56,13 @@ class Settings(BaseSettings):
         return bool(self.GOOGLE_CLIENT_ID and self.GOOGLE_CLIENT_SECRET)
 
     # Security & AI
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "brandvault-enterprise-secret-key-2026")
+    # Token-signing key. No hardcoded fallback (anyone could forge tokens with a
+    # published default). See _resolve_secret_key() below.
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "")
+    # Rate limits (requests per minute per client IP).
+    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() != "false"
+    RATE_LIMIT_AUTH_PER_MIN: int = int(os.getenv("RATE_LIMIT_AUTH_PER_MIN", "20"))
+    RATE_LIMIT_AI_PER_MIN: int = int(os.getenv("RATE_LIMIT_AI_PER_MIN", "30"))
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
@@ -77,5 +83,34 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
 
+_DEV_SECRET_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".secret_key")
+
+
+def _resolve_secret_key(s: "Settings") -> str:
+    """Return the signing key.
+
+    Production refuses to start without SECRET_KEY. Development generates a
+    random key once and stores it in backend/.secret_key (git-ignored), so
+    tokens survive restarts without ever using a shared default.
+    """
+    if s.SECRET_KEY:
+        return s.SECRET_KEY
+    if s.ENVIRONMENT.lower() == "production":
+        raise RuntimeError("SECRET_KEY must be set when ENVIRONMENT=production.")
+    try:
+        with open(_DEV_SECRET_FILE, "r", encoding="utf-8") as f:
+            key = f.read().strip()
+        if key:
+            return key
+    except FileNotFoundError:
+        pass
+    import secrets
+    key = secrets.token_hex(32)
+    with open(_DEV_SECRET_FILE, "w", encoding="utf-8") as f:
+        f.write(key)
+    return key
+
+
 settings = Settings()
+settings.SECRET_KEY = _resolve_secret_key(settings)
 

@@ -49,7 +49,10 @@ The UI signs in automatically as the demo Creator (submit for review) and Review
 | Var | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `sqlite:///./brandvault.db` | Set a Postgres DSN in prod: `postgresql+psycopg2://user:pass@host:5432/brandvault` |
-| `SECRET_KEY` | dev placeholder | **Generate a strong random value in production.** Signs auth tokens |
+| `SECRET_KEY` | none | **Required when `ENVIRONMENT=production`** (startup fails without it). In development a random key is generated once into `backend/.secret_key` (git-ignored). Signs auth tokens |
+| `RATE_LIMIT_ENABLED` | `true` | Per-IP request limits (in-process; use Redis for multi-instance) |
+| `RATE_LIMIT_AUTH_PER_MIN` | `20` | Login / register requests per minute per IP |
+| `RATE_LIMIT_AI_PER_MIN` | `30` | Analysis / Copy Studio / Assistant requests per minute per IP |
 | `ENVIRONMENT` | `development` | `production` in prod |
 | `BACKEND_CORS_ORIGINS` | localhost dev origins | Comma-separated frontend origin(s) in prod, e.g. `https://brandvault.vercel.app` |
 | `ANTHROPIC_API_KEY` | empty | Optional — enables the LLM layer; unset = heuristic-only |
@@ -108,7 +111,7 @@ Alternatively use the root `Dockerfile` (any container host) or the `Procfile` (
 
 ## 7. Security checklist (production)
 
-- [ ] Strong random `SECRET_KEY` (not the dev default).
+- [ ] Strong random `SECRET_KEY` set (there is no default; production refuses to start without one).
 - [ ] `BACKEND_CORS_ORIGINS` restricted to your real frontend origin(s). The API is stateless bearer-token (no cookies), and CORS ships with `allow_credentials=False` and **no** `*` default.
 - [ ] `DATABASE_URL` points at managed Postgres over TLS.
 - [ ] Rotate/replace the demo accounts before any real use.

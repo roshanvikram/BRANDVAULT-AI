@@ -55,10 +55,17 @@ class TestApi(unittest.TestCase):
 
         app.dependency_overrides[get_db] = _override
         cls.client = TestClient(app)  # not a context manager -> lifespan not run
+        # Phase 1a: every org-scoped route needs a token. Default to the NOVA
+        # Administrator; tests about other roles pass their own header.
+        cls._rl_prev = _settings.RATE_LIMIT_ENABLED
+        _settings.RATE_LIMIT_ENABLED = False
+        r = cls.client.post("/api/v1/auth/login", json={"email": "admin@novatech.demo", "password": "Admin@2026"})
+        cls.client.headers["Authorization"] = f"Bearer {r.json()['access_token']}"
 
     @classmethod
     def tearDownClass(cls):
         cls._settings.LLM_ENABLED = cls._llm_prev
+        cls._settings.RATE_LIMIT_ENABLED = cls._rl_prev
         app.dependency_overrides.clear()
         drop_db(cls.engine, cls.path)
 
@@ -120,7 +127,7 @@ class TestApi(unittest.TestCase):
     def test_decide_requires_auth(self):
         sub = self.client.post("/api/v1/content/analyze",
                                json={"org_id": NOVA_ORG_ID, "title": "a", "content": NOVA_CONTENT}).json()
-        r = self.client.post("/api/v1/approval/decide",
+        r = self.client.post("/api/v1/approval/decide", headers={"Authorization": ""},
                              json={"submission_id": sub["id"], "decision": "Approved", "comments": "c"})
         self.assertEqual(r.status_code, 401)
 
@@ -214,7 +221,7 @@ class TestApi(unittest.TestCase):
     def test_memory_apply_requires_admin(self):
         body = {"org_id": NOVA_ORG_ID, "prohibited_term": "zzz draft phrase", "preferred_term": "approved alt"}
         # no token -> 401
-        self.assertEqual(self.client.post("/api/v1/memory/apply-terminology", json=body).status_code, 401)
+        self.assertEqual(self.client.post("/api/v1/memory/apply-terminology", json=body, headers={"Authorization": ""}).status_code, 401)
         # creator -> 403
         tok = self._token("creator@novatech.demo", "Creator@2026")
         r = self.client.post("/api/v1/memory/apply-terminology", headers={"Authorization": f"Bearer {tok}"}, json=body)
@@ -262,9 +269,9 @@ class TestApi(unittest.TestCase):
             self.assertTrue(i["recommendation"])
         self.assertTrue(0 <= b["overall_score"] <= 100)
 
-    def test_risk_intelligence_unknown_org_404(self):
+    def test_risk_intelligence_other_org_403(self):
         r = self.client.get("/api/v1/radar/intelligence", params={"org_id": "no-such-org"})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 403)
 
     # ---- AI Copy Studio (R2-AI) ----
     def test_copy_studio_status_reports_llm(self):
@@ -281,9 +288,9 @@ class TestApi(unittest.TestCase):
         self.assertIn("79,999", b["rewritten"])  # corrected to the approved price
         self.assertGreaterEqual(len(b["changes"]), 1)
 
-    def test_copy_studio_unknown_org_404(self):
+    def test_copy_studio_other_org_403(self):
         r = self.client.post("/api/v1/copy-studio/rewrite", json={"org_id": "no-such-org", "content": "x"})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 403)
 
     # ---- brand digital twin Q&A (R2-3) ----
     def test_twin_answers_pricing_with_citation(self):
@@ -308,9 +315,9 @@ class TestApi(unittest.TestCase):
         self.assertFalse(b["grounded"])
         self.assertEqual(b["evidence"], [])
 
-    def test_twin_unknown_org_404(self):
+    def test_twin_other_org_403(self):
         r = self.client.post("/api/v1/twin/ask", json={"org_id": "no-such-org", "question": "price?"})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 403)
 
     # ---- onboarding status (R2-1) ----
     def test_onboarding_status_reflects_real_config(self):
@@ -326,9 +333,9 @@ class TestApi(unittest.TestCase):
         self.assertIn("rules", done)
         self.assertIn("sample_test", done)
 
-    def test_onboarding_unknown_org_404(self):
+    def test_onboarding_other_org_403(self):
         r = self.client.get("/api/v1/onboarding/status", params={"org_id": "no-such-org"})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 403)
 
     # ---- brand knowledge graph (R2-2) ----
     def test_brand_graph_is_real_and_consistent(self):
@@ -351,9 +358,9 @@ class TestApi(unittest.TestCase):
         self.assertEqual(g["stats"]["nodes"], len(g["nodes"]))
         self.assertEqual(g["stats"]["edges"], len(g["edges"]))
 
-    def test_brand_graph_unknown_org_404(self):
+    def test_brand_graph_other_org_403(self):
         r = self.client.get("/api/v1/graph/brand", params={"org_id": "no-such-org"})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 403)
 
     # ---- persistence ----
     def test_persistence(self):

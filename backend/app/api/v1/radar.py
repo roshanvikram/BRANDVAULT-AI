@@ -1,3 +1,4 @@
+from typing import Optional
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -7,11 +8,16 @@ from backend.app.models.submission import Submission, Finding, ClaimVerification
 from backend.app.services.seed import NOVA_ORG_ID
 from backend.app.services.risk import compute_risk_intelligence
 
+from backend.app.models.user import User
+from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
+
 router = APIRouter(prefix="/radar", tags=["Brand Risk Radar"])
 
 
 @router.get("/intelligence")
-def risk_intelligence(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def risk_intelligence(org_id: Optional[str] = None, db: Session = Depends(get_db),
+        current: User = Depends(get_current_user)) -> Dict[str, Any]:
+    org_id = resolve_org(org_id, current)
     """Explained, rules-based risk indicators computed from real history (R2-5)."""
     result = compute_risk_intelligence(db, org_id)
     if result is None:
@@ -19,7 +25,9 @@ def risk_intelligence(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) 
     return result
 
 @router.get("/metrics")
-def get_risk_metrics(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_risk_metrics(org_id: Optional[str] = None, db: Session = Depends(get_db),
+        current: User = Depends(get_current_user)) -> Dict[str, Any]:
+    org_id = resolve_org(org_id, current)
     submissions = db.query(Submission).filter(Submission.org_id == org_id).all()
     total_submissions = len(submissions)
     

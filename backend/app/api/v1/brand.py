@@ -16,14 +16,22 @@ from backend.app.schemas.brand import (
     BrandGuidelineResponse
 )
 from backend.app.services.seed import seed_sample_brand, NOVA_ORG_ID
+from backend.app.models.user import User, ROLE_ADMIN
+from backend.app.api.deps import get_current_user, require_roles, resolve_org, ensure_same_org
+
+
+def _audit(db: Session, org_id: str, action: str, actor: User, details: str) -> None:
+    db.add(AuditLog(id=str(uuid.uuid4()), org_id=org_id, action=action,
+                    actor=f"{actor.full_name} ({actor.role})", details=details))
 
 router = APIRouter(prefix="/brand", tags=["Brand DNA Studio"])
 
 @router.get("/workspaces", response_model=List[OrganizationResponse])
-def get_workspaces(db: Session = Depends(get_db)):
+def get_workspaces(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     # Auto-seed sample brand if empty
     seed_sample_brand(db)
-    orgs = db.query(Organization).all()
+    # Tenant isolation: a user only sees their own organisation.
+    orgs = db.query(Organization).filter(Organization.id == current.org_id).all()
     results = []
     for org in orgs:
         results.append(OrganizationResponse(
@@ -38,7 +46,8 @@ def get_workspaces(db: Session = Depends(get_db)):
     return results
 
 @router.post("/workspaces", response_model=OrganizationResponse)
-def create_workspace(payload: OrganizationCreate, db: Session = Depends(get_db)):
+def create_workspace(payload: OrganizationCreate, db: Session = Depends(get_db),
+                     current: User = Depends(require_roles(ROLE_ADMIN))):
     existing = db.query(Organization).filter(Organization.slug == payload.slug).first()
     if existing:
         raise HTTPException(status_code=400, detail="Organization with this slug already exists.")
@@ -49,6 +58,7 @@ def create_workspace(payload: OrganizationCreate, db: Session = Depends(get_db))
         slug=payload.slug
     )
     db.add(org)
+    _audit(db, org.id, "WORKSPACE_CREATED", current, f"Created workspace '{org.name}'.")
     db.commit()
     db.refresh(org)
     return OrganizationResponse(
@@ -62,15 +72,19 @@ def create_workspace(payload: OrganizationCreate, db: Session = Depends(get_db))
     )
 
 @router.get("/guidelines", response_model=List[BrandGuidelineResponse])
-def get_guidelines(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
+def get_guidelines(org_id: Optional[str] = None, db: Session = Depends(get_db),
+                   current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     return db.query(BrandGuideline).filter(BrandGuideline.org_id == org_id).all()
 
 @router.post("/guidelines/upload", response_model=BrandGuidelineResponse)
 async def upload_guideline(
-    org_id: str = Form(...),
+    org_id: Optional[str] = Form(None),
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current: User = Depends(require_roles(ROLE_ADMIN)),
 ):
+    org_id = resolve_org(org_id, current)
     org = db.query(Organization).filter(Organization.id == org_id).first()
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
@@ -146,7 +160,7 @@ async def upload_guideline(
         id=str(uuid.uuid4()),
         org_id=org_id,
         action="GUIDELINE_UPLOADED",
-        actor="Administrator",
+        actor=f"{current.full_name} ({current.role})",
         details=f"Uploaded and parsed '{file.filename}' ({len(content_bytes)} bytes, {total_pages} pages)."
     ))
 
@@ -163,14 +177,18 @@ async def upload_guideline(
     return guideline
 
 @router.get("/rules", response_model=List[BrandRuleResponse])
-def get_rules(org_id: str = NOVA_ORG_ID, category: Optional[str] = None, db: Session = Depends(get_db)):
+def get_rules(org_id: Optional[str] = None, category: Optional[str] = None, db: Session = Depends(get_db),
+              current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     query = db.query(BrandRule).filter(BrandRule.org_id == org_id)
     if category:
         query = query.filter(BrandRule.category == category)
     return query.order_by(BrandRule.created_at.desc()).all()
 
 @router.post("/rules", response_model=BrandRuleResponse)
-def create_rule(org_id: str, payload: BrandRuleCreate, db: Session = Depends(get_db)):
+def create_rule(payload: BrandRuleCreate, org_id: Optional[str] = None, db: Session = Depends(get_db),
+                current: User = Depends(require_roles(ROLE_ADMIN))):
+    org_id = resolve_org(org_id, current)
     rule = BrandRule(
         id=str(uuid.uuid4()),
         org_id=org_id,
@@ -184,27 +202,35 @@ def create_rule(org_id: str, payload: BrandRuleCreate, db: Session = Depends(get
         is_confirmed=payload.is_confirmed
     )
     db.add(rule)
+    _audit(db, org_id, "RULE_CREATED", current, f"Created rule '{rule.title}' ({rule.category}).")
     db.commit()
     db.refresh(rule)
     return rule
 
 @router.patch("/rules/{rule_id}/confirm", response_model=BrandRuleResponse)
-def confirm_rule(rule_id: str, db: Session = Depends(get_db)):
+def confirm_rule(rule_id: str, db: Session = Depends(get_db),
+                 current: User = Depends(require_roles(ROLE_ADMIN))):
     rule = db.query(BrandRule).filter(BrandRule.id == rule_id).first()
     if not rule:
         raise HTTPException(status_code=404, detail="Rule not found")
+    ensure_same_org(current, rule.org_id)
     rule.is_confirmed = True
     rule.is_active = True
+    _audit(db, rule.org_id, "RULE_CONFIRMED", current, f"Confirmed rule '{rule.title}'.")
     db.commit()
     db.refresh(rule)
     return rule
 
 @router.get("/facts", response_model=List[ApprovedFactResponse])
-def get_facts(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
+def get_facts(org_id: Optional[str] = None, db: Session = Depends(get_db),
+              current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     return db.query(ApprovedFact).filter(ApprovedFact.org_id == org_id).all()
 
 @router.post("/facts", response_model=ApprovedFactResponse)
-def create_fact(org_id: str, payload: ApprovedFactCreate, db: Session = Depends(get_db)):
+def create_fact(payload: ApprovedFactCreate, org_id: Optional[str] = None, db: Session = Depends(get_db),
+                current: User = Depends(require_roles(ROLE_ADMIN))):
+    org_id = resolve_org(org_id, current)
     fact = ApprovedFact(
         id=str(uuid.uuid4()),
         org_id=org_id,
@@ -215,11 +241,14 @@ def create_fact(org_id: str, payload: ApprovedFactCreate, db: Session = Depends(
         notes=payload.notes
     )
     db.add(fact)
+    _audit(db, org_id, "FACT_CREATED", current, f"Created approved fact '{fact.fact_key}'.")
     db.commit()
     db.refresh(fact)
     return fact
 
 @router.get("/terms", response_model=List[TerminologyRuleResponse])
-def get_terms(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
+def get_terms(org_id: Optional[str] = None, db: Session = Depends(get_db),
+              current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     return db.query(TerminologyRule).filter(TerminologyRule.org_id == org_id).all()
 

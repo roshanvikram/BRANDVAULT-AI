@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useOrganization } from "@/lib/useOrganization";
 import {
   Dna,
   Upload,
@@ -27,6 +28,7 @@ import {
 } from "@/lib/api";
 
 export default function BrandDNAStudio() {
+  const org = useOrganization();
   const [rules, setRules] = useState<BrandRule[]>([]);
   const [facts, setFacts] = useState<ApprovedFact[]>([]);
   const [terms, setTerms] = useState<TerminologyRule[]>([]);
@@ -63,7 +65,7 @@ export default function BrandDNAStudio() {
     setUploading(true);
     setUploadSuccess(null);
     try {
-      const res = await uploadGuideline("nova-tech-org-001", file);
+      const res = await uploadGuideline(undefined, file);
       setUploadSuccess(`Successfully ingested '${res.filename}' (${res.total_pages} pages parsed).`);
       loadData();
     } catch (err) {
@@ -83,7 +85,7 @@ export default function BrandDNAStudio() {
             <Dna className="w-3.5 h-3.5 text-[#0A0A0A]" />
             <span className="font-semibold">Brand DNA Studio // Knowledge Management</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Brand Governance Profile: NOVA TECH</h2>
+          <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">Brand Governance Profile: {org?.name || "…"}</h2>
           <p className="text-xs text-[#737373] mt-0.5">
             Ingest guidelines, verify extracted policies, manage ground-truth facts, and enforce approved terminology.
           </p>

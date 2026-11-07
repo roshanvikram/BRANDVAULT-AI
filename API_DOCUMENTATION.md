@@ -4,8 +4,13 @@
 
 - **Base URL:** `http://127.0.0.1:8000`
 - **API prefix:** `/api/v1`
-- **Auth:** bearer tokens (Milestone D). `/approval/decide` is gated; other endpoints remain open for the demo. Send `Authorization: Bearer <token>` from `/auth/login`.
-- **Default org:** `nova-tech-org-001` (NOVA TECH demo), seeded on startup.
+- **Auth (Phase 1a, 2026-11-07):** every organisation-scoped endpoint requires `Authorization: Bearer <token>` from `/auth/login` (401 without it). Public: `/auth/login`, `/auth/register`, `/auth/google/*`, `/health`, `/copy-studio/status`, `/twin/suggestions`.
+- **Tenant scope:** the organisation comes from the token. `org_id` parameters are optional; if sent and different from the caller's org the API returns **403**. Other orgs' submissions, jobs and passports return 403/404.
+- **Roles:** Brand DNA writes (`POST /brand/rules`, `POST /brand/facts`, `PATCH /brand/rules/{id}/confirm`, `POST /brand/guidelines/upload`, `POST /brand/workspaces`) and `POST /memory/apply-terminology` are **Administrator-only** and audit-logged. Approve/Reject/Revision on `/approval/decide` need Reviewer or Administrator.
+- **Version-locked approvals:** `/approval/decide` accepts `expected_version`; a stale version returns **409**. Any content change creates a new version, resets status to `Analysed`, and marks an existing passport `SUPERSEDED`. Approval records store `submission_version` + `content_hash`.
+- **Async jobs:** `POST /content/analyze-async` (optional `Idempotency-Key` header) → `GET /content/jobs/{id}` → `POST /content/jobs/{id}/cancel` (queued only, else 409). Status values: `queued`, `processing`, `completed`, `failed`, `cancelled`; state is stored in the `jobs` table.
+- **Rate limits:** `/auth/login` + `/auth/register` (`RATE_LIMIT_AUTH_PER_MIN`, default 20/min/IP) and `/content/analyze*`, `/copy-studio/rewrite`, `/twin/ask` (`RATE_LIMIT_AI_PER_MIN`, default 30/min/IP) → 429 with `Retry-After`.
+- **Demo orgs:** `nova-tech-org-001` (NOVA TECH) and `vortexa-tech-org-002` (VORTEXA), seeded on startup; each demo user belongs to one.
 - **Demo accounts** (judging workspace only, not production): `admin@novatech.demo` / `Admin@2026` (Administrator), `creator@novatech.demo` / `Creator@2026` (Creator), `reviewer@novatech.demo` / `Reviewer@2026` (Reviewer).
 
 ## Authentication

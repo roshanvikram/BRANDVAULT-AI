@@ -78,6 +78,10 @@ class ApprovalRecord(Base):
     reviewer_role: Mapped[str] = mapped_column(String(50), default="Reviewer")
     decision: Mapped[str] = mapped_column(String(50), nullable=False) # Approved, Rejected, Revision Requested
     comments: Mapped[str] = mapped_column(Text, nullable=False)
+    # Version lock: an approval covers exactly this version + content hash.
+    # Any later content change invalidates it (see PassportService).
+    submission_version: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
     submission: Mapped["Submission"] = relationship("Submission", back_populates="approvals")

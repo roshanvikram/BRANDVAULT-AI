@@ -1,4 +1,5 @@
 """Brand Memory API (Round 2 / R2-4)."""
+from typing import Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 from backend.app.db.session import get_db
 from backend.app.models.brand import TerminologyRule
 from backend.app.models.user import User, ROLE_ADMIN
-from backend.app.api.deps import require_roles, ensure_same_org
+from backend.app.api.deps import require_roles, get_current_user, resolve_org
 from backend.app.services.memory import compute_memory
 from backend.app.services.seed import NOVA_ORG_ID
 
@@ -15,14 +16,16 @@ router = APIRouter(prefix="/memory", tags=["Brand Memory"])
 
 
 class ApplyTerminology(BaseModel):
-    org_id: str
+    org_id: Optional[str] = None
     prohibited_term: str
     preferred_term: str
     explanation: str = ""
 
 
 @router.get("/insights")
-def insights(org_id: str = NOVA_ORG_ID, db: Session = Depends(get_db)):
+def insights(org_id: Optional[str] = None, db: Session = Depends(get_db),
+        current: User = Depends(get_current_user)):
+    org_id = resolve_org(org_id, current)
     """Learned insights + proposed policy improvements from real history."""
     result = compute_memory(db, org_id)
     if result is None:
@@ -39,7 +42,7 @@ def apply_terminology(
     """Apply a proposed terminology entry into the live Brand DNA. Administrator-
     only and tenant-isolated — the human explicitly accepts the proposal; the
     system never applies it automatically."""
-    ensure_same_org(current, payload.org_id)
+    payload.org_id = resolve_org(payload.org_id, current)
     prohibited = payload.prohibited_term.strip()
     preferred = payload.preferred_term.strip()
     if not prohibited or not preferred:
