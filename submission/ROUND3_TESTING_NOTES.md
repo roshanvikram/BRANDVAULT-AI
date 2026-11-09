@@ -2,7 +2,7 @@
 
 All numbers below were measured on the final code. Commands are run from the repository root.
 
-## 1. Automated test suite — 223 tests
+## 1. Automated test suite — 230 tests
 
 ```
 backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
@@ -17,6 +17,7 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Phase 2 governance | 19 |
 | Phase 1a security (tenancy, versions, durable jobs) | 19 |
 | Unit (analyzer, claims, hashing, retrieval) | 18 |
+| Claim detectors (prices, superlatives, comparisons, specs, tone) | 7 |
 | **Round 3 · Improvement 3** — ingestion, ranking, dense, pgvector, versions, gap agent | 14 |
 | **Round 3 · Improvement 2** — API keys, Check API, gate, webhooks, notifications, channels, MCP | 13 |
 | **Round 3 · Improvement 1** — OCR fixes, clear space, image/PDF/video, isolation, settings | 11 |
@@ -25,11 +26,11 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Demo content seed | 5 |
 | Configuration | 5 |
 | **Round 3 end-to-end workflow** (one test, every step) | 1 |
-| **Total** | **223** |
+| **Total** | **230** |
 
 Results:
-- **SQLite:** 223 run, all pass (1 skipped: the pgvector-only test).
-- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too).
+- **SQLite:** 230 run, all pass (1 skipped: the pgvector-only test).
+- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 7 claim-detector tests were added; those are pure text tests with no database.
 
 The end-to-end test walks the whole product:
 1. A Word guideline is uploaded and an admin confirms the extracted rule.
@@ -40,10 +41,18 @@ The end-to-end test walks the whole product:
 6. The passport verifies, and the publishing gate allows the exact copy and blocks an edited copy.
 7. Every step fires a signed webhook.
 
-## 2. Analyzer evaluation (text) — unchanged from Round 2
+## 2. Analyzer evaluation (text) — tested on 50 real-world inputs
 
-`backend/eval/run_eval.py` — 36 labelled cases: **precision 1.000, recall 0.860, F1 0.925**, workflow completion 36/36.
-Round 3 did not change the text rules, so this is the same as Round 2. The 6 misses are 2 superlatives, 1 comparative, 1 fact conflict and 2 "visual" cases. The visual cases are now handled by Creative Inspection (section 3), but this harness only feeds text.
+Full write-up: `submission/REALWORLD_TEST_RESULTS.md`.
+
+| Dataset | Cases | Precision | Recall | F1 | Exact match |
+|---|---|---|---|---|---|
+| Real-world set, **before** fixes (`realworld_dataset.json`) | 50 | 0.923 | 0.545 | 0.686 | 29/50 |
+| Real-world set, after fixes | 50 | 1.000 | 1.000 | 1.000 | 50/50 |
+| Fresh hold-out, scored once (`realworld_holdout.json`) | 20 | 1.000 | 1.000 | 1.000 | 20/20 |
+| Original set (`dataset.json`) | 36 | 1.000 | 0.953 | 0.976 | 34/36 |
+
+The only remaining misses on the original set are its 2 "visual" cases (logo colour, packaging). These are image checks that Creative Inspection and Visual DNA handle, and this harness only feeds text.
 
 ## 3. Creative Inspection evaluation (Improvement 1)
 

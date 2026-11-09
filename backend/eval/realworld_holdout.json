@@ -1,0 +1,26 @@
+{
+  "org_id": "nova-tech-org-001",
+  "description": "20 further held-out inputs written after the analyzer fixes and scored once without changing the engine. Same labelling rules as realworld_dataset.json.",
+  "cases": [
+    {"id": "h01", "channel": "email", "expected": ["clean"], "content": "Your NovaBook AI Pro 16 order has shipped. Expect delivery in 3 to 5 working days."},
+    {"id": "h02", "channel": "product page", "expected": ["clean"], "content": "Charges to 80% in 1 hour with the included 100 W adapter. Up to 18 hours of battery once full."},
+    {"id": "h03", "channel": "retailer listing", "expected": ["clean"], "content": "NovaBook AI Pro 16 | ₹79,999 | 2-year on-site warranty | 45 TOPS NPU"},
+    {"id": "h04", "channel": "support page", "expected": ["clean"], "content": "USB-C charger replacement: ₹3,299 from NOVA TECH service centres."},
+    {"id": "h05", "channel": "instagram", "expected": ["clean"], "content": "Quiet under load, cool on your lap, ready for your next deadline."},
+    {"id": "h06", "channel": "festival ad", "expected": ["price_conflict"], "content": "This Pongal, take home the NovaBook AI Pro 16 at ₹76,999 only."},
+    {"id": "h07", "channel": "whatsapp", "expected": ["price_conflict", "tone"], "content": "Bro NovaBook AI Pro just 70k!! Rs 70,000 final price, no bargaining!!"},
+    {"id": "h08", "channel": "web banner", "expected": ["superlative"], "content": "The thinnest laptop we have ever built is also the most capable."},
+    {"id": "h09", "channel": "billboard", "expected": ["superlative"], "content": "Asia's number one AI notebook."},
+    {"id": "h10", "channel": "comparison page", "expected": ["comparative"], "content": "1.5x faster than Lenovo's best-selling ThinkPad on AI tasks."},
+    {"id": "h11", "channel": "tv script", "expected": ["comparative"], "content": "Other laptops wish they could keep up. The NovaBook AI Pro 16 outpaces every rival in its price range."},
+    {"id": "h12", "channel": "spec sheet", "expected": ["fact_conflict"], "content": "NovaCore N10 NPU rated at 48 TOPS."},
+    {"id": "h13", "channel": "instagram", "expected": ["fact_conflict"], "content": "Two full days unplugged: up to 36 hours of battery."},
+    {"id": "h14", "channel": "retailer listing", "expected": ["fact_conflict"], "content": "Peace of mind with a five-year warranty."},
+    {"id": "h15", "channel": "sms", "expected": ["outdated"], "content": "Last chance to claim your NovaSleeve pre-order gift."},
+    {"id": "h16", "channel": "facebook", "expected": ["terminology"], "content": "The cheapest way into on-device AI."},
+    {"id": "h17", "channel": "influencer post", "expected": ["tone"], "content": "this thing is CRAZY fast, not even joking"},
+    {"id": "h18", "channel": "brochure", "expected": ["needs_review"], "content": "An industry-leading keyboard with unrivalled comfort."},
+    {"id": "h19", "channel": "google ad", "expected": ["terminology"], "content": "Not a cheap AI device. A serious tool for serious work."},
+    {"id": "h20", "channel": "festival ad", "expected": ["price_conflict", "comparative", "tone"], "content": "Holi sale!! Beats Apple on value — NovaBook AI Pro 16 now ₹67,999."}
+  ]
+}

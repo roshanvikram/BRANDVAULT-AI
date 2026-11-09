@@ -10,6 +10,7 @@ from backend.app.models.passport import AgentRun, AuditLog
 from backend.app.core.config import settings
 from backend.app.services import llm as llm_mod
 from backend.app.services.rag import RagRetriever
+from backend.app.services import claim_patterns as cp
 
 # Ambiguous marketing superlatives that are not outright prohibited but cannot be
 # mechanically confirmed or denied from stored evidence — these require human judgement.
@@ -152,10 +153,12 @@ class ContentAnalyzerService:
 
         # --- AGENT 1: Terminology Agent ---
         t_start = time.perf_counter()
+        # Straight apostrophes, same length, so "World’s fastest" matches "world's fastest".
+        norm_content = cp.normalise(content)
         for term_rule in terms:
-            pattern = re.compile(re.escape(term_rule.prohibited_term), re.IGNORECASE)
-            for match in pattern.finditer(content):
-                matched_text = match.group(0)
+            pattern = re.compile(re.escape(cp.normalise(term_rule.prohibited_term)), re.IGNORECASE)
+            for match in pattern.finditer(norm_content):
+                matched_text = content[match.start():match.end()]
                 ev = self._retrieve_evidence(org_id, f"{term_rule.prohibited_term} {term_rule.explanation}")
                 findings_list.append(Finding(
                     id=str(uuid.uuid4()),
@@ -170,6 +173,24 @@ class ContentAnalyzerService:
                     suggested_correction=term_rule.preferred_term,
                 ))
                 deductions += 15
+        # Terms a written brand rule forbids ("Do not use ... 'budget laptop'") that
+        # are not yet in the terminology register.
+        confirmed_rules = [r for r in rules if r.is_confirmed is not False]
+        for term, rule in cp.rule_forbidden_terms(confirmed_rules, [t.prohibited_term for t in terms]):
+            for match in re.finditer(r"\b" + re.escape(term) + r"\b", norm_content, re.IGNORECASE):
+                findings_list.append(Finding(
+                    id=str(uuid.uuid4()),
+                    submission_id=submission.id,
+                    issue_category="Terminology",
+                    severity="CRITICAL",
+                    original_text=content[match.start():match.end()],
+                    explanation=f"A brand rule forbids this wording: {rule.rule_text}",
+                    rule_reference=f"Brand rule: {rule.title}" if getattr(rule, "title", None) else "Brand naming rule",
+                    evidence_source=f"Brand rule (Org: {org.name})",
+                    confidence=0.9,
+                    suggested_correction="Use the approved product name instead.",
+                ))
+                deductions += 15
         self._record_agent_run("Terminology Agent", "Scan for prohibited terms and deprecated nomenclature",
                                time.perf_counter() - t_start, content[:120],
                                f"Identified {len(findings_list)} terminology violations.", {"rules_checked": len(terms)})
@@ -177,15 +198,17 @@ class ContentAnalyzerService:
         # --- AGENT 2: Brand Voice & Tone Agent ---
         v_start = time.perf_counter()
         exclamation_count = content.count("!")
-        if exclamation_count >= 2:
+        tone_reasons = cp.tone_signals(content, org.name)
+        if exclamation_count >= 2 or tone_reasons:
             ev = self._retrieve_evidence(org_id, "brand voice tone exclamation understated precise hype")
+            reasons = ([f"{exclamation_count} exclamation marks"] if exclamation_count >= 2 else []) + tone_reasons
             findings_list.append(Finding(
                 id=str(uuid.uuid4()),
                 submission_id=submission.id,
                 issue_category="Tone & Voice",
                 severity="WARNING",
-                original_text="Multiple exclamation marks used in promotional copy",
-                explanation="The brand tone guidelines require a calm, understated, and precise tone. Excessive exclamation marks reduce enterprise credibility.",
+                original_text="Off-brand tone: " + "; ".join(reasons),
+                explanation="The brand tone guidelines require a calm, understated, and precise tone. Exclamation marks, capitals used for shouting and hype slang reduce enterprise credibility.",
                 rule_reference="Brand Voice & Tone rule",
                 evidence_source=ev["citation"] if ev else "Brand Voice guideline (no passage retrieved)",
                 confidence=0.92,
@@ -195,21 +218,31 @@ class ContentAnalyzerService:
         self._record_agent_run("Brand Voice Agent", "Synthesize tone restraint and emotional sentiment index",
                                time.perf_counter() - v_start, content[:120],
                                f"Exclamation density: {exclamation_count}. Tone restraint assessment completed.",
-                               {"exclamation_count": exclamation_count})
+                               {"exclamation_count": exclamation_count, "tone_signals": tone_reasons})
 
         # --- AGENT 3: ClaimDNA Agent (Pricing, Performance, Comparative, Freshness) ---
         c_start = time.perf_counter()
 
         # Pricing claims
         # Word boundaries prevent matching "rs" inside words like "delivers 45".
-        price_patterns = [r'₹\s*([0-9,]+)', r'\bRs\.?\s*([0-9,]+)', r'\bINR\s*([0-9,]+)']
-        found_prices = []
-        for pat in price_patterns:
-            for m in re.finditer(pat, content, re.IGNORECASE):
-                found_prices.append((m.group(0), m.group(1).replace(",", "")))
+        # find_prices also reads "69999 rs" and "Rs.74,990/-", and separates EMI
+        # amounts and accessory prices from the product price.
+        price_mentions = cp.find_prices(content)
+        found_prices = [(p["raw"], p["value"]) for p in price_mentions if p["kind"] == "price"]
 
         approved_price_fact = next((f for f in facts if "price" in f.fact_key.lower()), None)
         price_ev = self._retrieve_evidence(org_id, "pricing policy launch price")
+        for p in price_mentions:
+            if p["kind"] != "instalment":
+                continue
+            claims_list.append(ClaimVerification(
+                id=str(uuid.uuid4()), submission_id=submission.id,
+                claim_text=f"Financing term: {p['raw']} per month", status="Needs Human Review", category="Pricing",
+                explanation="A monthly instalment (EMI) is a financing term, not the product price. Financing offers need their own approved offer record, so a reviewer must confirm it.",
+                evidence_text=price_ev["content"] if price_ev else None,
+                source_reference=price_ev["citation"] if price_ev else None, confidence=0.6,
+            ))
+            deductions += 5
         for raw_price, clean_price in found_prices:
             if approved_price_fact is None:
                 # Cannot confirm or deny without an approved pricing record → human review.
@@ -252,8 +285,7 @@ class ContentAnalyzerService:
                 ))
 
         # Superlative performance claims
-        for sm in re.finditer(r"(world['’]?s fastest|fastest AI laptop|unbeatable performance)", content, re.IGNORECASE):
-            matched_claim = sm.group(0)
+        for matched_claim in cp.find_superlatives(content):
             ev = self._retrieve_evidence(org_id, f"{matched_claim} performance benchmark verification absolute claim")
             findings_list.append(Finding(
                 id=str(uuid.uuid4()), submission_id=submission.id, issue_category="Promotional Claim", severity="CRITICAL",
@@ -274,8 +306,7 @@ class ContentAnalyzerService:
             deductions += 20
 
         # Comparative competitor claims
-        for cm in re.finditer(r"(10x faster than every competitor|faster than every competitor|faster than any rival)", content, re.IGNORECASE):
-            matched_claim = cm.group(0)
+        for matched_claim in cp.find_comparatives(content):
             ev = self._retrieve_evidence(org_id, f"{matched_claim} comparative competitor benchmark test methodology")
             findings_list.append(Finding(
                 id=str(uuid.uuid4()), submission_id=submission.id, issue_category="Promotional Claim", severity="CRITICAL",
@@ -311,10 +342,33 @@ class ContentAnalyzerService:
                 ))
                 deductions += 5
 
+        # Wrong specification numbers (battery hours, TOPS, warranty length) → Contradicted
+        conflicted_fact_ids = set()
+        spec_facts = [f for f in facts if "price" not in f.fact_key.lower()]
+        for conflict in cp.find_spec_conflicts(content, spec_facts):
+            fact = conflict["fact"]
+            conflicted_fact_ids.add(fact.id)
+            findings_list.append(Finding(
+                id=str(uuid.uuid4()), submission_id=submission.id, issue_category="Fact Accuracy", severity="CRITICAL",
+                original_text=conflict["raw"],
+                explanation=f"'{conflict['raw']}' disagrees with the approved record '{fact.fact_key}: {fact.fact_value}'.",
+                rule_reference=f"Approved fact: {fact.fact_key}",
+                evidence_source=fact.verification_source,
+                confidence=0.95, suggested_correction=fact.fact_value,
+            ))
+            claims_list.append(ClaimVerification(
+                id=str(uuid.uuid4()), submission_id=submission.id, claim_text=conflict["raw"],
+                status="Contradicted", category=fact.category or "Product Specification",
+                explanation=f"Contradicts the approved record: {fact.fact_value}.",
+                evidence_text=f"Approved Fact: '{fact.fact_key}: {fact.fact_value}'.",
+                source_reference=fact.verification_source, confidence=0.95,
+            ))
+            deductions += 20
+
         # Fact references → Supported or Outdated (freshness-aware)
         now = datetime.datetime.utcnow()
         for fact in facts:
-            if "price" in fact.fact_key.lower():
+            if "price" in fact.fact_key.lower() or fact.id in conflicted_fact_ids:
                 continue
             # Require a distinctive key token (>= 7 chars) to avoid matching on
             # generic words like "launch"/"offer"/"bonus" that cause false hits.
