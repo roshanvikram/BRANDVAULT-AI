@@ -1,5 +1,7 @@
 "use client";
 
+import { Rocket as RocketHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Rocket, Check, ArrowRight, ArrowUpRight, Loader2, Info, Sparkles } from "lucide-react";
@@ -19,17 +21,12 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 select-none">
       {/* Header */}
-      <div className="border-b border-slate-200/80 pb-5">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50 text-[11px] font-bold uppercase tracking-wider text-indigo-700 mb-2">
-          <Rocket className="w-3.5 h-3.5 text-indigo-600" />
-          <span>Interactive Onboarding</span>
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Welcome, {firstName}</h2>
-        <p className="text-xs text-slate-600 mt-1">
-          A few steps take a brand from zero to certified governance. Each item below reflects your
-          <span className="font-semibold text-slate-900"> real saved configuration</span> — not a checklist you tick manually.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Setup Guide"
+        icon={<RocketHdr />}
+        title={`Welcome, ${firstName}`}
+        description="A few steps take a brand from zero to certified governance. Each item reflects your real saved configuration, not a checklist you tick by hand."
+      />
 
       {error && (
         <div className="p-4 rounded-xl border border-rose-200 bg-rose-50 text-xs font-medium text-rose-700 flex items-center space-x-2">

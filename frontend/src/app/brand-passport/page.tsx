@@ -1,5 +1,7 @@
 "use client";
 
+import { Award as AwardHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -37,30 +39,25 @@ export default function BrandPassportPage() {
   return (
     <div className="space-y-6">
       {/* Header (Hidden during print) */}
-      <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5 select-none">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200">
-              Brand Passport
-            </span>
-            <span className="text-[11px] text-slate-500">Cryptographic Governance Certificates</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Official Brand Governance Passports</h2>
-          <p className="text-[13px] text-slate-600 mt-0.5 max-w-2xl">
-            Immutable, tamper-evident audit records verifying brand guideline compliance and human approval.
-          </p>
-        </div>
-
-        <Link href="/brand-passport/verify" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Verify a campaign</Link>
-        {selectedPassport && (
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white transition-all flex items-center space-x-2 shadow-md shadow-indigo-500/20 active:scale-[0.99]"
-          >
-            <Printer className="w-3.5 h-3.5 text-indigo-200" />
-            <span>Export / Print Passport</span>
-          </button>
-        )}
+      <div className="no-print">
+        <PageHeader
+          eyebrow="Brand Passport"
+          icon={<AwardHdr />}
+          title="Brand Passports"
+          description="Tamper-evident certificates for approved campaign versions, with the content fingerprint and the approving reviewer."
+          actions={<>
+          <Link href="/brand-passport/verify" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Verify a campaign</Link>
+          {selectedPassport && (
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white transition-all flex items-center space-x-2 shadow-md shadow-indigo-500/20 active:scale-[0.99]"
+            >
+              <Printer className="w-3.5 h-3.5 text-indigo-200" />
+              <span>Export / Print Passport</span>
+            </button>
+          )}
+          </>}
+        />
       </div>
 
       {passports.length === 0 ? (

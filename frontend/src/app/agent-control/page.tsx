@@ -1,5 +1,7 @@
 "use client";
 
+import { Bot as BotHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useEffect, useState } from "react";
 import {
   Bot,
@@ -34,20 +36,12 @@ export default function AgentControlCenter() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold border border-indigo-200">
-              Agent Control Center
-            </span>
-            <span className="text-[11px] text-slate-500">Autonomous Orchestration Fleet</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Specialist AI Agent Fleet</h2>
-          <p className="text-[13px] text-slate-600 mt-0.5 max-w-2xl">
-            Monitoring live execution telemetry, latency, token throughput, and decision events across autonomous brand governance agents.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Agent Control"
+        icon={<BotHdr />}
+        title="Agent activity"
+        description="Every agent run is recorded with its task, timing and result, so any automated step can be inspected."
+        actions={<>
         <button
           onClick={loadData}
           disabled={loading}
@@ -56,7 +50,8 @@ export default function AgentControlCenter() {
           <RefreshCw className={`w-3.5 h-3.5 text-indigo-200 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh Fleet</span>
         </button>
-      </div>
+        </>}
+      />
 
       {/* Fleet Overview Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

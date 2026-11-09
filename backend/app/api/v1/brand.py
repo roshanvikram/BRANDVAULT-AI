@@ -258,6 +258,9 @@ def _propose_price_facts(db: Session, org_id: str, kind: str, sections, filename
     from backend.app.services import product_truth as pt
     pt.bootstrap_products(db, org_id)
     products = {p.name.lower(): p for p in db.query(Product).filter(Product.org_id == org_id).all() if p.name}
+    # When a sheet gives no currency or region, assume the organisation's own price currency (₹ here).
+    org_inr = any("₹" in (f.value_text or "") for f in db.query(ProductFact).filter(
+        ProductFact.org_id == org_id, ProductFact.attribute == "price").all())
     made = 0
     for s in sections:
         row = s["text"]
@@ -267,6 +270,18 @@ def _propose_price_facts(db: Session, org_id: str, kind: str, sections, filename
         prod = products.get((name or "").lower())
         if not prod or not price:
             continue
+        # Only rupee prices become Product Truth facts; other currencies/regions are left for a person.
+        price_key = next((k for k in cells if "price" in k or "mrp" in k), "")
+        currency = next((v for k, v in cells.items() if "currency" in k), "")
+        region = next((v for k, v in cells.items() if "region" in k or "market" in k or "country" in k), "")
+        inr = (bool(_re.search(r"₹|\brs\b|inr", price, _re.I)) or "inr" in price_key or "₹" in price_key
+               or currency.upper() == "INR")
+        if currency and currency.upper() != "INR":
+            continue
+        if region and region.strip().lower() not in ("india", "in", "all", "all regions") and not _re.search(r"₹|inr", price, _re.I):
+            continue
+        if not inr and not region and not org_inr:
+            continue  # nothing says which currency, and the organisation's own prices are not in rupees
         num, unit, qual = pt.parse_fact_value("price", price if _re.search(r"₹|rs|inr", price, _re.I) else f"₹{price}")
         if num is None:
             continue

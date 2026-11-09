@@ -1,6 +1,8 @@
 
 "use client";
 
+import { BadgeCheck as BadgeCheckHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useEffect, useState } from "react";
 import {
   CheckCircle2,
@@ -108,18 +110,12 @@ export default function ClaimDNA() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <div className="flex items-center space-x-2 text-xs text-indigo-600 uppercase mb-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="font-bold tracking-wider">ClaimDNA · Evidence-Backed Claim Verification Engine</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Promotional & Factual Claim Auditor</h2>
-          <p className="text-xs text-slate-600 mt-0.5">
-            Cross-verifying claims, pricing accuracy, and competitor benchmarks against ground-truth guidelines.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="ClaimDNA"
+        icon={<BadgeCheckHdr />}
+        title="Claim verification"
+        description="Every claim is checked against approved facts and classed as supported, unsupported, contradicted, outdated or needing review."
+        actions={<>
         <button
           onClick={handleRunSampleNovaTest}
           disabled={runningTest}
@@ -128,7 +124,8 @@ export default function ClaimDNA() {
           <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
           <span>{runningTest ? "Auditing…" : "Run sample claim audit"}</span>
         </button>
-      </div>
+        </>}
+      />
 
       {/* Claim Tester Input Card */}
       <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-soft space-y-3">

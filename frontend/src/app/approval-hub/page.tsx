@@ -1,5 +1,7 @@
 "use client";
 
+import { ClipboardCheck as ClipboardCheckHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -75,20 +77,12 @@ export default function ApprovalHub() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold border border-indigo-200">
-              Approval Hub
-            </span>
-            <span className="text-[11px] text-slate-500">Human-in-the-Loop Governance</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Human-in-the-Loop Review Queue</h2>
-          <p className="text-[13px] text-slate-600 mt-0.5 max-w-2xl">
-            Only authorized human reviewers can sign off on promotional marketing campaigns and issue cryptographic Brand Passports.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Approval Hub"
+        icon={<ClipboardCheckHdr />}
+        title="Review queue"
+        description="Only Reviewers and Administrators can decide. Each approval is locked to the exact version reviewed and issues a Brand Passport."
+        actions={<>
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/approval-hub/readiness" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Launch readiness</Link>
           <Link href="/approval-hub/insights" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Reviewer intelligence</Link>
@@ -101,7 +95,8 @@ export default function ApprovalHub() {
           <span className="text-slate-300">·</span>
           <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">{user?.role || "—"}</span>
         </div>
-      </div>
+        </>}
+      />
 
       {feedbackMessage && (
         <div className="p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/80 shadow-sm text-xs font-medium text-indigo-900 flex items-center justify-between">

@@ -206,3 +206,42 @@ h1, h2, h3, h4 {
   border-radius: 16px;
   box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(79, 70, 229, 0.08);
 }
+
+/* ---------------------------------------------------------------- Motion ---- */
+@keyframes bv-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes bv-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.bv-page-enter { animation: bv-fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bv-shimmer {
+  background-image: linear-gradient(90deg, #F1F5F9 0px, #E2E8F0 120px, #F1F5F9 240px);
+  background-size: 800px 100%;
+  animation: bv-shimmer 1.3s linear infinite;
+}
+/* Faint dot grid used behind page headers. */
+.bv-grid {
+  background-image: radial-gradient(rgba(79, 70, 229, 0.18) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to left, black, transparent 70%);
+}
+/* Cards lift slightly on hover when they are interactive. */
+.bv-lift { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+.bv-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(15, 23, 42, 0.28); border-color: #C7D2FE; }
+:focus-visible { outline: 2px solid #6366F1; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .bv-page-enter, .bv-shimmer, .bv-lift { animation: none !important; transition: none !important; transform: none !important; }
+}
+
+/* ------------------------------------------------------- Frosted glass ---- */
+/* The signed-in app sits on the artwork in components/layout/Backdrop.tsx.     */
+body:has(.bv-glass-app) { background: transparent; background-image: none; }
+/* Older pages build cards with plain white classes; frost them too. */
+.bv-glass-app main [class*="rounded-2xl"].bg-white,
+.bv-glass-app main [class*="rounded-3xl"].bg-white,
+.bv-glass-app main [class*="rounded-xl"][class*="shadow"].bg-white,
+.bv-glass-app main .glass-panel {
+  background-color: rgb(255 255 255 / 0.7);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-color: rgb(255 255 255 / 0.7);
+}
+/* Inputs stay solid so typing is always crisp. */
+.bv-glass-app main input, .bv-glass-app main textarea, .bv-glass-app main select { background-color: rgb(255 255 255 / 0.92); }

@@ -161,7 +161,7 @@ export function Sidebar() {
       <aside
         aria-label="Main navigation"
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-[#F7F8FB] border-r border-slate-200/80 select-none",
+          "fixed lg:sticky top-0 left-0 z-50 h-screen flex flex-col bg-white/55 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/70 select-none",
           "transition-[transform,width] duration-200 ease-out",
           isCollapsed ? "lg:w-[68px]" : "lg:w-[256px]",
           "w-[272px]",

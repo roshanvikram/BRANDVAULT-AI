@@ -56,7 +56,7 @@ export function Header() {
   const page = PAGE_TITLES[pathname] || { section: "BrandVault", title: "Brand Governance" };
 
   return (
-    <header className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-4 sticky top-0 z-30 select-none bg-white/80 backdrop-blur-xl border-b border-slate-200/70">
+    <header className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-4 sticky top-0 z-30 select-none bg-white/45 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/60">
       <button
         onClick={() => setMobileNavOpen(true)}
         className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100"

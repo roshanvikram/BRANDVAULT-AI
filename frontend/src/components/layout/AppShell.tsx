@@ -6,6 +6,7 @@ import { AuthProvider, RequireAuth } from "@/lib/auth";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { ServerWake } from "./ServerWake";
+import { Backdrop } from "./Backdrop";
 
 // Public routes render full-page without the app chrome.
 const PUBLIC_ROUTES = ["/", "/login", "/signup", "/guide"];
@@ -36,11 +37,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         children
       ) : (
         <ShellContext.Provider value={{ mobileNavOpen, setMobileNavOpen }}>
-          <div className="flex min-h-screen w-full">
+          <Backdrop />
+          <div className="bv-glass-app relative flex min-h-screen w-full">
             <Sidebar />
             <div className="flex-1 min-w-0 flex flex-col min-h-screen">
               <Header />
-              <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+              <main key={pathname} className="bv-page-enter flex-1 w-full max-w-[1440px] mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                 <RequireAuth>{children}</RequireAuth>
               </main>
             </div>

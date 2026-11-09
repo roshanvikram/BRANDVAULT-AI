@@ -1,5 +1,7 @@
 "use client";
 
+import { Languages as LanguagesHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useEffect, useMemo, useState } from "react";
 import {
   Languages, Plus, Trash2, Sparkles, Loader2, Download, Copy, Check, AlertTriangle,
@@ -178,24 +180,20 @@ export default function TranslationGuardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 mb-1.5">
-            <Languages className="w-3.5 h-3.5" /> Translation Guard
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Every language should make the same claim</h2>
-          <p className="text-[13px] text-slate-600 mt-1 max-w-2xl">
-            Compare each translation with the source. Numbers, prices, “up to / more than” qualifiers, negations and product
-            names are checked exactly; an AI pass adds a meaning score and a corrected translation.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Translation Guard"
+        icon={<LanguagesHdr />}
+        title="Every language should make the same claim"
+        description="Each translation is compared with the source. Numbers, prices, qualifiers such as “up to”, negations and product names are checked exactly; an AI pass adds a meaning score and a corrected translation."
+        actions={<>
         {langs && (
           <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ${langs.ai_available ? "bg-violet-50 text-violet-700 ring-violet-200" : "bg-slate-100 text-slate-600 ring-slate-200"}`}>
             <Cpu className="w-3.5 h-3.5" />
             {langs.ai_available ? "AI meaning check available" : "Rule-based checks only (no AI model configured)"}
           </div>
         )}
-      </div>
+        </>}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         {/* -------------------------------- Input -------------------------------- */}

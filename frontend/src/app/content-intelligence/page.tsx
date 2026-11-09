@@ -1,5 +1,7 @@
 "use client";
 
+import { FileSearch as FileSearchHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -120,21 +122,13 @@ function ContentIntelligenceContent() {
   return (
     <div className="space-y-4 select-none">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold border border-indigo-200">
-              Content Intelligence
-            </span>
-            <span className="text-[11px] text-slate-500">Autonomous Evidence Verification</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Marketing Copy Review Studio</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Link href="/content-intelligence/similarity" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Similarity detector →</Link>
-          </div>
-          <p className="text-[13px] text-slate-600 mt-0.5">Check copy against your Brand DNA, review evidence for each finding and apply one-click corrections.</p>
-        </div>
-
+      <PageHeader
+        eyebrow="Content Intelligence"
+        icon={<FileSearchHdr />}
+        title="Marketing copy review"
+        description="Check copy against your Brand DNA, see the evidence behind each finding, and apply one-click corrections."
+        actions={<>
+          <Link href="/content-intelligence/similarity" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Similarity detector →</Link>
         <div className="flex items-center space-x-3">
           {submission && (
             <div className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-center space-x-2">
@@ -157,7 +151,8 @@ function ContentIntelligenceContent() {
             <span>{analyzing ? "Analysing…" : "Run AI Analysis"}</span>
           </button>
         </div>
-      </div>
+        </>}
+      />
 
       {reviewMessage && (
         <div className="p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/80 shadow-sm text-xs text-indigo-900 flex items-center justify-between font-medium">

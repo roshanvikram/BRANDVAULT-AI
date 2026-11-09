@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, ImageOff, Loader2 } from "lucide-react";
 import { fetchProtectedImage } from "@/lib/api";
 
-export const CARD = "bg-white border border-slate-200/70 rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_6px_20px_-12px_rgba(15,23,42,0.08)]";
+export const CARD = "bg-white/70 backdrop-blur-xl backdrop-saturate-150 border border-white/70 rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-16px_rgba(15,23,42,0.18)]";
 
 const TONES: Record<string, string> = {
   good: "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -25,24 +25,63 @@ export function Badge({ tone = "neutral", children, className = "" }: { tone?: T
   );
 }
 
-export function PageHeader({ back, eyebrow, icon, title, description, actions }: {
-  back?: { href: string; label: string }; eyebrow: string; icon: ReactNode; title: string; description: string; actions?: ReactNode;
+export interface HeaderStat { label: string; value: ReactNode; tone?: Tone }
+
+/** Hero page header used by every module: icon tile, eyebrow, title, description, actions and optional stat chips. */
+export function PageHeader({ back, eyebrow, icon, title, description, actions, stats, status }: {
+  back?: { href: string; label: string }; eyebrow: string; icon: ReactNode; title: ReactNode; description: ReactNode;
+  actions?: ReactNode; stats?: HeaderStat[]; status?: ReactNode;
 }) {
   return (
     <div className="space-y-3">
       {back && (
-        <Link href={back.href} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-700">
+        <Link href={back.href} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-700 transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> {back.label}
         </Link>
       )}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-100 px-2.5 py-1 rounded-full mb-2.5">{icon} {eyebrow}</div>
-          <h2 className="text-[26px] leading-tight font-semibold tracking-tight text-slate-900">{title}</h2>
-          <p className="text-[13.5px] text-slate-500 mt-1.5 max-w-3xl leading-relaxed">{description}</p>
+      <header className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/60 backdrop-blur-2xl backdrop-saturate-150 px-5 py-5 sm:px-7 sm:py-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_16px_40px_-20px_rgba(15,23,42,0.25)]">
+        <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 w-72 h-72 rounded-full bg-violet-200/40 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-28 right-40 w-64 h-64 rounded-full bg-indigo-200/30 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bv-grid opacity-[0.35]" />
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div className="flex items-start gap-4 min-w-0">
+            <span className="hidden sm:flex w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white items-center justify-center shadow-lg shadow-indigo-500/25 [&>svg]:w-5 [&>svg]:h-5">{icon}</span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-indigo-600">{eyebrow}</span>
+                {status}
+              </div>
+              <h2 className="text-[26px] sm:text-[28px] leading-tight font-semibold tracking-tight text-slate-900">{title}</h2>
+              <p className="text-[13.5px] text-slate-500 mt-1.5 max-w-3xl leading-relaxed">{description}</p>
+            </div>
+          </div>
+          {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
-      </div>
+        {stats && stats.length > 0 && (
+          <dl className="relative mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-2xl bg-white/70 ring-1 ring-white/80 shadow-sm px-3.5 py-2.5">
+                <dt className="text-[11px] text-slate-500 truncate">{s.label}</dt>
+                <dd className={`text-lg font-semibold tabular-nums leading-tight ${s.tone === "bad" ? "text-rose-600" : s.tone === "warn" ? "text-amber-600" : s.tone === "good" ? "text-emerald-600" : "text-slate-900"}`}>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </header>
+    </div>
+  );
+}
+
+/** Shimmering placeholder while data loads. */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return <div aria-hidden className={`bv-shimmer rounded-xl bg-slate-100 ${className}`} />;
+}
+
+export function CardSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className={`${CARD} p-5 space-y-3`} role="status" aria-label="Loading">
+      <Skeleton className="h-4 w-1/3" />
+      {Array.from({ length: rows }).map((_, i) => <Skeleton key={i} className="h-3" />)}
     </div>
   );
 }

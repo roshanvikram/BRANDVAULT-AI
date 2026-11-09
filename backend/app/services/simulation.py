@@ -34,7 +34,7 @@ SCENARIOS = {
     "image_crop": "Crop the image",
 }
 
-_PRICE = re.compile(r"(₹|rs\.?\s*|inr\s*)\s*\d[\d,]*", re.I)
+_PRICE = re.compile(r"(₹|\brs\.?\s*|\binr\s*)\s*\d[\d,]*", re.I)
 _DISCLAIMER = re.compile(r"(\*[^.!?]*[.!?]?|\b(t\s*&\s*c|terms\s+(and|&)\s+conditions|conditions\s+apply|terms\s+apply)[^.!?]*[.!?]?)", re.I)
 
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { Wand2 as Wand2Hdr } from "lucide-react";
+import { PageHeader, Badge } from "@/components/engines/ui";
 import { useEffect, useState } from "react";
 import { Wand2, Sparkles, ArrowRight, Loader2, Info, Check, Cpu } from "lucide-react";
 import { rewriteCopy, fetchCopyStudioStatus, CopyRewrite, CopyStudioStatus } from "@/lib/api";
@@ -29,26 +31,13 @@ export default function CopyStudioPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 select-none">
       {/* Header */}
-      <div className="border-b border-slate-200/80 pb-5">
-        <div className="flex items-center space-x-2 text-xs font-bold text-indigo-600 uppercase mb-1">
-          <Wand2 className="w-3.5 h-3.5 text-indigo-600" />
-          <span>AI Copy Studio · Generative Compliant Rewrite</span>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Rewrite copy to be on-brand</h2>
-            <p className="text-xs text-slate-600 mt-0.5">
-              Generates a compliant version grounded in your approved rules, facts and terminology — preserving creative intent.
-            </p>
-          </div>
-          {status && (
-            <div className={`shrink-0 inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold ${status.llm_available ? "bg-purple-50 text-purple-700 border border-purple-200 shadow-sm" : "bg-slate-100 text-slate-600 border border-slate-200"}`}>
-              <Cpu className="w-3.5 h-3.5 text-purple-600" />
-              <span>{status.llm_available ? `AI Live · ${status.model}` : "Heuristic mode"}</span>
-            </div>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="AI Copy Studio"
+        icon={<Wand2Hdr />}
+        title="Rewrite copy to be on-brand"
+        description="Generates a compliant version grounded in your approved rules, facts and terminology, keeping the creative intent."
+        status={status ? <Badge tone={status.llm_available ? "ai" : "neutral"}>{status.llm_available ? `AI live · ${status.model}` : "Rule-based mode"}</Badge> : null}
+      />
 
       {/* Input */}
       <div className={`${GLASS} p-5 space-y-3`}>

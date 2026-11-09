@@ -1,5 +1,7 @@
 "use client";
 
+import { Image as ImageIconHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import {
@@ -45,20 +47,12 @@ export default function VisualDNAInspector() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold border border-indigo-200">
-              Multimodal Audit
-            </span>
-            <span className="text-[11px] text-slate-500">Pixel & Contrast Engine</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Visual & Creative Asset Auditor</h2>
-          <p className="text-[13px] text-slate-600 mt-1 max-w-2xl">
-            Measured colour palette, luminance and contrast. PNG, JPEG, WebP and BMP supported. To check the text inside a creative, use Creative Inspection.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Visual DNA"
+        icon={<ImageIconHdr />}
+        title="Colour and contrast audit"
+        description="Measured colour palette, luminance and contrast for PNG, JPEG, WebP and BMP. To check the words inside a creative, use Creative Inspection."
+        actions={<>
         <div className="flex items-center gap-2">
           <Link href="/visual-dna/creative" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-colors">Creative Inspection</Link>
           <Link href="/visual-dna/forensics" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Asset Forensics</Link>
@@ -71,7 +65,8 @@ export default function VisualDNAInspector() {
             <span>Upload image</span>
           </button>
         </div>
-      </div>
+        </>}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Asset Preview */}

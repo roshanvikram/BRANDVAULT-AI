@@ -62,7 +62,8 @@ def _docx(data: bytes) -> List[Dict]:
         text = "".join(t.text or "" for t in p.iter(f"{_W}t")).strip()
         if not text:
             continue
-        is_heading = style is not None and "heading" in (style.get(f"{_W}val") or "").lower()
+        style_name = (style.get(f"{_W}val") or "").lower() if style is not None else ""
+        is_heading = "heading" in style_name or style_name == "title"
         if is_heading:
             n = len(sections) + (0 if not sections[-1]["text"] else 1)
             if sections[-1]["text"]:

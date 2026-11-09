@@ -1,5 +1,7 @@
 "use client";
 
+import { MessageSquare as MessageSquareHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Sparkles, Send, ShieldCheck, Info, ArrowUpRight, Loader2, MessageSquare } from "lucide-react";
@@ -45,20 +47,15 @@ export default function AssistantPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 select-none">
       {/* Header */}
-      <div className="border-b border-slate-200/80 pb-5">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50/80 text-[11px] font-bold uppercase tracking-wider text-indigo-700 mb-2">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-          <span>Brand Intelligence Assistant</span>
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ask about your brand</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Link href="/assistant/simulator" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Campaign stress testing →</Link>
-          </div>
-        <p className="text-xs text-slate-600 mt-1 flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          Answers come <span className="font-semibold text-slate-900">only from your approved brand data</span>, with citations — never invented.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Brand Assistant"
+        icon={<MessageSquareHdr />}
+        title="Ask about your brand"
+        description="Answers come only from your approved brand data, with citations — never invented."
+        actions={<>
+          <Link href="/assistant/simulator" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Campaign stress testing →</Link>
+        </>}
+      />
 
       {/* Conversation */}
       <div ref={scrollRef} className="space-y-4 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">

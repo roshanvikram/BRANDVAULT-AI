@@ -1,8 +1,11 @@
 "use client";
 
+import { Dna as DnaHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useOrganization } from "@/lib/useOrganization";
+import { useAuth } from "@/lib/auth";
 import {
   Dna,
   Upload,
@@ -30,6 +33,8 @@ import {
 
 export default function BrandDNAStudio() {
   const org = useOrganization();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "Administrator";
   const [rules, setRules] = useState<BrandRule[]>([]);
   const [facts, setFacts] = useState<ApprovedFact[]>([]);
   const [terms, setTerms] = useState<TerminologyRule[]>([]);
@@ -94,20 +99,13 @@ export default function BrandDNAStudio() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
-        <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 uppercase mb-1 tracking-wider">
-            <Dna className="w-3.5 h-3.5" />
-            <span>Brand DNA Studio // Knowledge Management</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-            Brand Governance Profile: <span className="text-indigo-600">{org?.name || "…"}</span>
-          </h2>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Ingest guidelines, verify extracted policies, manage ground-truth facts, and enforce approved terminology.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Brand DNA Studio"
+        icon={<DnaHdr />}
+        title={<>Brand profile: <span className="text-indigo-600">{org?.name || "…"}</span></>}
+        description="Upload guidelines, confirm the rules extracted from them, and manage approved facts and terminology."
+        stats={[{ label: "Rules", value: rules.length }, { label: "Confirmed", value: rules.filter((r) => r.is_confirmed).length, tone: "good" }, { label: "Awaiting confirmation", value: rules.filter((r) => !r.is_confirmed).length, tone: rules.some((r) => !r.is_confirmed) ? "warn" : undefined }, { label: "Approved facts", value: facts.length }, { label: "Terminology rules", value: terms.length }, { label: "Current documents", value: guidelines.filter((g) => g.status !== "superseded").length }]}
+        actions={<>
         {/* Upload Trigger */}
         <div>
           <input
@@ -119,8 +117,9 @@ export default function BrandDNAStudio() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm shadow-indigo-200 transition-all flex items-center space-x-2"
+            disabled={uploading || !isAdmin}
+            title={isAdmin ? undefined : "Only an Administrator can upload guidelines"}
+            className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm shadow-indigo-200 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>{uploading ? "Ingesting…" : "Upload guideline"}</span>
@@ -133,8 +132,14 @@ export default function BrandDNAStudio() {
           <Link href="/brand-dna/products" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Product Truth</Link>
           <Link href="/brand-dna/knowledge-gaps" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Knowledge gaps</Link>
         </div>
-      </div>
+        </>}
+      />
 
+      {user && !isAdmin && (
+        <div className="-mt-2 p-3 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-900">
+          You are signed in as <b>{user.role}</b>. Only an <b>Administrator</b> can upload or replace guidelines, so new brand rules are always confirmed by an accountable person. Sign out and sign in with an Administrator account to upload.
+        </div>
+      )}
       <p className="-mt-3 text-[11px] text-slate-500">Accepted: PDF, Word (.docx), HTML, Markdown/text, and CSV/Excel price lists. Passages are cited by page, section or row. Price-list rows for known products become pending facts in Product Truth.</p>
       {uploadError && (
         <div role="alert" className="p-3 rounded-xl border border-rose-200 bg-rose-50 text-xs text-rose-800">{uploadError}</div>

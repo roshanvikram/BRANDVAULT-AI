@@ -1,5 +1,7 @@
 "use client";
 
+import { Radar as RadarHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Radar, ShieldAlert, RefreshCw, Info, Lightbulb, Loader2 } from "lucide-react";
@@ -30,29 +32,21 @@ export default function RiskRadar() {
   return (
     <div className="space-y-6 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-200">
-              Risk Intelligence
-            </span>
-            <span className="text-[11px] text-slate-500">Continuous Drift & Anomaly Radar</span>
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Explained Risk Indicators & Telemetry</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Link href="/risk-radar/fraud" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Brand fraud intelligence →</Link>
-            <Link href="/risk-radar/reputation" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Reputation early warning →</Link>
-          </div>
-          <p className="text-[13px] text-slate-600 mt-0.5 max-w-2xl">
-            Transparent, rules-based indices over your real governance records — each shows the numbers behind it. Not a forecast.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Risk Radar"
+        icon={<RadarHdr />}
+        title="Explained risk indicators"
+        description="Transparent, rules-based indicators computed from your real governance records — each shows the numbers behind it. Not a forecast."
+        actions={<>
+          <Link href="/risk-radar/fraud" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Brand fraud intelligence →</Link>
+          <Link href="/risk-radar/reputation" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Reputation early warning →</Link>
         <button onClick={load} disabled={loading}
           className="px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white transition-all flex items-center space-x-2 shadow-md shadow-indigo-500/20 active:scale-[0.99]">
           <RefreshCw className={`w-3.5 h-3.5 text-indigo-200 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh Radar</span>
         </button>
-      </div>
+        </>}
+      />
 
       {!intel && (
         <div className="flex items-center justify-center py-16 text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-indigo-600" /></div>

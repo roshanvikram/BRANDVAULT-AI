@@ -46,7 +46,7 @@ def _now() -> datetime.datetime:
 # ----------------------------------------------------------------------------
 # attribute -> (unit regex, canonical unit, multiplier to canonical)
 _UNIT_PATTERNS: List[Tuple[str, str, str, float]] = [
-    ("price", r"(?:₹|rs\.?|inr)\s*", "INR", 1.0),  # prefix currency
+    ("price", r"(?:₹|\brs\.?|\binr)\s*", "INR", 1.0),  # prefix currency ("delive-rs 45" is not a price)
     ("battery", r"(?:hours?|hrs?|h)\b", "hours", 1.0),
     ("ai_performance", r"tops\b", "TOPS", 1.0),
     ("processor", r"ghz\b", "GHz", 1.0),
@@ -84,7 +84,7 @@ def parse_values(sentence: str, lang: str = "en") -> List[ParsedValue]:
         return any(a < y and x < b for x, y in taken)
 
     # prefix currency: ₹79,999
-    for m in re.finditer(r"(?:₹|rs\.?\s*|inr\s*)" + _NUM, s, re.IGNORECASE):
+    for m in re.finditer(r"(?:₹|\brs\.?\s*|\binr\s*)" + _NUM, s, re.IGNORECASE):
         v = float(m.group(1).replace(",", ""))
         q, qt, _ = tg._find_qualifier(lang, s, m.start(), m.end())
         out.append(ParsedValue("price", v, "INR", q, m.group(0).strip()))

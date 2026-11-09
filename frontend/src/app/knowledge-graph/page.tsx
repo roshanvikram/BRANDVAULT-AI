@@ -1,5 +1,7 @@
 "use client";
 
+import { Network as NetworkHdr } from "lucide-react";
+import { PageHeader } from "@/components/engines/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Network, RotateCcw, ArrowUpRight, Loader2, Info } from "lucide-react";
@@ -131,35 +133,13 @@ export default function KnowledgeGraphPage() {
   return (
     <div className="space-y-5 select-none">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E5E5] pb-5">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#0A0A0A]">
-            {graph ? graph.brand.name : "Brand"} — Connected Governance Knowledge
-          </h2>
-          <p className="text-[13px] text-[#71717A] mt-1 max-w-2xl">
-            Every node and link is built from real records. Click a node to expand its connections or inspect its details.
-          </p>
-        </div>
-        {graph && (
-          <div className="flex items-center gap-4 text-xs font-mono">
-            <div className="text-right">
-              <div className="text-[#0A0A0A] font-bold">{graph.stats.nodes}</div>
-              <div className="text-[11px] text-[#737373]">nodes</div>
-            </div>
-            <div className="text-right">
-              <div className="text-[#0A0A0A] font-bold">{graph.stats.edges}</div>
-              <div className="text-[11px] text-[#737373]">links</div>
-            </div>
-            <button
-              onClick={() => { setExpanded(new Set(["brand"])); setSelected(null); }}
-              className="px-3 py-1.5 rounded-lg border border-[#E5E5E5] bg-white text-[#0A0A0A] hover:bg-[#F5F5F5] flex items-center space-x-1.5 font-semibold"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset</span>
-            </button>
-          </div>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Knowledge Graph"
+        icon={<NetworkHdr />}
+        title={<>{graph ? graph.brand.name : "Brand"} — connected knowledge</>}
+        description="Every node and link is built from real records. Click a node to expand its connections or inspect its details."
+        stats={graph ? [{ label: "Nodes", value: graph.stats.nodes }, { label: "Links", value: graph.stats.edges }] : undefined}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Graph canvas */}

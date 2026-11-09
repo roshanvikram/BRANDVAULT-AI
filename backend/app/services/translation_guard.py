@@ -176,7 +176,7 @@ _UNITS: Dict[str, List[str]] = {
     "speed": ["x", "×", "गुना", "மடங்கு", "fois", "mal", "veces", "倍"],
 }
 
-_CURRENCY_BEFORE = re.compile(r"(₹|rs\.?|inr|\$|usd|€|eur|£|¥|￥)\s*$", re.IGNORECASE)
+_CURRENCY_BEFORE = re.compile(r"(₹|\brs\.?|\binr|\$|\busd|€|\beur|£|¥|￥)\s*$", re.IGNORECASE)
 _CURRENCY_AFTER = ["₹", "€", "$", "£", "rs", "inr", "eur", "usd", "रुपये", "रुपए", "ரூபாய்", "rupees", "roupies", "rupien", "rupias", "ルピー", "卢比", "روبية"]
 
 _NATIVE_DIGITS = {}
