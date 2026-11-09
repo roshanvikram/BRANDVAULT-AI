@@ -154,3 +154,13 @@ Memory: with OCR and the embedding model loaded the backend uses about 300 MB (R
 The Docker build downloads the embedding model once, so the first build takes a few minutes longer.
 
 MCP: see Settings → MCP in the app, or the header of `backend/mcp_server.py`.
+
+## 10. Keeping the free services awake
+
+Render puts a free service to sleep after 15 minutes without visitors. The free plan has 750 hours a month, shared by both services, so they cannot both stay awake 24/7.
+
+`.github/workflows/keep-awake.yml` pings both sites every 10 minutes from **9:00 AM to 8:30 PM IST**. That is about 730 of the 750 free hours.
+- **Outside those hours:** the first visit takes about a minute to wake a site.
+- **To wake it on demand:** GitHub → Actions → "Keep Render awake" → Run workflow.
+- **To change the hours:** edit the `cron` lines. They are in UTC; IST is UTC + 5:30. More hours would use up the free quota.
+- **For always-on:** switch both services to Render's Starter plan.

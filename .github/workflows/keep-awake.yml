@@ -1,0 +1,38 @@
+# Keeps the Render free-plan services from sleeping during the day.
+#
+# Render puts a free service to sleep after 15 minutes without visitors, and gives
+# 750 free hours a month shared by all services. Two services awake 24/7 would use
+# ~1,490 hours and be suspended mid-month, so this pings only from
+# 9:00 AM to 8:30 PM IST (03:30–15:00 UTC): about 730 hours a month for both.
+# Outside that window the first visit takes about a minute to wake the site.
+#
+# GitHub may start scheduled runs a few minutes late, so pings are every 10 minutes.
+# Run it by hand from the Actions tab ("Run workflow") to wake the sites at any time.
+name: Keep Render awake
+
+on:
+  schedule:
+    - cron: "30-59/10 3 * * *"   # 9:00–9:29 AM IST
+    - cron: "*/10 4-14 * * *"    # 9:30 AM–8:29 PM IST
+    - cron: "0 15 * * *"         # 8:30 PM IST, last ping
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping backend and frontend
+        run: |
+          status=0
+          for url in \
+            https://brandvault-ai.onrender.com/api/v1/health \
+            https://brandvault-ai-1.onrender.com/ ; do
+            # A sleeping service can take ~60 s to wake, so allow up to 2 minutes.
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 --retry 2 --retry-delay 10 "$url" || echo 000)
+            echo "$url -> HTTP $code"
+            [ "$code" = "200" ] || status=1
+          done
+          exit $status
