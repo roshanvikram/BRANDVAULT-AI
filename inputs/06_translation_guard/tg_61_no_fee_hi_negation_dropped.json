@@ -1,0 +1,14 @@
+{
+  "title": "no_fee — hi negation_dropped",
+  "source_text": "No processing fee on EMI.",
+  "translations": [
+    {
+      "label": "hi",
+      "text": "EMI पर प्रोसेसिंग शुल्क लागू है।"
+    },
+    {
+      "label": "fr",
+      "text": "Pas de frais de dossier sur l'EMI."
+    }
+  ]
+}

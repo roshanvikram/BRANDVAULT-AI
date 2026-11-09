@@ -1,0 +1,26 @@
+{
+  "title": "tops — all languages",
+  "source_text": "The NovaCore N10 delivers 45 TOPS.",
+  "translations": [
+    {
+      "label": "hi",
+      "text": "NovaCore N10 45 TOPS प्रदान करता है।"
+    },
+    {
+      "label": "fr",
+      "text": "Le NovaCore N10 offre 45 TOPS."
+    },
+    {
+      "label": "es",
+      "text": "El NovaCore N10 ofrece 45 TOPS."
+    },
+    {
+      "label": "de",
+      "text": "Der NovaCore N10 liefert 45 TOPS."
+    },
+    {
+      "label": "ta",
+      "text": "NovaCore N10 45 TOPS வழங்குகிறது."
+    }
+  ]
+}

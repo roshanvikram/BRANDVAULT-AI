@@ -1,0 +1,61 @@
+﻿file,channel,issues_to_fix,expected_result
+rewrite_01_whatsapp.txt,whatsapp,price_conflict;tone,rewrite should remove these issues and keep the message
+rewrite_02_press_release.txt,press release,needs_review;terminology;tone,rewrite should remove these issues and keep the message
+rewrite_03_sms.txt,sms,comparative;needs_review,rewrite should remove these issues and keep the message
+rewrite_04_press_release.txt,press release,comparative;outdated,rewrite should remove these issues and keep the message
+rewrite_05_newsletter.txt,newsletter,fact_conflict;outdated;terminology,rewrite should remove these issues and keep the message
+rewrite_06_google_ad.txt,google ad,comparative;fact_conflict;needs_review;terminology,rewrite should remove these issues and keep the message
+rewrite_07_retailer_listing.txt,retailer listing,fact_conflict;outdated,rewrite should remove these issues and keep the message
+rewrite_08_email.txt,email,superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_09_store_banner.txt,store banner,comparative;fact_conflict;price_conflict;terminology,rewrite should remove these issues and keep the message
+rewrite_10_retailer_listing.txt,retailer listing,needs_review;outdated,rewrite should remove these issues and keep the message
+rewrite_11_instagram.txt,instagram,comparative;terminology,rewrite should remove these issues and keep the message
+rewrite_12_retailer_listing.txt,retailer listing,fact_conflict;terminology,rewrite should remove these issues and keep the message
+rewrite_13_instagram.txt,instagram,comparative;terminology,rewrite should remove these issues and keep the message
+rewrite_14_press_release.txt,press release,superlative;tone,rewrite should remove these issues and keep the message
+rewrite_15_whatsapp.txt,whatsapp,superlative,rewrite should remove these issues and keep the message
+rewrite_16_email.txt,email,superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_17_google_ad.txt,google ad,price_conflict,rewrite should remove these issues and keep the message
+rewrite_18_newsletter.txt,newsletter,price_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_19_retailer_listing.txt,retailer listing,outdated;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_20_google_ad.txt,google ad,fact_conflict;tone,rewrite should remove these issues and keep the message
+rewrite_21_linkedin.txt,linkedin,comparative;tone,rewrite should remove these issues and keep the message
+rewrite_22_store_banner.txt,store banner,comparative;superlative;terminology;tone,rewrite should remove these issues and keep the message
+rewrite_23_retailer_listing.txt,retailer listing,price_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_24_newsletter.txt,newsletter,comparative;price_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_25_store_banner.txt,store banner,needs_review,rewrite should remove these issues and keep the message
+rewrite_26_instagram.txt,instagram,superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_27_email.txt,email,tone,rewrite should remove these issues and keep the message
+rewrite_28_whatsapp.txt,whatsapp,fact_conflict;terminology,rewrite should remove these issues and keep the message
+rewrite_29_sms.txt,sms,superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_30_retailer_listing.txt,retailer listing,fact_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_31_store_banner.txt,store banner,comparative;superlative;terminology;tone,rewrite should remove these issues and keep the message
+rewrite_32_linkedin.txt,linkedin,price_conflict;terminology,rewrite should remove these issues and keep the message
+rewrite_33_press_release.txt,press release,outdated;price_conflict,rewrite should remove these issues and keep the message
+rewrite_34_retailer_listing.txt,retailer listing,fact_conflict;tone,rewrite should remove these issues and keep the message
+rewrite_35_store_banner.txt,store banner,superlative;terminology;tone,rewrite should remove these issues and keep the message
+rewrite_36_store_banner.txt,store banner,tone,rewrite should remove these issues and keep the message
+rewrite_37_whatsapp.txt,whatsapp,superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_38_retailer_listing.txt,retailer listing,comparative;needs_review;terminology,rewrite should remove these issues and keep the message
+rewrite_39_retailer_listing.txt,retailer listing,comparative;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_40_instagram.txt,instagram,comparative;superlative;tone,rewrite should remove these issues and keep the message
+rewrite_41_retailer_listing.txt,retailer listing,needs_review;price_conflict,rewrite should remove these issues and keep the message
+rewrite_42_newsletter.txt,newsletter,comparative;superlative,rewrite should remove these issues and keep the message
+rewrite_43_google_ad.txt,google ad,fact_conflict;tone,rewrite should remove these issues and keep the message
+rewrite_44_sms.txt,sms,fact_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_45_google_ad.txt,google ad,superlative,rewrite should remove these issues and keep the message
+rewrite_46_store_banner.txt,store banner,needs_review;terminology,rewrite should remove these issues and keep the message
+rewrite_47_retailer_listing.txt,retailer listing,comparative;outdated;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_48_whatsapp.txt,whatsapp,comparative;needs_review,rewrite should remove these issues and keep the message
+rewrite_49_instagram.txt,instagram,outdated,rewrite should remove these issues and keep the message
+rewrite_50_google_ad.txt,google ad,needs_review;tone,rewrite should remove these issues and keep the message
+rewrite_51_sms.txt,sms,price_conflict,rewrite should remove these issues and keep the message
+rewrite_52_retailer_listing.txt,retailer listing,comparative;price_conflict,rewrite should remove these issues and keep the message
+rewrite_53_instagram.txt,instagram,price_conflict;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_54_newsletter.txt,newsletter,needs_review;outdated;terminology,rewrite should remove these issues and keep the message
+rewrite_55_email.txt,email,comparative;superlative;terminology,rewrite should remove these issues and keep the message
+rewrite_56_linkedin.txt,linkedin,comparative;terminology,rewrite should remove these issues and keep the message
+rewrite_57_press_release.txt,press release,needs_review;outdated,rewrite should remove these issues and keep the message
+rewrite_58_whatsapp.txt,whatsapp,fact_conflict,rewrite should remove these issues and keep the message
+rewrite_59_email.txt,email,comparative;price_conflict;terminology,rewrite should remove these issues and keep the message
+rewrite_60_whatsapp.txt,whatsapp,price_conflict,rewrite should remove these issues and keep the message

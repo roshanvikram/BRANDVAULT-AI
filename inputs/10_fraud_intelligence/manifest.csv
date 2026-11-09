@@ -1,0 +1,61 @@
+﻿file,reported_via,url,expected_result
+report_01.txt,SMS,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_02.txt,Instagram ad,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_03.txt,Facebook post,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_04.txt,Email,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_05.txt,Telegram channel,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_06.txt,WhatsApp forward,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_07.txt,SMS,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_08.txt,Instagram ad,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_09.txt,Facebook post,https://novatech.example/support,legitimate
+report_10.txt,Email,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"
+report_11.txt,WhatsApp forward,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_12.txt,SMS,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_13.txt,Instagram ad,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_14.txt,Facebook post,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_15.txt,Email,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_16.txt,Telegram channel,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_17.txt,WhatsApp forward,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_18.txt,SMS,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_19.txt,Instagram ad,https://novatech.example/support,legitimate
+report_20.txt,Facebook post,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"
+report_21.txt,Telegram channel,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_22.txt,WhatsApp forward,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_23.txt,SMS,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_24.txt,Instagram ad,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_25.txt,Facebook post,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_26.txt,Email,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_27.txt,Telegram channel,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_28.txt,WhatsApp forward,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_29.txt,SMS,https://novatech.example/support,legitimate
+report_30.txt,Instagram ad,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"
+report_31.txt,Email,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_32.txt,Telegram channel,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_33.txt,WhatsApp forward,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_34.txt,SMS,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_35.txt,Instagram ad,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_36.txt,Facebook post,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_37.txt,Email,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_38.txt,Telegram channel,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_39.txt,WhatsApp forward,https://novatech.example/support,legitimate
+report_40.txt,SMS,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"
+report_41.txt,Facebook post,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_42.txt,Email,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_43.txt,Telegram channel,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_44.txt,WhatsApp forward,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_45.txt,SMS,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_46.txt,Instagram ad,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_47.txt,Facebook post,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_48.txt,Email,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_49.txt,Telegram channel,https://novatech.example/support,legitimate
+report_50.txt,WhatsApp forward,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"
+report_51.txt,Instagram ad,https://novatech.example/novabook-ai-pro-16,"legitimate (official domain, approved price)"
+report_52.txt,Facebook post,https://n0vatech.shop/offer,"SUSPECTED: lookalike domain (0→o), suspicious TLD, unauthorised price"
+report_53.txt,Email,https://novatech-offers.xyz/claim,"SUSPECTED: lure domain, OTP request (phishing)"
+report_54.txt,Telegram channel,https://novatech.example.secure-login.top/verify,"SUSPECTED: brand in subdomain, card/CVV request"
+report_55.txt,WhatsApp forward,https://novateck.in/sale,"SUSPECTED: typosquat domain, unauthorised price"
+report_56.txt,SMS,https://nova-tech.click/refund,"SUSPECTED: lookalike, credential request"
+report_57.txt,Instagram ad,https://shop.novatech.example/accessories,legitimate (official subdomain)
+report_58.txt,Facebook post,https://novatechindia.online/emi,"SUSPECTED: brand+lure domain, bank detail request"
+report_59.txt,Email,https://novatech.example/support,legitimate
+report_60.txt,Telegram channel,https://n0vabook-pro.store/buy,"SUSPECTED: lookalike, unauthorised price, banned claim"

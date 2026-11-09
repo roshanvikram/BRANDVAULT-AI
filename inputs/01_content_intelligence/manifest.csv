@@ -1,0 +1,111 @@
+﻿file,channel,expected_issues,notes
+r01_product_page.txt,product page,clean,from labelled eval set
+r02_email.txt,email,clean,from labelled eval set
+r03_web_banner.txt,web banner,needs_review,from labelled eval set
+r04_product_page.txt,product page,clean,from labelled eval set
+r05_catalogue.txt,catalogue,clean,from labelled eval set
+r06_instagram.txt,instagram,clean,from labelled eval set
+r07_linkedin.txt,linkedin,clean,from labelled eval set
+r08_store_locator.txt,store locator,clean,from labelled eval set
+r09_support_page.txt,support page,clean,from labelled eval set
+r10_press_release.txt,press release,clean,from labelled eval set
+r11_web_banner.txt,web banner,clean,from labelled eval set
+r12_instagram.txt,instagram,clean,from labelled eval set
+r13_store_banner.txt,store banner,clean,from labelled eval set
+r14_product_page.txt,product page,clean,from labelled eval set
+r15_email_footer.txt,email footer,clean,from labelled eval set
+r16_festival_ad.txt,festival ad,price_conflict;tone,from labelled eval set
+r17_web_banner.txt,web banner,price_conflict,from labelled eval set
+r18_store_poster.txt,store poster,price_conflict,from labelled eval set
+r19_campus_flyer.txt,campus flyer,price_conflict,from labelled eval set
+r20_whatsapp.txt,whatsapp,price_conflict,from labelled eval set
+r21_email.txt,email,price_conflict,from labelled eval set
+r22_push_notification.txt,push notification,price_conflict,from labelled eval set
+r23_twitter.txt,twitter,superlative,from labelled eval set
+r24_youtube_description.txt,youtube description,superlative,from labelled eval set
+r25_billboard.txt,billboard,superlative,from labelled eval set
+r26_review_site_ad.txt,review site ad,superlative,from labelled eval set
+r27_instagram.txt,instagram,superlative,from labelled eval set
+r28_web_banner.txt,web banner,superlative;terminology,from labelled eval set
+r29_comparison_page.txt,comparison page,comparative,from labelled eval set
+r30_product_page.txt,product page,comparative,from labelled eval set
+r31_tv_script.txt,tv script,comparative,from labelled eval set
+r32_twitter.txt,twitter,comparative,from labelled eval set
+r33_email.txt,email,comparative,from labelled eval set
+r34_instagram.txt,instagram,fact_conflict,from labelled eval set
+r35_spec_sheet.txt,spec sheet,fact_conflict,from labelled eval set
+r36_retailer_listing.txt,retailer listing,fact_conflict,from labelled eval set
+r37_web_banner.txt,web banner,fact_conflict,from labelled eval set
+r38_retailer_listing.txt,retailer listing,fact_conflict,from labelled eval set
+r39_email.txt,email,outdated,from labelled eval set
+r40_sms.txt,sms,outdated,from labelled eval set
+r41_facebook.txt,facebook,terminology,from labelled eval set
+r42_web_banner.txt,web banner,terminology,from labelled eval set
+r43_google_ad.txt,google ad,terminology,from labelled eval set
+r44_influencer_post.txt,influencer post,tone,from labelled eval set
+r45_email_subject.txt,email subject,superlative;tone,from labelled eval set
+r46_store_banner.txt,store banner,tone,from labelled eval set
+r47_linkedin.txt,linkedin,needs_review,from labelled eval set
+r48_product_page.txt,product page,needs_review,from labelled eval set
+r49_brochure.txt,brochure,needs_review,from labelled eval set
+r50_festival_ad.txt,festival ad,comparative;outdated;price_conflict;superlative;terminology;tone,from labelled eval set
+h01_email.txt,email,clean,from labelled eval set
+h02_product_page.txt,product page,clean,from labelled eval set
+h03_retailer_listing.txt,retailer listing,clean,from labelled eval set
+h04_support_page.txt,support page,clean,from labelled eval set
+h05_instagram.txt,instagram,clean,from labelled eval set
+h06_festival_ad.txt,festival ad,price_conflict,from labelled eval set
+h07_whatsapp.txt,whatsapp,price_conflict;tone,from labelled eval set
+h08_web_banner.txt,web banner,superlative,from labelled eval set
+h09_billboard.txt,billboard,superlative,from labelled eval set
+h10_comparison_page.txt,comparison page,comparative,from labelled eval set
+h11_tv_script.txt,tv script,comparative,from labelled eval set
+h12_spec_sheet.txt,spec sheet,fact_conflict,from labelled eval set
+h13_instagram.txt,instagram,fact_conflict,from labelled eval set
+h14_retailer_listing.txt,retailer listing,fact_conflict,from labelled eval set
+h15_sms.txt,sms,outdated,from labelled eval set
+h16_facebook.txt,facebook,terminology,from labelled eval set
+h17_influencer_post.txt,influencer post,tone,from labelled eval set
+h18_brochure.txt,brochure,needs_review,from labelled eval set
+h19_google_ad.txt,google ad,terminology,from labelled eval set
+h20_festival_ad.txt,festival ad,comparative;price_conflict;tone,from labelled eval set
+m01_store_banner.txt,store banner,clean,multi-sentence copy
+m02_linkedin.txt,linkedin,needs_review;tone,multi-sentence copy
+m03_google_ad.txt,google ad,comparative;terminology,multi-sentence copy
+m04_google_ad.txt,google ad,superlative;terminology;tone,multi-sentence copy
+m05_sms.txt,sms,fact_conflict;price_conflict,multi-sentence copy
+m06_linkedin.txt,linkedin,comparative;needs_review,multi-sentence copy
+m07_email.txt,email,needs_review,multi-sentence copy
+m08_press_release.txt,press release,tone,multi-sentence copy
+m09_email.txt,email,fact_conflict,multi-sentence copy
+m10_email.txt,email,comparative;superlative;terminology,multi-sentence copy
+m11_whatsapp.txt,whatsapp,comparative;fact_conflict;price_conflict;terminology,multi-sentence copy
+m12_google_ad.txt,google ad,comparative;terminology,multi-sentence copy
+m13_sms.txt,sms,terminology,multi-sentence copy
+m14_sms.txt,sms,price_conflict;tone,multi-sentence copy
+m15_email.txt,email,needs_review;superlative,multi-sentence copy
+m16_whatsapp.txt,whatsapp,superlative,multi-sentence copy
+m17_email.txt,email,outdated,multi-sentence copy
+m18_store_banner.txt,store banner,clean,multi-sentence copy
+m19_google_ad.txt,google ad,clean,multi-sentence copy
+m20_retailer_listing.txt,retailer listing,superlative;terminology,multi-sentence copy
+m21_whatsapp.txt,whatsapp,tone,multi-sentence copy
+m22_linkedin.txt,linkedin,outdated,multi-sentence copy
+m23_press_release.txt,press release,clean,multi-sentence copy
+m24_store_banner.txt,store banner,needs_review;superlative,multi-sentence copy
+m25_newsletter.txt,newsletter,needs_review;price_conflict;superlative;terminology,multi-sentence copy
+m26_instagram.txt,instagram,comparative;superlative;terminology,multi-sentence copy
+m27_linkedin.txt,linkedin,fact_conflict,multi-sentence copy
+m28_email.txt,email,clean,multi-sentence copy
+m29_retailer_listing.txt,retailer listing,fact_conflict;outdated,multi-sentence copy
+m30_email.txt,email,outdated;superlative,multi-sentence copy
+m31_email.txt,email,fact_conflict;superlative,multi-sentence copy
+m32_whatsapp.txt,whatsapp,superlative,multi-sentence copy
+m33_newsletter.txt,newsletter,comparative;needs_review;terminology,multi-sentence copy
+m34_email.txt,email,comparative,multi-sentence copy
+m35_email.txt,email,fact_conflict;price_conflict,multi-sentence copy
+m36_whatsapp.txt,whatsapp,comparative;outdated;terminology,multi-sentence copy
+m37_sms.txt,sms,superlative;terminology,multi-sentence copy
+m38_linkedin.txt,linkedin,fact_conflict;needs_review,multi-sentence copy
+m39_store_banner.txt,store banner,superlative,multi-sentence copy
+m40_email.txt,email,superlative,multi-sentence copy

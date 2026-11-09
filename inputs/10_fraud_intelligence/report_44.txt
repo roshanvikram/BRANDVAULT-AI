@@ -1,0 +1,5 @@
+Reported via: WhatsApp forward
+URL: https://novatech.example.secure-login.top/verify
+
+Message:
+Dear customer, Your NovaTech account is locked. Enter your card number and CVV to verify.

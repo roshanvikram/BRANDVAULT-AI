@@ -1,0 +1,5 @@
+Reported via: Email
+URL: https://novatech.example.secure-login.top/verify
+
+Message:
+Your NovaTech account is locked. Enter your card number and CVV to verify.

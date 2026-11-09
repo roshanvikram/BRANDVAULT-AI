@@ -1,0 +1,71 @@
+﻿file,format,document_type,expected_result
+guide_01_brand_guidelines_2026_india.html,html,Brand Guidelines 2026,consistent with approved facts
+guide_02_brand_guidelines_2026_north.docx,docx,Brand Guidelines 2026,consistent with approved facts
+guide_03_brand_guidelines_2026_south.md,md,Brand Guidelines 2026,consistent with approved facts
+guide_04_brand_guidelines_2026_west.pdf,pdf,Brand Guidelines 2026,consistent with approved facts
+guide_05_social_media_policy_north.pdf,pdf,Social Media Policy,adds terminology and tone rules
+guide_06_social_media_policy_south.txt,txt,Social Media Policy,adds terminology and tone rules
+guide_07_social_media_policy_west.html,html,Social Media Policy,adds terminology and tone rules
+guide_08_social_media_policy_east.docx,docx,Social Media Policy,adds terminology and tone rules
+guide_09_retail_partner_playbook_south.pdf,pdf,Retail Partner Playbook,consistent; reinforces expired promotion
+guide_10_retail_partner_playbook_west.txt,txt,Retail Partner Playbook,consistent; reinforces expired promotion
+guide_11_retail_partner_playbook_east.html,html,Retail Partner Playbook,consistent; reinforces expired promotion
+guide_12_retail_partner_playbook_online.md,md,Retail Partner Playbook,consistent; reinforces expired promotion
+guide_13_influencer_collaboration_guidelines_west.md,md,Influencer Collaboration Guidelines,adds comparative-claim rule
+guide_14_influencer_collaboration_guidelines_east.pdf,pdf,Influencer Collaboration Guidelines,adds comparative-claim rule
+guide_15_influencer_collaboration_guidelines_online.txt,txt,Influencer Collaboration Guidelines,adds comparative-claim rule
+guide_16_influencer_collaboration_guidelines_enterprise.html,html,Influencer Collaboration Guidelines,adds comparative-claim rule
+guide_17_press_and_pr_guidelines_east.pdf,pdf,Press and PR Guidelines,consistent with approved facts
+guide_18_press_and_pr_guidelines_online.txt,txt,Press and PR Guidelines,consistent with approved facts
+guide_19_press_and_pr_guidelines_enterprise.md,md,Press and PR Guidelines,consistent with approved facts
+guide_20_press_and_pr_guidelines_retail.docx,docx,Press and PR Guidelines,consistent with approved facts
+guide_21_accessibility_standards_online.md,md,Accessibility Standards,visual/accessibility rules
+guide_22_accessibility_standards_enterprise.pdf,pdf,Accessibility Standards,visual/accessibility rules
+guide_23_accessibility_standards_retail.docx,docx,Accessibility Standards,visual/accessibility rules
+guide_24_accessibility_standards_campus.html,html,Accessibility Standards,visual/accessibility rules
+guide_25_legal_disclaimers_india_enterprise.md,md,Legal Disclaimers India,disclaimer rules
+guide_26_legal_disclaimers_india_retail.docx,docx,Legal Disclaimers India,disclaimer rules
+guide_27_legal_disclaimers_india_campus.pdf,pdf,Legal Disclaimers India,disclaimer rules
+guide_28_legal_disclaimers_india_export.txt,txt,Legal Disclaimers India,disclaimer rules
+guide_29_email_marketing_standards_retail.txt,txt,Email Marketing Standards,channel rules
+guide_30_email_marketing_standards_campus.docx,docx,Email Marketing Standards,channel rules
+guide_31_email_marketing_standards_export.pdf,pdf,Email Marketing Standards,channel rules
+guide_32_email_marketing_standards_india.html,html,Email Marketing Standards,channel rules
+guide_33_festival_campaign_rules_2026_campus.pdf,pdf,Festival Campaign Rules 2026,consistent; offer governance
+guide_34_festival_campaign_rules_2026_export.md,md,Festival Campaign Rules 2026,consistent; offer governance
+guide_35_festival_campaign_rules_2026_india.docx,docx,Festival Campaign Rules 2026,consistent; offer governance
+guide_36_festival_campaign_rules_2026_north.html,html,Festival Campaign Rules 2026,consistent; offer governance
+guide_37_product_fact_sheet_novabook_ai_pro_16_export.pdf,pdf,Product Fact Sheet NovaBook AI Pro 16,consistent product facts
+guide_38_product_fact_sheet_novabook_ai_pro_16_india.docx,docx,Product Fact Sheet NovaBook AI Pro 16,consistent product facts
+guide_39_product_fact_sheet_novabook_ai_pro_16_north.html,html,Product Fact Sheet NovaBook AI Pro 16,consistent product facts
+guide_40_product_fact_sheet_novabook_ai_pro_16_south.md,md,Product Fact Sheet NovaBook AI Pro 16,consistent product facts
+guide_41_regional_pricing_memo_unapproved_draft_india.txt,txt,Regional Pricing Memo (unapproved draft),"CONFLICT: ₹74,999 disagrees with approved ₹79,999"
+guide_42_regional_pricing_memo_unapproved_draft_north.html,html,Regional Pricing Memo (unapproved draft),"CONFLICT: ₹74,999 disagrees with approved ₹79,999"
+guide_43_regional_pricing_memo_unapproved_draft_south.pdf,pdf,Regional Pricing Memo (unapproved draft),"CONFLICT: ₹74,999 disagrees with approved ₹79,999"
+guide_44_regional_pricing_memo_unapproved_draft_west.md,md,Regional Pricing Memo (unapproved draft),"CONFLICT: ₹74,999 disagrees with approved ₹79,999"
+guide_45_brand_guidelines_2024_superseded_north.pdf,pdf,Brand Guidelines 2024 (superseded),OUTDATED/CONFLICT: 20 hours disagrees with approved 18 hours
+guide_46_brand_guidelines_2024_superseded_south.txt,txt,Brand Guidelines 2024 (superseded),OUTDATED/CONFLICT: 20 hours disagrees with approved 18 hours
+guide_47_brand_guidelines_2024_superseded_west.docx,docx,Brand Guidelines 2024 (superseded),OUTDATED/CONFLICT: 20 hours disagrees with approved 18 hours
+guide_48_brand_guidelines_2024_superseded_east.html,html,Brand Guidelines 2024 (superseded),OUTDATED/CONFLICT: 20 hours disagrees with approved 18 hours
+guide_49_campus_program_guidelines_south.html,html,Campus Program Guidelines,adds terminology rule
+guide_50_campus_program_guidelines_west.docx,docx,Campus Program Guidelines,adds terminology rule
+guide_51_campus_program_guidelines_east.md,md,Campus Program Guidelines,adds terminology rule
+guide_52_campus_program_guidelines_online.pdf,pdf,Campus Program Guidelines,adds terminology rule
+guide_53_spec_sheet_draft_from_agency_west.html,html,Spec Sheet Draft from Agency,CONFLICT: 50 TOPS and 3-year warranty disagree with approved facts
+guide_54_spec_sheet_draft_from_agency_east.pdf,pdf,Spec Sheet Draft from Agency,CONFLICT: 50 TOPS and 3-year warranty disagree with approved facts
+guide_55_spec_sheet_draft_from_agency_online.md,md,Spec Sheet Draft from Agency,CONFLICT: 50 TOPS and 3-year warranty disagree with approved facts
+guide_56_spec_sheet_draft_from_agency_enterprise.docx,docx,Spec Sheet Draft from Agency,CONFLICT: 50 TOPS and 3-year warranty disagree with approved facts
+guide_57_customer_support_style_guide_east.pdf,pdf,Customer Support Style Guide,consistent
+guide_58_customer_support_style_guide_online.docx,docx,Customer Support Style Guide,consistent
+guide_59_customer_support_style_guide_enterprise.html,html,Customer Support Style Guide,consistent
+guide_60_customer_support_style_guide_retail.md,md,Customer Support Style Guide,consistent
+pricelist_01_north.csv,csv,Price list,"consistent: laptop at ₹79,999"
+pricelist_02_south.xlsx,xlsx,Price list,"consistent: laptop at ₹79,999"
+pricelist_03_west.csv,csv,Price list,"CONFLICT: laptop listed at ₹69,999 (draft) vs approved ₹79,999"
+pricelist_04_east.xlsx,xlsx,Price list,"consistent: laptop at ₹79,999"
+pricelist_05_online.csv,csv,Price list,"consistent: laptop at ₹79,999"
+pricelist_06_enterprise.xlsx,xlsx,Price list,"CONFLICT: laptop listed at ₹76,500 (draft) vs approved ₹79,999"
+pricelist_07_retail.csv,csv,Price list,"consistent: laptop at ₹79,999"
+pricelist_08_campus.xlsx,xlsx,Price list,"consistent: laptop at ₹79,999"
+pricelist_09_export.csv,csv,Price list,"CONFLICT: laptop listed at ₹72,999 (draft) vs approved ₹79,999"
+pricelist_10_india.xlsx,xlsx,Price list,"consistent: laptop at ₹79,999"

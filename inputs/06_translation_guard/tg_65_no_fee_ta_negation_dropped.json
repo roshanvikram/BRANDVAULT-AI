@@ -1,0 +1,14 @@
+{
+  "title": "no_fee — ta negation_dropped",
+  "source_text": "No processing fee on EMI.",
+  "translations": [
+    {
+      "label": "ta",
+      "text": "EMI க்கு செயலாக்கக் கட்டணம் உண்டு."
+    },
+    {
+      "label": "hi",
+      "text": "EMI पर कोई प्रोसेसिंग शुल्क नहीं।"
+    }
+  ]
+}

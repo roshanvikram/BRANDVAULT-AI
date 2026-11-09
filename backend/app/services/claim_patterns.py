@@ -38,8 +38,9 @@ _RIVALS = r"(?:apple|macbooks?|dell|hp|lenovo|asus|acer|samsung|microsoft|surfac
 
 SUPERLATIVE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in (
     r"\bworld'?s\s+(?:fastest|best|most\s+powerful|first|thinnest|lightest)\b",
-    r"\b(?:fastest|most\s+powerful|best|strongest|thinnest|lightest|smartest)\s+" + _PRODUCT + r"\b",
-    r"(?:#\s?1|\bno\.?\s?1|\bnumber\s+one)\s+" + _PRODUCT + r"\b",
+    r"\b(?:fastest|most\s+powerful|best|strongest|thinnest|lightest|smartest)\s+" + _PRODUCT
+    + r"\b(?:\s+(?:money\s+can\s+buy|ever\s+(?:made|built|created)|in\s+(?:india|asia|the\s+world)))?",
+    r"(?:\b[A-Z][a-z]+'s\s+)?(?:#\s?1|\bno\.?\s?1|\bnumber\s+one)\s+" + _PRODUCT + r"\b",
     r"\bunbeatable(?:\s+(?!and\b|or\b)\w+)?",
     r"\bbest\b(?:\W+\w+){0,3}?\W+ever\b",
     r"\b(?:most\s+\w+|best|fastest)\b[^.!?]{0,40}?\bever\s+(?:made|built|created)\b",
@@ -73,6 +74,12 @@ _ACCESSORY = re.compile(
     re.IGNORECASE)
 _PRODUCT_WORD = re.compile(r"\b(?:laptops?|notebooks?)\b", re.IGNORECASE)
 _SENTENCE = re.compile(r"[^.!?\n]+(?:[.!?]+|$)")
+
+
+def is_accessory_sentence(sentence: str, product_hint: str = "novabook") -> bool:
+    """True when a sentence is about an accessory and not about the laptop itself."""
+    low = sentence.lower()
+    return bool(_ACCESSORY.search(low)) and not _PRODUCT_WORD.search(low) and product_hint not in low
 
 
 def _sentence_at(text: str, pos: int) -> str:

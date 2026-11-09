@@ -1,0 +1,14 @@
+{
+  "title": "battery — ta qualifier_dropped",
+  "source_text": "Up to 18 hours of battery life.",
+  "translations": [
+    {
+      "label": "ta",
+      "text": "18 மணிநேரம் பேட்டரி ஆயுள்."
+    },
+    {
+      "label": "hi",
+      "text": "18 घंटे तक की बैटरी लाइफ।"
+    }
+  ]
+}

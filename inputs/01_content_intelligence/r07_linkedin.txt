@@ -1,0 +1,1 @@
+Our engineering team spent two years tuning the NovaCore N10 for sustained 45 TOPS performance. Proud of what we shipped.

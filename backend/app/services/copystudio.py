@@ -17,6 +17,7 @@ Honesty contract (same as the rest of the platform):
 """
 from __future__ import annotations
 
+import datetime
 import re
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -24,6 +25,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.config import settings
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule
 from backend.app.services.llm import get_llm_provider
+from backend.app.services import claim_patterns as cp
 
 _PRICE_RE = re.compile(r"(?:₹|\bRs\.?\s*|\bINR\s*)\s*([0-9][0-9,]{2,})", re.IGNORECASE)
 
@@ -85,7 +87,8 @@ def rewrite_content(db: Session, org_id: str, content: str) -> Optional[dict]:
         # LLM configured but failed/invalid -> fall through to heuristic (never fake).
 
     # 2) Deterministic heuristic rewrite (the honest, always-available fallback).
-    return _heuristic_rewrite(content, facts, terms, provider_available=provider.available)
+    return _heuristic_rewrite(content, facts, terms, provider_available=provider.available, rules=rules,
+                              org_name=org.name)
 
 
 def _parse_rewrite(raw: Optional[str]) -> Optional[dict]:
@@ -115,42 +118,143 @@ def _parse_rewrite(raw: Optional[str]) -> Optional[dict]:
     return {"rewritten": data["rewritten"][:8000], "changes": changes[:20]}
 
 
-def _heuristic_rewrite(content: str, facts, terms, provider_available: bool) -> dict:
-    rewritten = content
+_NEUTRAL = {
+    "revolutionary": "new", "game-changing": "capable", "game changing": "capable",
+    "best-in-class": "dependable", "best in class": "dependable", "industry-leading": "well-built",
+    "industry leading": "well-built", "unmatched": "solid", "next-generation": "new", "next generation": "new",
+    "cutting-edge": "modern", "cutting edge": "modern", "unrivalled": "dependable", "unrivaled": "dependable",
+}
+_NOUN = re.compile(r"\b((?:AI\s+)?(?:laptops?|notebooks?|computers?|pcs?|devices?|machines?|workstations?))\b", re.I)
+_HYPE_WORDS = {r"\bomg\b\s*": "", r"\b(?:insane|crazy|mind[\s-]?blowing|epic)\b": "impressive", r"\bdhamaka\b": "offer"}
+_HYPE_EMOJI = re.compile("\\s*[\U0001F525\U0001F92F\U0001F4A5\U0001F631]+")
+
+
+def _tidy(text: str) -> str:
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\s+([.,;:])", r"\1", text)
+    text = re.sub(r"[ \t]*[,;:—–-]+[ \t]*(?=$|\.)", ".", text)  # clause cut short by a removal
+    text = re.sub(r"([.,;:])[.,;:]+", r"\1", text)
+    text = re.sub(r"(^|[.?]\s+|\n)\s*[—–,;:-]+\s*", r"\1", text)
+    text = re.sub(r"(^|[.?]\s+|\n)([a-z])", lambda m: m.group(1) + m.group(2).upper(), text)
+    return text.strip()
+
+
+def _sentences(text: str):
+    return re.findall(r"[^.!?\n]+[.!?]*|\n+", text)
+
+
+def _heuristic_rewrite(content: str, facts, terms, provider_available: bool, rules=None, org_name: str = "") -> dict:
+    """Rules-based rewrite using the same detectors as the analyzer.
+
+    Replaces banned terms and wrong figures with approved ones, swaps vague claims
+    for neutral words, turns superlatives into a neutral description, removes
+    competitor comparisons and expired offers, and calms the tone. Every edit is
+    listed in `changes`."""
+    rewritten = cp.normalise(content)
     changes = []
 
-    # a) Terminology corrections from the org's real rules.
+    def change(frm, to, reason):
+        changes.append({"from": frm, "to": to, "reason": reason})
+
+    # a) Terminology corrections from the org's real rules (first suggested wording).
     for t in terms:
         if not t.prohibited_term:
             continue
-        pat = re.compile(re.escape(t.prohibited_term), re.IGNORECASE)
+        term = cp.normalise(t.prohibited_term)
+        to = t.preferred_term.split(" / ")[0].strip()
+        if " " not in term:
+            # Word forms: "cheap" -> preferred, "cheaper" -> "better value", "cheapest" -> "best-value".
+            pat = re.compile(r"\b" + re.escape(term) + r"(er|est)?\b", re.IGNORECASE)
+            sub = lambda m, to=to: {"er": "better value", "est": "best-value"}.get((m.group(1) or "").lower(), to)
+        else:
+            pat, sub = re.compile(re.escape(term), re.IGNORECASE), to
         if pat.search(rewritten):
-            rewritten = pat.sub(t.preferred_term, rewritten)
-            changes.append({"from": t.prohibited_term, "to": t.preferred_term,
-                            "reason": t.explanation or "Prohibited terminology replaced with the approved alternative."})
+            rewritten = pat.sub(sub, rewritten)
+            change(t.prohibited_term, to, t.explanation or "Prohibited terminology replaced with the approved alternative.")
+    confirmed = [r for r in (rules or []) if r.is_active and r.is_confirmed is not False]
+    for term, rule in cp.rule_forbidden_terms(confirmed, [t.prohibited_term for t in terms]):
+        pat = re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
+        if pat.search(rewritten):
+            to = term.split()[-1]  # "budget laptop" -> "laptop"
+            rewritten = pat.sub(to, rewritten)
+            change(term, to, f"A brand rule forbids this wording: {rule.title}.")
 
-    # b) Pricing correction against the approved price fact.
+    # b) Prices: the product price must be the approved price (EMI and accessory prices are left alone).
     price_fact = next((f for f in facts if f.category.lower() == "pricing" or "price" in f.fact_key.lower()), None)
     if price_fact:
         approved_digits = re.sub(r"[^0-9]", "", price_fact.fact_value)
-        for m in _PRICE_RE.finditer(content):
-            found_digits = re.sub(r"[^0-9]", "", m.group(1))
-            if approved_digits and found_digits and found_digits != approved_digits:
-                rewritten = rewritten.replace(m.group(0), price_fact.fact_value)
-                changes.append({"from": m.group(0).strip(), "to": price_fact.fact_value,
-                                "reason": f"Corrected to the approved price ({price_fact.verification_source})."})
+        for p in cp.find_prices(rewritten):
+            if p["kind"] == "price" and p["value"] != approved_digits and p["raw"] in rewritten:
+                rewritten = rewritten.replace(p["raw"], price_fact.fact_value, 1)
+                change(p["raw"], price_fact.fact_value, f"Corrected to the approved price ({price_fact.verification_source}).")
 
-    # c) Tone: collapse exclamation runs / excessive exclamations.
-    collapsed = re.sub(r"!{2,}", "!", rewritten)
-    excls = collapsed.count("!")
-    if excls > 1:
-        collapsed = collapsed.replace("!", ".")
-        # keep one period where the first exclamation was removed is fine; simplify doubles
-        collapsed = re.sub(r"\.{2,}", ".", collapsed)
-    if collapsed != rewritten:
-        changes.append({"from": "excessive exclamation marks", "to": "measured punctuation",
-                        "reason": "Brand voice requires a calm, understated tone."})
-        rewritten = collapsed
+    # c) Specifications: wrong battery hours, TOPS or warranty length -> approved value.
+    for c in cp.find_spec_conflicts(rewritten, [f for f in facts if "price" not in f.fact_key.lower()]):
+        raw, approved = c["raw"], c["approved"]
+        if re.search(r"year|yr|month", raw, re.I):
+            to = f"{int(approved / 12)}-year" if approved % 12 == 0 else f"{int(approved)}-month"
+        else:
+            to = re.sub(r"\b(?:\d+(?:\.\d+)?|one|two|three|four|five|six|ten|twelve)\b", f"{approved:g}", raw, count=1, flags=re.I)
+        rewritten = rewritten.replace(raw, to, 1)
+        change(raw, to, f"Matches the approved fact: {c['fact'].fact_key} ({c['fact'].fact_value}).")
+
+    # d) Superlatives -> neutral description; competitor comparisons -> removed.
+    for phrase in cp.find_superlatives(rewritten):
+        noun = _NOUN.search(phrase)
+        words = phrase.split()
+        if words[0].lower() == "unbeatable":
+            to = " ".join(["strong"] + words[1:])
+        else:
+            to = f"a high-performance {noun.group(1)}" if noun else ""
+        rewritten = re.sub(r"(?:\bthe\s+)?" + re.escape(phrase), to, rewritten, count=1, flags=re.I)
+        change(phrase, to or "(removed)", "Unverified superlative: no independent benchmark is on record.")
+    for phrase in cp.find_comparatives(rewritten):
+        i = rewritten.find(phrase)
+        if i < 0:
+            continue
+        stop = re.search(r"[.,;!?—–\n]", rewritten[i + len(phrase):])
+        j = i + len(phrase) + (stop.start() if stop else len(rewritten))
+        change(rewritten[i:j].strip(), "(removed)", "Competitor comparison without a cited test, model and date.")
+        rewritten = rewritten[:i] + rewritten[j:]
+
+    # e) Expired offers: drop the sentence that advertises them.
+    now = datetime.datetime.utcnow()
+    for f in facts:
+        if not (f.valid_until and f.valid_until < now):
+            continue
+        keys = [w for w in re.findall(r"[a-z][a-z-]{6,}", f"{f.fact_key} {f.fact_value}".lower())
+                if w not in ("complimentary", "accessory", "launch", "promotion", "every")]
+        kept = []
+        for s in _sentences(rewritten):
+            if any(k in s.lower() for k in keys):
+                change(s.strip(), "(removed)", f"Expired offer: {f.fact_key} ended {f.valid_until.date().isoformat()}.")
+            else:
+                kept.append(s)
+        rewritten = "".join(kept)
+
+    # f) Vague claims a reviewer would question -> neutral words.
+    for word, to in _NEUTRAL.items():
+        pat = re.compile(r"\b" + re.escape(word) + r"\b", re.I)
+        if pat.search(rewritten):
+            rewritten = pat.sub(to, rewritten)
+            change(word, to, "Vague claim that cannot be verified; replaced with a neutral word.")
+
+    # g) Tone: hype words, shouting and exclamation marks.
+    before = rewritten
+    for rx, to in _HYPE_WORDS.items():
+        rewritten = re.sub(rx, to, rewritten, flags=re.I)
+    rewritten = _HYPE_EMOJI.sub(".", rewritten)  # an emoji often ends a thought
+    brand = {w.upper() for w in re.findall(r"[A-Za-z]+", org_name or "")}
+    rewritten = re.sub(r"\b[A-Z]{3,}\b", lambda m: m.group(0) if m.group(0) in cp._ACRONYMS or m.group(0) in brand
+                       else m.group(0).capitalize(), rewritten)
+    rewritten = re.sub(r"!+", ".", rewritten)
+    if rewritten != before:
+        change("hype, capitals or exclamation marks", "calm, measured wording", "Brand voice requires a calm, understated tone.")
+
+    rewritten = _tidy(rewritten)
+    if not re.search(r"[A-Za-z]{3}", rewritten):
+        product = price_fact.fact_key.replace(" Launch Price", "") if price_fact else "our product"
+        rewritten = f"Meet the {product}."
 
     note = ("No language model is configured, so this is a deterministic, rules-based rewrite "
             "from your approved terminology and pricing — set ANTHROPIC_API_KEY to enable the generative AI rewrite.")

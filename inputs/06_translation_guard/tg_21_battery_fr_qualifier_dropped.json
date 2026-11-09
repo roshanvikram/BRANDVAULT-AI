@@ -1,0 +1,14 @@
+{
+  "title": "battery — fr qualifier_dropped",
+  "source_text": "Up to 18 hours of battery life.",
+  "translations": [
+    {
+      "label": "fr",
+      "text": "18 heures d'autonomie."
+    },
+    {
+      "label": "hi",
+      "text": "18 घंटे तक की बैटरी लाइफ।"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+﻿file,claim_type,expected_status,reason
+claim_001_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_002_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_003_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_004_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_005_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_006_price.txt,price,Supported,"matches approved price ₹79,999"
+claim_007_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_008_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_009_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_010_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_011_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_012_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_013_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_014_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_015_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_016_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_017_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_018_price.txt,price,Contradicted,"approved price is ₹79,999"
+claim_019_battery.txt,battery,Supported,approved: up to 18 hours
+claim_020_battery.txt,battery,Supported,approved: up to 18 hours
+claim_021_battery.txt,battery,Supported,approved: up to 18 hours
+claim_022_battery.txt,battery,Supported,approved: up to 18 hours
+claim_023_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_024_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_025_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_026_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_027_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_028_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_029_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_030_battery.txt,battery,Contradicted,approved: up to 18 hours
+claim_031_tops.txt,tops,Supported,approved: 45 TOPS
+claim_032_tops.txt,tops,Supported,approved: 45 TOPS
+claim_033_tops.txt,tops,Supported,approved: 45 TOPS
+claim_034_tops.txt,tops,Supported,approved: 45 TOPS
+claim_035_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_036_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_037_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_038_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_039_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_040_tops.txt,tops,Contradicted,approved: 45 TOPS
+claim_041_warranty.txt,warranty,Supported,approved: 2-year warranty
+claim_042_warranty.txt,warranty,Supported,approved: 2-year warranty
+claim_043_warranty.txt,warranty,Supported,approved: 2-year warranty
+claim_044_warranty.txt,warranty,Supported,approved: 2-year warranty
+claim_045_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_046_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_047_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_048_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_049_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_050_warranty.txt,warranty,Contradicted,approved: 2-year warranty
+claim_051_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_052_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_053_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_054_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_055_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_056_superlative.txt,superlative,Unsupported,no approved benchmark
+claim_057_promotion.txt,promotion,Outdated,pre-order bonus expired 31 Dec 2024
+claim_058_promotion.txt,promotion,Outdated,pre-order bonus expired 31 Dec 2024
+claim_059_promotion.txt,promotion,Outdated,pre-order bonus expired 31 Dec 2024
+claim_060_ambiguous.txt,ambiguous,Needs Human Review,vague claim a reviewer must judge
+claim_061_ambiguous.txt,ambiguous,Needs Human Review,vague claim a reviewer must judge
+claim_062_ambiguous.txt,ambiguous,Needs Human Review,vague claim a reviewer must judge
+claim_063_ambiguous.txt,ambiguous,Needs Human Review,vague claim a reviewer must judge

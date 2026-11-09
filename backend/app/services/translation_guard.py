@@ -42,6 +42,22 @@ LANG_NAMES = {
     "und": "Unknown",
 }
 
+_LATIN_LANGS = {"en", "fr", "de", "es"}
+# CamelCase brand word, optionally followed by a model code: "NovaCore N10", "NovaSleeve".
+_TRADEMARK = re.compile(r"\b[A-Z][a-z]+[A-Z][A-Za-z]*(?:\s+[A-Z]{0,3}\d+[A-Za-z0-9]*)?")
+
+
+def language_from_label(label: Optional[str]) -> Optional[str]:
+    """'fr', 'FR', 'French', 'fr-FR' or 'French (France)' -> 'fr'; anything else -> None."""
+    if not label:
+        return None
+    low = label.strip().lower()
+    head = re.split(r"[\s_\-(/]", low)[0]
+    if head in LANG_NAMES and head != "und":
+        return head
+    return next((code for code, name in LANG_NAMES.items() if code != "und" and low.startswith(name.lower())), None)
+
+
 # (first codepoint, last codepoint, language)
 _SCRIPT_RANGES = [
     (0x0900, 0x097F, "hi"),   # Devanagari (Hindi, also Marathi/Nepali)
@@ -310,6 +326,10 @@ def count_negations(text: str, lang: str) -> int:
             else:
                 n += len(re.findall(rf"\b{re.escape(w)}\b", t))
         return n
+    if lang == "hi":
+        # Whole words only: "कीमत" (price) contains "मत" and "प्रदान " ends in "न ".
+        letters = "ऀ-ॣ०-ॿ"  # Devanagari letters, without the danda "।"
+        return sum(len(re.findall(rf"(?<![{letters}]){re.escape(w.strip())}(?![{letters}])", t)) for w in words)
     return sum(t.count(w) for w in words)
 
 
@@ -459,7 +479,11 @@ def compare(source_text: str, source_lang: str, target_text: str, target_lang: s
 
     # Brand terms: approved product names must survive translation unchanged.
     terms_total = terms_ok = 0
-    for name in ctx.product_names:
+    # Trademark-style names in the source ("NovaCore N10", "NovaSleeve") are brand
+    # terms too, even before they are registered as products.
+    marks = [m.group(0) for m in _TRADEMARK.finditer(source_text)
+             if not any(m.group(0).lower() in n.lower() for n in ctx.product_names)]
+    for name in list(ctx.product_names) + list(dict.fromkeys(marks)):
         if name.lower() in source_text.lower():
             terms_total += 1
             if name.lower() in target_text.lower():
@@ -597,8 +621,13 @@ def _numbers_in(text: str) -> set:
 
 
 def analyze_pair(source_text: str, source_lang: str, target_text: str, ctx: BrandContext,
-                 provider=None, brand_brief: str = "") -> dict:
+                 provider=None, brand_brief: str = "", language_hint: Optional[str] = None) -> dict:
     det = detect_language(target_text)
+    hinted = language_from_label(language_hint)
+    # Short Latin-script texts share stopwords ("de", "la"), so a label the user
+    # gave ("fr", "French") beats a guess. A different script always wins.
+    if hinted and hinted != det["code"] and str(det.get("method", "")).startswith("latin") and hinted in _LATIN_LANGS:
+        det = {"code": hinted, "name": LANG_NAMES[hinted], "confidence": 0.9, "method": "label"}
     target_lang = str(det["code"])
     findings, scores, table = compare(source_text, source_lang, target_text, target_lang, ctx)
     ai = ai_review(provider, source_text, source_lang, target_text, target_lang, brand_brief)

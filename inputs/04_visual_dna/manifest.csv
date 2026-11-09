@@ -1,0 +1,61 @@
+﻿file,size_format,design,expected_result
+visual_01_mono_low.jpg,1600x900 jpg,mono_low,on-palette; LOW contrast flagged
+visual_02_colour_high.webp,800x800 webp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_03_colour_low.bmp,800x800 bmp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_04_colour_accent.png,1600x900 png,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_05_mono_high.jpg,1080x1080 jpg,mono_high,on-palette (monochrome); contrast OK
+visual_06_mono_low.webp,1080x1080 webp,mono_low,on-palette; LOW contrast flagged
+visual_07_colour_high.bmp,800x800 bmp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_08_colour_low.png,1080x1080 png,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_09_colour_accent.jpg,1080x1080 jpg,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_10_mono_high.webp,1600x900 webp,mono_high,on-palette (monochrome); contrast OK
+visual_11_mono_low.bmp,800x800 bmp,mono_low,on-palette; LOW contrast flagged
+visual_12_colour_high.png,1200x628 png,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_13_colour_low.jpg,1080x1080 jpg,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_14_colour_accent.webp,1080x1080 webp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_15_mono_high.bmp,800x800 bmp,mono_high,on-palette (monochrome); contrast OK
+visual_16_mono_low.png,1200x628 png,mono_low,on-palette; LOW contrast flagged
+visual_17_colour_high.jpg,800x800 jpg,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_18_colour_low.webp,1200x628 webp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_19_colour_accent.bmp,1600x900 bmp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_20_mono_high.png,1080x1080 png,mono_high,on-palette (monochrome); contrast OK
+visual_21_mono_low.jpg,1600x900 jpg,mono_low,on-palette; LOW contrast flagged
+visual_22_colour_high.webp,800x800 webp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_23_colour_low.bmp,1080x1080 bmp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_24_colour_accent.png,800x800 png,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_25_mono_high.jpg,1080x1080 jpg,mono_high,on-palette (monochrome); contrast OK
+visual_26_mono_low.webp,800x800 webp,mono_low,on-palette; LOW contrast flagged
+visual_27_colour_high.bmp,1600x900 bmp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_28_colour_low.png,800x800 png,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_29_colour_accent.jpg,800x800 jpg,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_30_mono_high.webp,800x800 webp,mono_high,on-palette (monochrome); contrast OK
+visual_31_mono_low.bmp,1080x1080 bmp,mono_low,on-palette; LOW contrast flagged
+visual_32_colour_high.png,1080x1080 png,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_33_colour_low.jpg,1200x628 jpg,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_34_colour_accent.webp,1200x628 webp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_35_mono_high.bmp,1080x1080 bmp,mono_high,on-palette (monochrome); contrast OK
+visual_36_mono_low.png,1200x628 png,mono_low,on-palette; LOW contrast flagged
+visual_37_colour_high.jpg,1080x1080 jpg,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_38_colour_low.webp,1600x900 webp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_39_colour_accent.bmp,1200x628 bmp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_40_mono_high.png,1080x1080 png,mono_high,on-palette (monochrome); contrast OK
+visual_41_mono_low.jpg,800x800 jpg,mono_low,on-palette; LOW contrast flagged
+visual_42_colour_high.webp,1080x1080 webp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_43_colour_low.bmp,1600x900 bmp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_44_colour_accent.png,1200x628 png,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_45_mono_high.jpg,1600x900 jpg,mono_high,on-palette (monochrome); contrast OK
+visual_46_mono_low.webp,1200x628 webp,mono_low,on-palette; LOW contrast flagged
+visual_47_colour_high.bmp,800x800 bmp,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_48_colour_low.png,1200x628 png,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_49_colour_accent.jpg,1080x1080 jpg,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_50_mono_high.webp,1600x900 webp,mono_high,on-palette (monochrome); contrast OK
+visual_51_mono_low.bmp,1200x628 bmp,mono_low,on-palette; LOW contrast flagged
+visual_52_colour_high.png,1080x1080 png,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_53_colour_low.jpg,1080x1080 jpg,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_54_colour_accent.webp,1080x1080 webp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_55_mono_high.bmp,800x800 bmp,mono_high,on-palette (monochrome); contrast OK
+visual_56_mono_low.png,800x800 png,mono_low,on-palette; LOW contrast flagged
+visual_57_colour_high.jpg,1080x1080 jpg,colour_high,OFF-palette colour flagged (>10% colour; needs a confirmed monochrome palette rule)
+visual_58_colour_low.webp,1200x628 webp,colour_low,OFF-palette colour flagged (needs monochrome palette rule); LOW contrast flagged
+visual_59_colour_accent.bmp,1600x900 bmp,colour_accent,on-palette (colour accent under 10%); contrast OK
+visual_60_mono_high.png,1200x628 png,mono_high,on-palette (monochrome); contrast OK

@@ -1,0 +1,76 @@
+﻿file,claim,languages,expected_result,case_type
+tg_01_price_clean.json,price,"hi,fr,es,de,ta",all translations consistent,clean
+tg_02_price_hi_clean.json,price,hi,consistent,clean
+tg_03_price_fr_clean.json,price,fr,consistent,clean
+tg_04_price_es_clean.json,price,es,consistent,clean
+tg_05_price_de_clean.json,price,de,consistent,clean
+tg_06_price_ta_clean.json,price,ta,consistent,clean
+tg_07_price_hi_number_changed.json,price,"hi,fr","hi: price changed 79,999 → 69,999; fr clean",number_changed
+tg_08_price_fr_number_changed.json,price,"fr,hi","fr: price changed 79,999 → 69,999; hi clean",number_changed
+tg_09_price_es_number_changed.json,price,"es,hi","es: price changed 79,999 → 69,999; hi clean",number_changed
+tg_10_price_de_number_changed.json,price,"de,hi","de: price changed 79,999 → 69,999; hi clean",number_changed
+tg_11_price_ta_number_changed.json,price,"ta,hi","ta: price changed 79,999 → 69,999; hi clean",number_changed
+tg_12_battery_clean.json,battery,"hi,fr,es,de,ta",all translations consistent,clean
+tg_13_battery_hi_clean.json,battery,hi,consistent,clean
+tg_14_battery_fr_clean.json,battery,fr,consistent,clean
+tg_15_battery_es_clean.json,battery,es,consistent,clean
+tg_16_battery_de_clean.json,battery,de,consistent,clean
+tg_17_battery_ta_clean.json,battery,ta,consistent,clean
+tg_18_battery_hi_number_changed.json,battery,"hi,fr",hi: hours changed 18 → 24; fr clean,number_changed
+tg_19_battery_hi_qualifier_dropped.json,battery,"hi,fr",hi: 'up to' dropped; fr clean,qualifier_dropped
+tg_20_battery_fr_number_changed.json,battery,"fr,hi",fr: hours changed 18 → 24; hi clean,number_changed
+tg_21_battery_fr_qualifier_dropped.json,battery,"fr,hi",fr: 'up to' dropped; hi clean,qualifier_dropped
+tg_22_battery_es_number_changed.json,battery,"es,hi",es: hours changed 18 → 24; hi clean,number_changed
+tg_23_battery_es_qualifier_dropped.json,battery,"es,hi",es: 'up to' dropped; hi clean,qualifier_dropped
+tg_24_battery_de_number_changed.json,battery,"de,hi",de: hours changed 18 → 24; hi clean,number_changed
+tg_25_battery_de_qualifier_dropped.json,battery,"de,hi",de: 'up to' dropped; hi clean,qualifier_dropped
+tg_26_battery_ta_number_changed.json,battery,"ta,hi",ta: hours changed 18 → 24; hi clean,number_changed
+tg_27_battery_ta_qualifier_dropped.json,battery,"ta,hi",ta: 'up to' dropped; hi clean,qualifier_dropped
+tg_28_tops_clean.json,tops,"hi,fr,es,de,ta",all translations consistent,clean
+tg_29_tops_hi_clean.json,tops,hi,consistent,clean
+tg_30_tops_fr_clean.json,tops,fr,consistent,clean
+tg_31_tops_es_clean.json,tops,es,consistent,clean
+tg_32_tops_de_clean.json,tops,de,consistent,clean
+tg_33_tops_ta_clean.json,tops,ta,consistent,clean
+tg_34_tops_hi_number_changed.json,tops,"hi,fr",hi: TOPS changed 45 → 54; fr clean,number_changed
+tg_35_tops_hi_product_name_changed.json,tops,"hi,fr",hi: product name altered; fr clean,product_name_changed
+tg_36_tops_fr_number_changed.json,tops,"fr,hi",fr: TOPS changed 45 → 54; hi clean,number_changed
+tg_37_tops_fr_product_name_changed.json,tops,"fr,hi",fr: product name altered; hi clean,product_name_changed
+tg_38_tops_es_number_changed.json,tops,"es,hi",es: TOPS changed 45 → 54; hi clean,number_changed
+tg_39_tops_es_product_name_changed.json,tops,"es,hi",es: product name altered; hi clean,product_name_changed
+tg_40_tops_de_number_changed.json,tops,"de,hi",de: TOPS changed 45 → 54; hi clean,number_changed
+tg_41_tops_de_product_name_changed.json,tops,"de,hi",de: product name altered; hi clean,product_name_changed
+tg_42_tops_ta_number_changed.json,tops,"ta,hi",ta: TOPS changed 45 → 54; hi clean,number_changed
+tg_43_tops_ta_product_name_changed.json,tops,"ta,hi",ta: product name altered; hi clean,product_name_changed
+tg_44_warranty_clean.json,warranty,"hi,fr,es,de,ta",all translations consistent,clean
+tg_45_warranty_hi_clean.json,warranty,hi,consistent,clean
+tg_46_warranty_fr_clean.json,warranty,fr,consistent,clean
+tg_47_warranty_es_clean.json,warranty,es,consistent,clean
+tg_48_warranty_de_clean.json,warranty,de,consistent,clean
+tg_49_warranty_ta_clean.json,warranty,ta,consistent,clean
+tg_50_warranty_hi_number_changed.json,warranty,"hi,fr",hi: warranty 2 → 3 years; fr clean,number_changed
+tg_51_warranty_fr_number_changed.json,warranty,"fr,hi",fr: warranty 2 → 3 years; hi clean,number_changed
+tg_52_warranty_es_number_changed.json,warranty,"es,hi",es: warranty 2 → 3 years; hi clean,number_changed
+tg_53_warranty_de_number_changed.json,warranty,"de,hi",de: warranty 2 → 3 years; hi clean,number_changed
+tg_54_warranty_ta_number_changed.json,warranty,"ta,hi",ta: warranty 2 → 3 years; hi clean,number_changed
+tg_55_no_fee_clean.json,no_fee,"hi,fr,es,de,ta",all translations consistent,clean
+tg_56_no_fee_hi_clean.json,no_fee,hi,consistent,clean
+tg_57_no_fee_fr_clean.json,no_fee,fr,consistent,clean
+tg_58_no_fee_es_clean.json,no_fee,es,consistent,clean
+tg_59_no_fee_de_clean.json,no_fee,de,consistent,clean
+tg_60_no_fee_ta_clean.json,no_fee,ta,consistent,clean
+tg_61_no_fee_hi_negation_dropped.json,no_fee,"hi,fr",hi: 'no' dropped: claim reversed; fr clean,negation_dropped
+tg_62_no_fee_fr_negation_dropped.json,no_fee,"fr,hi",fr: 'no' dropped: claim reversed; hi clean,negation_dropped
+tg_63_no_fee_es_negation_dropped.json,no_fee,"es,hi",es: 'no' dropped: claim reversed; hi clean,negation_dropped
+tg_64_no_fee_de_negation_dropped.json,no_fee,"de,hi",de: 'no' dropped: claim reversed; hi clean,negation_dropped
+tg_65_no_fee_ta_negation_dropped.json,no_fee,"ta,hi",ta: 'no' dropped: claim reversed; hi clean,negation_dropped
+tg_66_paragraph_hi_clean.json,paragraph,hi,consistent,clean
+tg_67_paragraph_hi_price_changed.json,paragraph,hi,"price changed 79,999 → 74,999",price_changed
+tg_68_paragraph_fr_clean.json,paragraph,fr,consistent,clean
+tg_69_paragraph_fr_price_changed.json,paragraph,fr,"price changed 79,999 → 74,999",price_changed
+tg_70_paragraph_es_clean.json,paragraph,es,consistent,clean
+tg_71_paragraph_es_price_changed.json,paragraph,es,"price changed 79,999 → 74,999",price_changed
+tg_72_paragraph_de_clean.json,paragraph,de,consistent,clean
+tg_73_paragraph_de_price_changed.json,paragraph,de,"price changed 79,999 → 74,999",price_changed
+tg_74_paragraph_ta_clean.json,paragraph,ta,consistent,clean
+tg_75_paragraph_ta_price_changed.json,paragraph,ta,"price changed 79,999 → 74,999",price_changed

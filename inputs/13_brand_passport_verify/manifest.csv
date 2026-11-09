@@ -1,0 +1,56 @@
+﻿file,change,expected_result
+verify_01_exact_approved.txt,exact approved copy,VERIFIED: matches the passport for 'Product Page Hero'
+verify_02_price_changed.txt,price_changed,NOT verified: content differs from the approved version
+verify_03_hours_changed.txt,hours_changed,NOT verified: content differs from the approved version
+verify_04_tops_changed.txt,tops_changed,NOT verified: content differs from the approved version
+verify_05_warranty_changed.txt,warranty_changed,NOT verified: content differs from the approved version
+verify_06_sentence_added.txt,sentence_added,NOT verified: content differs from the approved version
+verify_07_sentence_removed.txt,sentence_removed,NOT verified: content differs from the approved version
+verify_08_word_swapped.txt,word_swapped,NOT verified: content differs from the approved version
+verify_09_qualifier_removed.txt,qualifier_removed,NOT verified: content differs from the approved version
+verify_10_typo.txt,typo,NOT verified: content differs from the approved version
+verify_11_product_renamed.txt,product_renamed,NOT verified: content differs from the approved version
+verify_12_exact_approved.txt,exact approved copy,VERIFIED: matches the passport for 'Product Page Hero'
+verify_13_price_changed.txt,price_changed,NOT verified: content differs from the approved version
+verify_14_hours_changed.txt,hours_changed,NOT verified: content differs from the approved version
+verify_15_tops_changed.txt,tops_changed,NOT verified: content differs from the approved version
+verify_16_warranty_changed.txt,warranty_changed,NOT verified: content differs from the approved version
+verify_17_sentence_added.txt,sentence_added,NOT verified: content differs from the approved version
+verify_18_sentence_removed.txt,sentence_removed,NOT verified: content differs from the approved version
+verify_19_word_swapped.txt,word_swapped,NOT verified: content differs from the approved version
+verify_20_qualifier_removed.txt,qualifier_removed,NOT verified: content differs from the approved version
+verify_21_typo.txt,typo,NOT verified: content differs from the approved version
+verify_22_product_renamed.txt,product_renamed,NOT verified: content differs from the approved version
+verify_23_exact_approved.txt,exact approved copy,VERIFIED: matches the passport for 'Product Page Hero'
+verify_24_price_changed.txt,price_changed,NOT verified: content differs from the approved version
+verify_25_hours_changed.txt,hours_changed,NOT verified: content differs from the approved version
+verify_26_tops_changed.txt,tops_changed,NOT verified: content differs from the approved version
+verify_27_warranty_changed.txt,warranty_changed,NOT verified: content differs from the approved version
+verify_28_sentence_added.txt,sentence_added,NOT verified: content differs from the approved version
+verify_29_sentence_removed.txt,sentence_removed,NOT verified: content differs from the approved version
+verify_30_word_swapped.txt,word_swapped,NOT verified: content differs from the approved version
+verify_31_qualifier_removed.txt,qualifier_removed,NOT verified: content differs from the approved version
+verify_32_typo.txt,typo,NOT verified: content differs from the approved version
+verify_33_product_renamed.txt,product_renamed,NOT verified: content differs from the approved version
+verify_34_exact_approved.txt,exact approved copy,VERIFIED: matches the passport for 'Product Page Hero'
+verify_35_price_changed.txt,price_changed,NOT verified: content differs from the approved version
+verify_36_hours_changed.txt,hours_changed,NOT verified: content differs from the approved version
+verify_37_tops_changed.txt,tops_changed,NOT verified: content differs from the approved version
+verify_38_warranty_changed.txt,warranty_changed,NOT verified: content differs from the approved version
+verify_39_sentence_added.txt,sentence_added,NOT verified: content differs from the approved version
+verify_40_sentence_removed.txt,sentence_removed,NOT verified: content differs from the approved version
+verify_41_word_swapped.txt,word_swapped,NOT verified: content differs from the approved version
+verify_42_qualifier_removed.txt,qualifier_removed,NOT verified: content differs from the approved version
+verify_43_typo.txt,typo,NOT verified: content differs from the approved version
+verify_44_product_renamed.txt,product_renamed,NOT verified: content differs from the approved version
+verify_45_exact_approved.txt,exact approved copy,VERIFIED: matches the passport for 'Product Page Hero'
+verify_46_price_changed.txt,price_changed,NOT verified: content differs from the approved version
+verify_47_hours_changed.txt,hours_changed,NOT verified: content differs from the approved version
+verify_48_tops_changed.txt,tops_changed,NOT verified: content differs from the approved version
+verify_49_warranty_changed.txt,warranty_changed,NOT verified: content differs from the approved version
+verify_50_sentence_added.txt,sentence_added,NOT verified: content differs from the approved version
+verify_51_sentence_removed.txt,sentence_removed,NOT verified: content differs from the approved version
+verify_52_word_swapped.txt,word_swapped,NOT verified: content differs from the approved version
+verify_53_qualifier_removed.txt,qualifier_removed,NOT verified: content differs from the approved version
+verify_54_typo.txt,typo,NOT verified: content differs from the approved version
+verify_55_product_renamed.txt,product_renamed,NOT verified: content differs from the approved version

@@ -1,0 +1,5 @@
+Reported via: Email
+URL: https://novatech.example/support
+
+Message:
+Hi, Book a warranty visit online. We never ask for your OTP.

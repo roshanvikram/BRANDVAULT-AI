@@ -1,0 +1,14 @@
+{
+  "title": "price — es number_changed",
+  "source_text": "The NovaBook AI Pro 16 is priced at ₹79,999.",
+  "translations": [
+    {
+      "label": "es",
+      "text": "El NovaBook AI Pro 16 tiene un precio de ₹69,999."
+    },
+    {
+      "label": "hi",
+      "text": "NovaBook AI Pro 16 की कीमत ₹79,999 है।"
+    }
+  ]
+}

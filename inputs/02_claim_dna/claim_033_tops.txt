@@ -1,0 +1,1 @@
+A 45 TOPS NPU for local AI.

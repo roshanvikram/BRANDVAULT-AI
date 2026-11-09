@@ -1,0 +1,53 @@
+﻿file,edit,source_campaign,expected_result
+sim_01_near_copy.txt,near_copy,NovaBook AI Pro 16 — Launch Announcement,high similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_02_reordered.txt,reordered,NovaBook AI Pro 16 — Launch Announcement,medium similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_03_light_rewrite.txt,light_rewrite,NovaBook AI Pro 16 — Launch Announcement,medium similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_04_trimmed.txt,trimmed,NovaBook AI Pro 16 — Launch Announcement,medium similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_05_extended.txt,extended,NovaBook AI Pro 16 — Launch Announcement,high similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_06_case_and_punctuation.txt,case_and_punctuation,NovaBook AI Pro 16 — Launch Announcement,high similarity to 'NovaBook AI Pro 16 — Launch Announcement'
+sim_07_near_copy.txt,near_copy,NovaBook AI Pro 16 — Product Page Hero,high similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_08_reordered.txt,reordered,NovaBook AI Pro 16 — Product Page Hero,medium similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_09_light_rewrite.txt,light_rewrite,NovaBook AI Pro 16 — Product Page Hero,medium similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_10_trimmed.txt,trimmed,NovaBook AI Pro 16 — Product Page Hero,medium similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_11_extended.txt,extended,NovaBook AI Pro 16 — Product Page Hero,high similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_12_case_and_punctuation.txt,case_and_punctuation,NovaBook AI Pro 16 — Product Page Hero,high similarity to 'NovaBook AI Pro 16 — Product Page Hero'
+sim_13_near_copy.txt,near_copy,Festive Season Social Post,high similarity to 'Festive Season Social Post'
+sim_14_reordered.txt,reordered,Festive Season Social Post,medium similarity to 'Festive Season Social Post'
+sim_15_light_rewrite.txt,light_rewrite,Festive Season Social Post,medium similarity to 'Festive Season Social Post'
+sim_16_trimmed.txt,trimmed,Festive Season Social Post,medium similarity to 'Festive Season Social Post'
+sim_17_extended.txt,extended,Festive Season Social Post,high similarity to 'Festive Season Social Post'
+sim_18_case_and_punctuation.txt,case_and_punctuation,Festive Season Social Post,high similarity to 'Festive Season Social Post'
+sim_19_near_copy.txt,near_copy,Retail Partner Email — Pre-order Bonus,high similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_20_reordered.txt,reordered,Retail Partner Email — Pre-order Bonus,medium similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_21_light_rewrite.txt,light_rewrite,Retail Partner Email — Pre-order Bonus,medium similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_22_trimmed.txt,trimmed,Retail Partner Email — Pre-order Bonus,medium similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_23_extended.txt,extended,Retail Partner Email — Pre-order Bonus,high similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_24_case_and_punctuation.txt,case_and_punctuation,Retail Partner Email — Pre-order Bonus,high similarity to 'Retail Partner Email — Pre-order Bonus'
+sim_25_near_copy.txt,near_copy,Comparison Banner Copy,high similarity to 'Comparison Banner Copy'
+sim_26_reordered.txt,reordered,Comparison Banner Copy,medium similarity to 'Comparison Banner Copy'
+sim_27_light_rewrite.txt,light_rewrite,Comparison Banner Copy,medium similarity to 'Comparison Banner Copy'
+sim_28_trimmed.txt,trimmed,Comparison Banner Copy,medium similarity to 'Comparison Banner Copy'
+sim_29_extended.txt,extended,Comparison Banner Copy,high similarity to 'Comparison Banner Copy'
+sim_30_case_and_punctuation.txt,case_and_punctuation,Comparison Banner Copy,high similarity to 'Comparison Banner Copy'
+sim_31_near_copy.txt,near_copy,Enterprise Newsletter — AI Productivity,high similarity to 'Enterprise Newsletter — AI Productivity'
+sim_32_reordered.txt,reordered,Enterprise Newsletter — AI Productivity,medium similarity to 'Enterprise Newsletter — AI Productivity'
+sim_33_light_rewrite.txt,light_rewrite,Enterprise Newsletter — AI Productivity,medium similarity to 'Enterprise Newsletter — AI Productivity'
+sim_34_trimmed.txt,trimmed,Enterprise Newsletter — AI Productivity,medium similarity to 'Enterprise Newsletter — AI Productivity'
+sim_35_extended.txt,extended,Enterprise Newsletter — AI Productivity,high similarity to 'Enterprise Newsletter — AI Productivity'
+sim_36_case_and_punctuation.txt,case_and_punctuation,Enterprise Newsletter — AI Productivity,high similarity to 'Enterprise Newsletter — AI Productivity'
+sim_37_near_copy.txt,near_copy,Campus Offer Landing Page,high similarity to 'Campus Offer Landing Page'
+sim_38_reordered.txt,reordered,Campus Offer Landing Page,medium similarity to 'Campus Offer Landing Page'
+sim_39_light_rewrite.txt,light_rewrite,Campus Offer Landing Page,medium similarity to 'Campus Offer Landing Page'
+sim_40_trimmed.txt,trimmed,Campus Offer Landing Page,medium similarity to 'Campus Offer Landing Page'
+sim_41_extended.txt,extended,Campus Offer Landing Page,high similarity to 'Campus Offer Landing Page'
+sim_42_case_and_punctuation.txt,case_and_punctuation,Campus Offer Landing Page,high similarity to 'Campus Offer Landing Page'
+sim_43_unrelated.txt,unrelated,-,no meaningful similarity
+sim_44_unrelated.txt,unrelated,-,no meaningful similarity
+sim_45_unrelated.txt,unrelated,-,no meaningful similarity
+sim_46_unrelated.txt,unrelated,-,no meaningful similarity
+sim_47_unrelated.txt,unrelated,-,no meaningful similarity
+sim_48_unrelated.txt,unrelated,-,no meaningful similarity
+sim_49_unrelated.txt,unrelated,-,no meaningful similarity
+sim_50_unrelated.txt,unrelated,-,no meaningful similarity
+sim_51_unrelated.txt,unrelated,-,no meaningful similarity
+sim_52_unrelated.txt,unrelated,-,no meaningful similarity

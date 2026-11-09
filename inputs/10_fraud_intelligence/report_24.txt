@@ -1,0 +1,5 @@
+Reported via: Instagram ad
+URL: https://novatech.example.secure-login.top/verify
+
+Message:
+Sir, Your NovaTech account is locked. Enter your card number and CVV to verify.

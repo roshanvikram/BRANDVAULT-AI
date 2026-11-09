@@ -28,6 +28,7 @@ from backend.app.core.config import settings
 from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule
 from backend.app.models.submission import Submission
 from backend.app.services.rag import RagRetriever
+from backend.app.services import claim_patterns as cp
 from backend.app.services.llm import get_llm_provider
 
 SUGGESTIONS = [
@@ -53,7 +54,24 @@ _STOPWORDS = {
     "were", "the", "a", "an", "of", "to", "in", "on", "for", "and", "or", "our", "we", "us",
     "you", "your", "about", "tell", "me", "say", "says", "with", "that", "this", "it", "can",
     "how", "why", "who", "has", "have", "be", "will", "would", "should", "could", "from", "at",
+    # conversational filler that says nothing about the topic
+    "quick", "check", "please", "cite", "source", "sources", "hello", "thanks", "thank", "kindly", "just",
+    "next", "last", "this", "there", "here", "some", "many", "much",
 }
+
+
+def _stems(words: set) -> set:
+    return {w[:5] for w in words}
+
+
+def _relevant(qwords: set, passage: str) -> bool:
+    """A passage answers the question only if it shares at least two topic words
+    with it (or the only one, for a one-topic-word question)."""
+    overlap = _stems(qwords) & _stems(_content_words(passage))
+    return len(overlap) >= min(2, len(qwords)) and bool(overlap)
+
+
+_NOT_OUR_PRICE = re.compile(r"\b(stock|share)\s+price\b|\bmarket\s+cap|\bshare\s+value\b")
 
 
 def _content_words(text: str) -> set:
@@ -135,6 +153,29 @@ def _grounded_answer(db: Session, org_id: str, question: str) -> Optional[dict]:
     terms = db.query(TerminologyRule).filter(TerminologyRule.org_id == org_id).all()
     now = datetime.datetime.utcnow()
 
+    # ---- out of scope: company finance, future plans ---------------------- #
+    if _NOT_OUR_PRICE.search(q):
+        return _ungrounded(question, "Company stock and financial figures are not part of your approved brand data.")
+    future = [y for y in re.findall(r"\b(20\d\d)\b", q) if int(y) > now.year]
+    future += re.findall(r"\bnext (?:year|month|quarter|week|season)\b|\bupcoming\b|\bplanning\b|\broadmap\b", q)
+    if future:
+        return _ungrounded(question, f"Nothing about “{future[0]}” is on record. Approved brand data covers current, "
+                                     "approved facts only, so future prices or plans cannot be answered.")
+
+    # ---- intent: is this specific wording allowed? ------------------------ #
+    confirmed = [r for r in rules if r.is_active and r.is_confirmed is not False]
+    banned = [(t.prohibited_term, t.preferred_term, t.explanation) for t in terms if t.is_active]
+    banned += [(term, None, rule.rule_text) for term, rule in
+               cp.rule_forbidden_terms(confirmed, [t.prohibited_term for t in terms])]
+    nq = cp.normalise(q)
+    asked = [b for b in banned if re.search(r"\b" + re.escape(cp.normalise(b[0]).lower()) + r"\b", nq)]
+    if asked:
+        lines = [f"“{bad}” is not allowed." + (f" Use “{good}” instead." if good else f" Rule: {why}")
+                 for bad, good, why in asked]
+        ev = [_ev(bad, f"→ {good}" if good else why, why if good else "Brand rule", "/brand-dna") for bad, good, why in asked]
+        return {"intent": "terminology", "grounded": True, "question": question,
+                "answer": "\n".join(lines), "evidence": ev, "suggestions": SUGGESTIONS}
+
     # ---- intent: pricing -------------------------------------------------- #
     if _has(q, "price", "pricing", "cost", "how much", "₹", "rs ", "inr"):
         priced = [f for f in facts if f.category.lower() == "pricing" or "price" in f.fact_key.lower()]
@@ -208,7 +249,8 @@ def _grounded_answer(db: Session, org_id: str, question: str) -> Optional[dict]:
         return _ungrounded(question, "No brand-voice guidance is on record yet.")
 
     # ---- intent: rules / policies ----------------------------------------- #
-    if _has(q, "rule", "policy", "polic", "guideline", "standard", "allowed", "requirement"):
+    if _has(q, "rule", "policy", "polic", "guideline", "standard", "allowed", "requirement",
+            "product name", "naming", "name be written", "compare", "comparison"):
         if rules:
             lines = [f"[{r.severity}] {r.title}" for r in rules]
             ev = [_ev(r.title, r.rule_text, (r.source_document or ""), "/brand-dna", r.page_reference) for r in rules]
@@ -224,9 +266,8 @@ def _grounded_answer(db: Session, org_id: str, question: str) -> Optional[dict]:
     # treating it as an answer; otherwise we report it as not-in-scope.
     qwords = _content_words(q)
     raw_hits = RagRetriever(db).search(org_id, question, top_k=3)
-    hits = [h for h in raw_hits if qwords & _content_words(h["content"])]
-    ql = set(w for w in q.replace("?", " ").split() if len(w) > 3)
-    fact_hit = next((f for f in facts if ql & set((f.fact_key + " " + f.fact_value).lower().split())), None)
+    hits = [h for h in raw_hits if _relevant(qwords, h["content"])]
+    fact_hit = next((f for f in facts if _relevant(qwords, f"{f.fact_key} {f.fact_value}")), None)
     if hits:
         ev = [_ev(h["filename"], h["content"][:220], h["citation"], "/brand-dna", h["page"]) for h in hits]
         if fact_hit:

@@ -24,6 +24,7 @@ from typing import Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy.orm import Session
+from backend.app.services import claim_patterns as cp_patterns
 
 from backend.app.models.brand import ApprovedFact, BrandGuideline, DocumentChunk
 from backend.app.models.product import (
@@ -333,7 +334,12 @@ def verify_text(db: Session, org_id: str, text: str) -> dict:
         orig_sentence = norm[masked.find(sentence): masked.find(sentence) + len(sentence)] if sentence in masked else sentence
         in_sent = [p for p in products if p.name.lower() in orig_sentence.lower()]
         target = in_sent[0] if len(in_sent) == 1 else (mentioned[0] if len(mentioned) == 1 else None)
+        # A price in a sentence about an accessory (sleeve, charger…) that names no
+        # product is the accessory's price, not a claim about the product.
+        accessory_only = not in_sent and cp_patterns.is_accessory_sentence(orig_sentence)
         for pv in parse_values(sentence, lang):
+            if pv.attribute == "price" and accessory_only:
+                continue
             label = PRODUCT_ATTRIBUTES.get(pv.attribute, pv.attribute)
             base = dict(attribute=pv.attribute, attribute_label=label, claim_text=pv.text,
                         sentence=orig_sentence.strip(), submitted_value=pv.text)

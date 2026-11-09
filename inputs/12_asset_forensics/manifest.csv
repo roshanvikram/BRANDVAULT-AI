@@ -1,0 +1,56 @@
+﻿file,case,expected_result
+00_official_logo_REGISTER_FIRST.png,official logo,register this as the official asset first
+00_old_logo_2024.png,old logo version,register as a retired/old version if you want version checks
+asset_01_scaled.jpg,scaled,"logo found, scaled x1.4"
+asset_02_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_03_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_04_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_05_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_06_no_logo.jpg,no_logo,no official logo found
+asset_07_placed.jpg,placed,official logo found (unchanged)
+asset_08_scaled.jpg,scaled,"logo found, scaled x0.7"
+asset_09_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_10_recoloured.png,recoloured,logo found but RECOLOURED (altered)
+asset_11_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_12_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_13_no_logo.jpg,no_logo,no official logo found
+asset_14_placed.jpg,placed,official logo found (unchanged)
+asset_15_scaled.jpg,scaled,"logo found, scaled x1.4"
+asset_16_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_17_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_18_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_19_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_20_no_logo.png,no_logo,no official logo found
+asset_21_placed.jpg,placed,official logo found (unchanged)
+asset_22_scaled.jpg,scaled,"logo found, scaled x0.5"
+asset_23_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_24_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_25_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_26_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_27_no_logo.jpg,no_logo,no official logo found
+asset_28_placed.jpg,placed,official logo found (unchanged)
+asset_29_scaled.jpg,scaled,"logo found, scaled x1.4"
+asset_30_rotated.png,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_31_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_32_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_33_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_34_no_logo.jpg,no_logo,no official logo found
+asset_35_placed.jpg,placed,official logo found (unchanged)
+asset_36_scaled.jpg,scaled,"logo found, scaled x0.5"
+asset_37_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_38_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_39_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_40_old_version.png,old_version,old 2024 logo version (outdated asset)
+asset_41_no_logo.jpg,no_logo,no official logo found
+asset_42_placed.jpg,placed,official logo found (unchanged)
+asset_43_scaled.jpg,scaled,"logo found, scaled x1.4"
+asset_44_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_45_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_46_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)
+asset_47_old_version.jpg,old_version,old 2024 logo version (outdated asset)
+asset_48_no_logo.jpg,no_logo,no official logo found
+asset_49_placed.jpg,placed,official logo found (unchanged)
+asset_50_scaled.png,scaled,"logo found, scaled x0.5"
+asset_51_rotated.jpg,rotated,"logo found, ROTATED (guideline: never rotate)"
+asset_52_recoloured.jpg,recoloured,logo found but RECOLOURED (altered)
+asset_53_jpeg_recompressed.jpg,jpeg_recompressed,official logo found (JPEG recompressed)

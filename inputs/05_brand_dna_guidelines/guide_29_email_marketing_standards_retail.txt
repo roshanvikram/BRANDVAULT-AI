@@ -1,0 +1,10 @@
+NOVA TECH Email Marketing Standards — Retail edition
+
+SUBJECT LINES
+Email subject lines must be under 60 characters and must not use capitals for emphasis.
+
+UNSUBSCRIBE
+Every email must include an unsubscribe link.
+
+DOCUMENT CONTROL
+Owner: NOVA TECH Brand Office (Retail). Version 1.7. Applies to all retail marketing material.

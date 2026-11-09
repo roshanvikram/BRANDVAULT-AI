@@ -1,0 +1,14 @@
+{
+  "title": "no_fee — de negation_dropped",
+  "source_text": "No processing fee on EMI.",
+  "translations": [
+    {
+      "label": "de",
+      "text": "Bearbeitungsgebühr bei EMI."
+    },
+    {
+      "label": "hi",
+      "text": "EMI पर कोई प्रोसेसिंग शुल्क नहीं।"
+    }
+  ]
+}

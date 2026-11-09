@@ -1,0 +1,26 @@
+{
+  "title": "warranty — all languages",
+  "source_text": "Includes a 2-year on-site warranty.",
+  "translations": [
+    {
+      "label": "hi",
+      "text": "2 साल की ऑन-साइट वारंटी शामिल है।"
+    },
+    {
+      "label": "fr",
+      "text": "Comprend une garantie sur site de 2 ans."
+    },
+    {
+      "label": "es",
+      "text": "Incluye una garantía in situ de 2 años."
+    },
+    {
+      "label": "de",
+      "text": "Inklusive 2 Jahre Vor-Ort-Garantie."
+    },
+    {
+      "label": "ta",
+      "text": "2 ஆண்டு ஆன்-சைட் உத்தரவாதம் அடங்கும்."
+    }
+  ]
+}

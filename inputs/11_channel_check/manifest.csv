@@ -1,0 +1,61 @@
+﻿file,channel,chars,max_chars,length_result,image_result
+channel_01_instagram.json,instagram,234,2200,within limit,1080x1350 allowed ratio
+channel_02_linkedin.json,linkedin,179,3000,within limit,1080x1080 allowed ratio
+channel_03_google_ads.json,google_ads,103,30,OVER limit,no image
+channel_04_email.json,email,23,60,within limit,no image
+channel_05_web_banner.json,web_banner,113,120,within limit,300x250 allowed ratio
+channel_06_x.json,x,310,280,OVER limit,1600x900 allowed ratio
+channel_07_instagram.json,instagram,252,2200,within limit,1080x1350 allowed ratio
+channel_08_linkedin.json,linkedin,195,3000,within limit,500x1500 WRONG aspect ratio
+channel_09_google_ads.json,google_ads,76,30,OVER limit,no image
+channel_10_email.json,email,25,60,within limit,no image
+channel_11_web_banner.json,web_banner,113,120,within limit,300x250 allowed ratio
+channel_12_x.json,x,300,280,OVER limit,500x1500 WRONG aspect ratio
+channel_13_instagram.json,instagram,226,2200,within limit,1080x1350 allowed ratio
+channel_14_linkedin.json,linkedin,223,3000,within limit,1080x1080 allowed ratio
+channel_15_google_ads.json,google_ads,76,30,OVER limit,no image
+channel_16_email.json,email,20,60,within limit,no image
+channel_17_web_banner.json,web_banner,114,120,within limit,728x90 allowed ratio
+channel_18_x.json,x,305,280,OVER limit,1080x1080 allowed ratio
+channel_19_instagram.json,instagram,218,2200,within limit,1080x1080 allowed ratio
+channel_20_linkedin.json,linkedin,228,3000,within limit,1080x1920 WRONG aspect ratio
+channel_21_google_ads.json,google_ads,76,30,OVER limit,no image
+channel_22_email.json,email,20,60,within limit,no image
+channel_23_web_banner.json,web_banner,114,120,within limit,728x90 allowed ratio
+channel_24_x.json,x,322,280,OVER limit,1080x1920 WRONG aspect ratio
+channel_25_instagram.json,instagram,185,2200,within limit,1080x1350 allowed ratio
+channel_26_linkedin.json,linkedin,183,3000,within limit,1200x628 allowed ratio
+channel_27_google_ads.json,google_ads,72,30,OVER limit,no image
+channel_28_email.json,email,25,60,within limit,no image
+channel_29_web_banner.json,web_banner,106,120,within limit,300x250 allowed ratio
+channel_30_x.json,x,321,280,OVER limit,1600x900 allowed ratio
+channel_31_instagram.json,instagram,177,2200,within limit,1080x1080 allowed ratio
+channel_32_linkedin.json,linkedin,208,3000,within limit,500x1500 WRONG aspect ratio
+channel_33_google_ads.json,google_ads,68,30,OVER limit,no image
+channel_34_email.json,email,25,60,within limit,no image
+channel_35_web_banner.json,web_banner,118,120,within limit,300x250 allowed ratio
+channel_36_x.json,x,297,280,OVER limit,1080x1920 WRONG aspect ratio
+channel_37_instagram.json,instagram,247,2200,within limit,1080x1080 allowed ratio
+channel_38_linkedin.json,linkedin,224,3000,within limit,1200x628 allowed ratio
+channel_39_google_ads.json,google_ads,83,30,OVER limit,no image
+channel_40_email.json,email,20,60,within limit,no image
+channel_41_web_banner.json,web_banner,117,120,within limit,300x250 allowed ratio
+channel_42_x.json,x,297,280,OVER limit,1600x900 allowed ratio
+channel_43_instagram.json,instagram,233,2200,within limit,1080x1080 allowed ratio
+channel_44_linkedin.json,linkedin,193,3000,within limit,800x600 WRONG aspect ratio
+channel_45_google_ads.json,google_ads,81,30,OVER limit,no image
+channel_46_email.json,email,20,60,within limit,no image
+channel_47_web_banner.json,web_banner,118,120,within limit,300x250 allowed ratio
+channel_48_x.json,x,311,280,OVER limit,800x600 WRONG aspect ratio
+channel_49_instagram.json,instagram,225,2200,within limit,1080x1080 allowed ratio
+channel_50_linkedin.json,linkedin,191,3000,within limit,1200x628 allowed ratio
+channel_51_google_ads.json,google_ads,74,30,OVER limit,no image
+channel_52_email.json,email,25,60,within limit,no image
+channel_53_web_banner.json,web_banner,118,120,within limit,300x250 allowed ratio
+channel_54_x.json,x,287,280,OVER limit,1600x900 allowed ratio
+channel_55_instagram.json,instagram,219,2200,within limit,1080x1080 allowed ratio
+channel_56_linkedin.json,linkedin,172,3000,within limit,1080x1920 WRONG aspect ratio
+channel_57_google_ads.json,google_ads,89,30,OVER limit,no image
+channel_58_email.json,email,25,60,within limit,no image
+channel_59_web_banner.json,web_banner,118,120,within limit,300x250 allowed ratio
+channel_60_x.json,x,281,280,OVER limit,1080x1920 WRONG aspect ratio

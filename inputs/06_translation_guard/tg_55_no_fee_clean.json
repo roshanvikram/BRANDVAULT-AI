@@ -1,0 +1,26 @@
+{
+  "title": "no_fee — all languages",
+  "source_text": "No processing fee on EMI.",
+  "translations": [
+    {
+      "label": "hi",
+      "text": "EMI पर कोई प्रोसेसिंग शुल्क नहीं।"
+    },
+    {
+      "label": "fr",
+      "text": "Pas de frais de dossier sur l'EMI."
+    },
+    {
+      "label": "es",
+      "text": "Sin comisión de apertura en la EMI."
+    },
+    {
+      "label": "de",
+      "text": "Keine Bearbeitungsgebühr bei EMI."
+    },
+    {
+      "label": "ta",
+      "text": "EMI க்கு செயலாக்கக் கட்டணம் இல்லை."
+    }
+  ]
+}

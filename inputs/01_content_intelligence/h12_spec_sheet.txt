@@ -1,0 +1,1 @@
+NovaCore N10 NPU rated at 48 TOPS.

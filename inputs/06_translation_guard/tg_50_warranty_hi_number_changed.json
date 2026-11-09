@@ -1,0 +1,14 @@
+{
+  "title": "warranty — hi number_changed",
+  "source_text": "Includes a 2-year on-site warranty.",
+  "translations": [
+    {
+      "label": "hi",
+      "text": "3 साल की ऑन-साइट वारंटी शामिल है।"
+    },
+    {
+      "label": "fr",
+      "text": "Comprend une garantie sur site de 2 ans."
+    }
+  ]
+}

@@ -46,6 +46,7 @@ PHISHING = [
     (r"\b(verify|confirm|update) (your )?(account|identity|kyc)\b", "Asks to verify an account or KYC"),
     (r"\b(aadhaar|pan card|passport number)\b", "Asks for identity documents"),
 ]
+_NEGATED = re.compile(r"\b(never|not|don't|do not|won't|will not|no one|nobody)\b[^.!?]*$")
 URGENCY = re.compile(r"\b(only today|last chance|expires (today|tonight|in \d+ (hours|minutes))|hurry|act now|limited (slots|stock) left|within 24 hours)\b", re.I)
 
 
@@ -239,7 +240,8 @@ def analyse_text(db: Session, org_id: str, text: str, host_official: bool) -> Tu
         out.append({"type": "unknown_campaign", "severity": "medium", "title": "Not found in approved campaign records",
                     "evidence": "No approved or submitted campaign matches this wording.", "confidence": 0.5})
     for rx, label in PHISHING:
-        m = re.search(rx, low)
+        # "We never ask for your OTP" is a safety notice, not a request.
+        m = next((x for x in re.finditer(rx, low) if not _NEGATED.search(low[max(0, x.start() - 40):x.start()])), None)
         if m:
             out.append({"type": "phishing_request", "severity": "high", "title": label,
                         "evidence": text[max(0, m.start() - 60):m.end() + 60].strip(), "confidence": 0.85})

@@ -190,14 +190,32 @@ def correct(text: str, vocab: set) -> Tuple[str, List[Dict]]:
 
 
 # Price words may be glued to the amount by OCR ("only69,999"), so no word boundary is required.
-_BARE_PRICE = re.compile(r"(?i)(only|price|now|at|just|for|mrp|offer|from|starting|@)(\s*:?\s*)(\d{1,3}(?:,\d{2,3})+(?:\.\d+)?)(?!\s*%)")
+_BARE_PRICE = re.compile(r"(?i)(only|price|now|at|just|for|mrp|offer|from|starting|alert|pay|deal|sale|today|@)"
+                         r"(\s*:?\s*)(\d{1,3}(?:,\d{2,3})+(?:\.\d+)?)(?!\s*%)")
+# A number with letters that look like digits inside it: "1ox" (10x), "75,0o0", "2O26".
+_DIGITISH = re.compile(r"(?<![A-Za-z0-9])\d[\dOoIl,]*[\dOo](?:[xX×])?(?![A-Za-z0-9])|(?<![A-Za-z0-9])\d[OoIl][xX×](?![A-Za-z0-9])")
+
+
+def fix_digits(text: str) -> Tuple[str, List[Dict]]:
+    """Inside numbers, OCR reads 0 as o/O and 1 as l/I. Fix only tokens that start with a digit."""
+    corrections: List[Dict] = []
+
+    def fix(m: re.Match) -> str:
+        tok = m.group(0)
+        if not re.search(r"[OoIl]", tok):
+            return tok
+        fixed = tok.translate(str.maketrans({"O": "0", "o": "0", "I": "1", "l": "1"}))
+        corrections.append({"from": tok, "to": fixed, "reason": "letter read in place of a digit by OCR"})
+        return fixed
+
+    return _DIGITISH.sub(fix, text), corrections
 # The ₹ glyph is often read as a capital R directly before an Indian-grouped amount ("R69,999").
 _R_AS_RUPEE = re.compile(r"(?<![A-Za-z])R(?=\d{1,3}(?:,\d{2,3})+\b)")
 
 
 def restore_currency(text: str, symbol: str) -> Tuple[str, List[Dict]]:
     """OCR models often drop the ₹ glyph. Put it back on bare amounts in a clear price context."""
-    corrections: List[Dict] = []
+    text, corrections = fix_digits(text)
 
     def fix(m: re.Match) -> str:
         corrections.append({"from": m.group(3), "to": symbol + m.group(3), "reason": "currency symbol not recognised by OCR"})

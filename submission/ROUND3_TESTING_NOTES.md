@@ -2,7 +2,7 @@
 
 All numbers below were measured on the final code. Commands are run from the repository root.
 
-## 1. Automated test suite — 230 tests
+## 1. Automated test suite — 238 tests
 
 ```
 backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
@@ -18,6 +18,7 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Phase 1a security (tenancy, versions, durable jobs) | 19 |
 | Unit (analyzer, claims, hashing, retrieval) | 18 |
 | Claim detectors (prices, superlatives, comparisons, specs, tone) | 7 |
+| Fixes found by the input library (OCR digits, Hindi negation, language labels, copy rewrite) | 8 |
 | **Round 3 · Improvement 3** — ingestion, ranking, dense, pgvector, versions, gap agent | 14 |
 | **Round 3 · Improvement 2** — API keys, Check API, gate, webhooks, notifications, channels, MCP | 13 |
 | **Round 3 · Improvement 1** — OCR fixes, clear space, image/PDF/video, isolation, settings | 11 |
@@ -26,11 +27,11 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Demo content seed | 5 |
 | Configuration | 5 |
 | **Round 3 end-to-end workflow** (one test, every step) | 1 |
-| **Total** | **230** |
+| **Total** | **238** |
 
 Results:
-- **SQLite:** 230 run, all pass (1 skipped: the pgvector-only test).
-- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 7 claim-detector tests were added; those are pure text tests with no database.
+- **SQLite:** 238 run, all pass (1 skipped: the pgvector-only test).
+- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 15 newest tests were added; those are pure text tests with no database.
 
 The end-to-end test walks the whole product:
 1. A Word guideline is uploaded and an admin confirms the extracted rule.
@@ -53,6 +54,37 @@ Full write-up: `submission/REALWORLD_TEST_RESULTS.md`.
 | Original set (`dataset.json`) | 36 | 1.000 | 0.953 | 0.976 | 34/36 |
 
 The only remaining misses on the original set are its 2 "visual" cases (logo colour, packaging). These are image checks that Creative Inspection and Visual DNA handle, and this harness only feeds text.
+
+## 2b. Input library — 893 files through the real API
+
+`inputs/` holds 893 realistic files, at least 50 per feature, across 14 folders: copy, claims, banners/PDFs/videos, images, guideline documents, translations, rewrites, questions, feedback exports, fraud reports, channel payloads, logo assets, passport checks and similarity texts. Each folder's `manifest.csv` states the expected result. `inputs/_generator/verify.py` runs every file through the HTTP API.
+
+| Folder | First run | After fixes |
+|---|---|---|
+| Copy Studio (rules mode) | 7/60 | 60/60 |
+| Translation Guard | 54/75 | 75/75 |
+| Brand Assistant | 48/60 | 60/60 |
+| Fraud Intelligence | 48/60 | 60/60 |
+| Creative Inspection | 54/60 | 60/60 |
+| The other 9 folders | all matched | all matched |
+| **All 14 folders** | | **893/893** |
+
+The text and creative evaluations were re-run afterwards and are unchanged: real-world text 50/50, hold-out 20/20, creatives 26/26 and 12/12.
+
+Product problems found and fixed:
+- **Translation Guard:**
+  - Hindi words containing "मत" or ending in "न" were read as negations.
+  - Short French text was detected as Spanish; the translation's language label is now used.
+  - Renamed model names ("NovaCore N10" → "Nova Core N1") were not caught.
+- **Copy Studio (rules mode)** fixed only 7/60 off-brand texts. It now corrects specs, superlatives, comparisons, expired offers, vague claims and hype: 60/60.
+- **Brand Assistant** answered off-topic questions (stock price, next year's plans) with loosely related passages. It now declines them.
+- **Fraud Intelligence:**
+  - The official shop's accessory price was flagged as a wrong laptop price.
+  - "We never ask for your OTP" was flagged as an OTP request.
+- **Creative Inspection OCR:**
+  - "1ox" was read in place of "10x", which hid a banned claim.
+  - "75,0o0" hid a price.
+  - A ₹ symbol was dropped after "alert:".
 
 ## 3. Creative Inspection evaluation (Improvement 1)
 

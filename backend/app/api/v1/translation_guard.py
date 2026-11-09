@@ -122,7 +122,8 @@ def analyze(payload: AnalyzeRequest, db: Session = Depends(get_db), current: Use
     scores = []
     verdicts = []
     for i, tr in enumerate(payload.translations):
-        r = tg.analyze_pair(payload.source_text, src_lang, tr.text, ctx, provider=provider, brand_brief=brief)
+        r = tg.analyze_pair(payload.source_text, src_lang, tr.text, ctx, provider=provider, brand_brief=brief,
+                            language_hint=tr.label)
         engines.add(r["engine"])
         scores.append(r["overall_score"])
         verdicts.append(r["verdict"])

@@ -1,0 +1,5 @@
+Product,Configuration,Price (INR),Region,Channel,Effective from,Status
+NovaBook AI Pro 16,32 GB / 1 TB,69999,West,All,2026-01-01,Draft
+NovaSleeve 16,Sleeve,2499,West,All,2026-01-01,Approved
+NovaCare Plus,"Extended cover, 1 year",4999,West,Online,2026-01-01,Approved
+NovaDock USB-C,Dock,8999,West,Retail,2026-02-01,Approved

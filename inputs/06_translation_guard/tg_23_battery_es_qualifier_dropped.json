@@ -1,0 +1,14 @@
+{
+  "title": "battery — es qualifier_dropped",
+  "source_text": "Up to 18 hours of battery life.",
+  "translations": [
+    {
+      "label": "es",
+      "text": "18 horas de batería."
+    },
+    {
+      "label": "hi",
+      "text": "18 घंटे तक की बैटरी लाइफ।"
+    }
+  ]
+}

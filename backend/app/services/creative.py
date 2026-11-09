@@ -305,8 +305,10 @@ def inspect(db: Session, org_id: str, filename: str, data: bytes, author: str, a
             if p["source"] == "ocr":
                 fixed, fx_list = ocr.correct(line["text"], vocab)
                 if currency:
-                    fixed, cur_fixes = ocr.restore_currency(fixed, currency)
-                    fx_list += cur_fixes
+                    fixed, cur_fixes = ocr.restore_currency(fixed, currency)  # also fixes o/l read inside numbers
+                else:
+                    fixed, cur_fixes = ocr.fix_digits(fixed)
+                fx_list += cur_fixes
                 if fx_list:
                     line["ocr_text"] = line["text"]
                     line["text"] = fixed
