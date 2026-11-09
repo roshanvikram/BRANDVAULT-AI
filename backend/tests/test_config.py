@@ -23,16 +23,16 @@ class TestPostgresPortability(unittest.TestCase):
         # Verify the Postgres DSN resolves to the postgresql backend without
         # requiring the psycopg2 driver to be installed (it isn't, offline).
         from sqlalchemy.engine import make_url
-        url = make_url("postgresql+psycopg2://u:p@localhost:5432/brandvault")
+        url = make_url("postgresql+psycopg://u:p@localhost:5432/brandvault")
         self.assertEqual(url.get_backend_name(), "postgresql")
         self.assertEqual(url.database, "brandvault")
 
     def test_models_use_portable_types(self):
         # All mapped columns should be generic SQLAlchemy types (portable to PG).
-        from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, JSON
+        from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, JSON, LargeBinary
         import backend.app.models  # noqa: F401
         from backend.app.db.base import Base
-        portable = (String, Text, Integer, Float, Boolean, DateTime, JSON)
+        portable = (String, Text, Integer, Float, Boolean, DateTime, JSON, LargeBinary)  # LargeBinary = BLOB/BYTEA
         for table in Base.metadata.tables.values():
             for col in table.columns:
                 self.assertIsInstance(

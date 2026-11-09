@@ -1,15 +1,14 @@
 """
-Lightweight, idempotent schema migrations for the SQLite persistence layer.
+Lightweight, idempotent schema migrations (SQLite for local use, PostgreSQL in production).
 
 SQLAlchemy's `create_all` creates *missing tables* but never alters existing
 ones, so new columns added to a model are invisible on a database that was
 created by an earlier version. This helper performs additive `ALTER TABLE ...
-ADD COLUMN` statements guarded by a PRAGMA check, which is safe to run on every
-startup. It is intentionally minimal — for a production Postgres target this is
-replaced by Alembic (see IMPLEMENTATION_ROADMAP.md, Milestone G).
+ADD COLUMN` statements guarded by an inspector check, which is safe to run on
+every startup for both SQLite and PostgreSQL.
 """
 import re
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 
 # (table, column, column definition) tuples to ensure exist.
@@ -26,12 +25,11 @@ _ADDITIVE_COLUMNS = [
     ("approval_records", "content_hash", "VARCHAR(64)"),
     # Phase 2 — department analytics.
     ("submissions", "department", "VARCHAR(100)"),
+    # Round 3 — section citations and guideline version history.
+    ("document_chunks", "section_label", "VARCHAR(120)"),
+    ("brand_guidelines", "superseded_by_id", "VARCHAR(36)"),
+    ("brand_guidelines", "superseded_at", "DATETIME"),
 ]
-
-
-def _existing_columns(conn, table: str) -> set[str]:
-    rows = conn.execute(text(f'PRAGMA table_info("{table}")')).fetchall()
-    return {r[1] for r in rows}
 
 
 _PAGE_MARKER = re.compile(r"---\s*Page\s+(\d+)\s*---")
@@ -57,22 +55,23 @@ def fix_chunk_page_numbers(engine: Engine) -> int:
 
 
 def run_light_migrations(engine: Engine) -> list[str]:
-    """Apply additive column migrations. Returns a list of applied changes."""
-    applied: list[str] = []
-    # Only SQLite needs this shim; real engines use Alembic migrations.
-    if not engine.url.get_backend_name().startswith("sqlite"):
-        return applied
+    """Apply additive column migrations on SQLite and PostgreSQL. Returns the applied changes.
 
+    Only ever ADDs missing columns, so it is safe to run on every startup and never
+    touches existing data. New tables are created by ``Base.metadata.create_all``.
+    """
+    applied: list[str] = []
+    is_sqlite = engine.url.get_backend_name().startswith("sqlite")
+    insp = inspect(engine)
+    tables = set(insp.get_table_names())
     with engine.begin() as conn:
         for table, column, coltype in _ADDITIVE_COLUMNS:
-            # Skip if the table itself does not exist yet (create_all handles it).
-            table_exists = conn.execute(
-                text("SELECT name FROM sqlite_master WHERE type='table' AND name=:t"),
-                {"t": table},
-            ).first()
-            if not table_exists:
+            if table not in tables:
+                continue  # create_all builds it with every column
+            existing = {c["name"] for c in insp.get_columns(table)}
+            if column in existing:
                 continue
-            if column not in _existing_columns(conn, table):
-                conn.execute(text(f'ALTER TABLE "{table}" ADD COLUMN {column} {coltype}'))
-                applied.append(f"{table}.{column}")
+            ddl = coltype if is_sqlite else coltype.replace("DATETIME", "TIMESTAMP")
+            conn.execute(text(f'ALTER TABLE "{table}" ADD COLUMN {column} {ddl}'))
+            applied.append(f"{table}.{column}")
     return applied

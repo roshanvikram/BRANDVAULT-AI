@@ -434,3 +434,21 @@ Document ID: VT-BG-2026-001 | Version: 1.0 | Effective Date: 05 November 2026
         db.commit()
 
     return org
+
+
+def apply_demo_account_policy(db: Session, enabled: bool) -> int:
+    """Enable or disable every seeded demo account (DEMO_ACCOUNTS_ENABLED).
+
+    Disabling keeps the accounts (and their history) but blocks sign-in, so a
+    real deployment can switch the published demo passwords off. Returns the
+    number of accounts changed.
+    """
+    emails = [u["email"] for u in DEMO_USERS + VORTEXA_DEMO_USERS]
+    changed = 0
+    for user in db.query(User).filter(User.email.in_(emails)).all():
+        if bool(user.is_active) != enabled:
+            user.is_active = enabled
+            changed += 1
+    if changed:
+        db.commit()
+    return changed

@@ -30,6 +30,8 @@ class BrandGuideline(Base):
     total_pages: Mapped[int] = mapped_column(Integer, default=1)
     status: Mapped[str] = mapped_column(String(50), default="processed") # uploaded, processing, processed, error
     raw_text: Mapped[str] = mapped_column(Text, nullable=True)
+    superseded_by_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)  # newer version of this document
+    superseded_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
     organization: Mapped["Organization"] = relationship("Organization", back_populates="guidelines")
@@ -45,6 +47,7 @@ class DocumentChunk(Base):
     chunk_index: Mapped[int] = mapped_column(Integer, default=0)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     embedding_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True) # store vector representation
+    section_label: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)  # "Page 3", "Section 2 · Logo", "Row 5"
 
     guideline: Mapped["BrandGuideline"] = relationship("BrandGuideline", back_populates="chunks")
 

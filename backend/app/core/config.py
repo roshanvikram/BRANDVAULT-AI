@@ -67,6 +67,21 @@ class Settings(BaseSettings):
     FRAUD_URL_FETCH_ENABLED: bool = os.getenv("FRAUD_URL_FETCH_ENABLED", "false").lower() == "true"
     # Demo campaigns for an empty NOVA TECH workspace (fresh deploys). Set to false for real use.
     SEED_DEMO_CONTENT: bool = os.getenv("SEED_DEMO_CONTENT", "true").lower() != "false"
+    # Seeded demo sign-ins (published in DEPLOYMENT.md). Set to false to block them in real use.
+    DEMO_ACCOUNTS_ENABLED: bool = os.getenv("DEMO_ACCOUNTS_ENABLED", "true").lower() != "false"
+    # Optional email notifications (left empty = email shown as "not configured").
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM: str = os.getenv("SMTP_FROM", "")
+    # Improvement 3 — dense embeddings for evidence retrieval (see services/embeddings.py).
+    EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "auto")  # auto | local | openai | none
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "")
+    EMBEDDING_BASE_URL: str = os.getenv("EMBEDDING_BASE_URL", "")
+    EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "")
+    EMBEDDING_CACHE_DIR: str = os.getenv("EMBEDDING_CACHE_DIR", "")
+    RAG_MODE: str = os.getenv("RAG_MODE", "hybrid")  # hybrid (BM25 + TF-IDF + dense, RRF) | tfidf
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

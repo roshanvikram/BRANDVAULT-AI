@@ -16,10 +16,10 @@ class BrandPassport(Base):
     brand_name: Mapped[str] = mapped_column(String(255), nullable=False)
     content_title: Mapped[str] = mapped_column(String(255), nullable=False)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False) # SHA-256
-    guideline_version: Mapped[str] = mapped_column(String(50), default="v2.4")
+    guideline_version: Mapped[str] = mapped_column(String(255), default="v2.4")
     verification_status: Mapped[str] = mapped_column(String(50), default="PASSED") # PASSED, CONDITIONALLY_PASSED, REJECTED
     final_score: Mapped[int] = mapped_column(Integer, default=100)
-    audited_by: Mapped[str] = mapped_column(String(100), default="BRANDVAULT Governance Engine & Reviewer")
+    audited_by: Mapped[str] = mapped_column(String(255), default="BRANDVAULT Governance Engine & Reviewer")
     passport_data: Mapped[dict] = mapped_column(JSON, default=dict) # Full snapshot of rules, claims, findings, decisions
     issued_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 

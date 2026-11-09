@@ -20,9 +20,19 @@ from backend.app.models.brand import Organization
 
 
 def make_seeded_db():
-    """Return (engine, SessionFactory, db_path). Caller removes db_path when done."""
-    path = os.path.join(tempfile.gettempdir(), f"bv_test_{uuid.uuid4().hex}.db")
-    engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
+    """Return (engine, SessionFactory, db_path). Caller removes db_path when done.
+
+    Set BV_TEST_DATABASE_URL (e.g. a PostgreSQL URL) to run the same tests on
+    another database; its tables are dropped and rebuilt for every call.
+    """
+    pg_url = os.getenv("BV_TEST_DATABASE_URL")
+    if pg_url:
+        engine = create_engine(pg_url, pool_pre_ping=True, connect_args={"prepare_threshold": None})
+        Base.metadata.drop_all(engine)
+        path = None
+    else:
+        path = os.path.join(tempfile.gettempdir(), f"bv_test_{uuid.uuid4().hex}.db")
+        engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     migrations.run_light_migrations(engine)
     Session = sessionmaker(bind=engine)

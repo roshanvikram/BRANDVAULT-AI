@@ -1,0 +1,32 @@
+{
+  "description": "Round 3 labelled creative set. Each case is generated at run time (no binary fixtures) from the lines below, in the given format and style, then run through Creative Inspection. 'expected' uses the same issue tags as dataset.json. OCR accuracy is measured against 'lines'.",
+  "org_id": "nova-tech-org-001",
+  "cases": [
+    {"id": "c01", "format": "png", "style": 0, "lines": ["NovaBook AI Pro 16", "The world's fastest AI laptop!", "Now only ₹69,999"], "expected": ["price_conflict", "superlative", "terminology"]},
+    {"id": "c02", "format": "png", "style": 1, "lines": ["NovaBook AI Pro 16", "Launch price ₹79,999"], "expected": []},
+    {"id": "c03", "format": "jpeg", "style": 2, "lines": ["Festive offer", "Get NovaBook for only ₹69,999"], "expected": ["price_conflict"]},
+    {"id": "c04", "format": "jpeg", "style": 3, "lines": ["NovaBook AI Pro 16", "10x faster than every competitor"], "expected": ["comparative", "terminology"]},
+    {"id": "c05", "format": "webp", "style": 0, "lines": ["A cheap laptop", "that still performs"], "expected": ["terminology"]},
+    {"id": "c06", "format": "png", "style": 4, "lines": ["Up to 18 hours", "mixed productivity workload"], "expected": []},
+    {"id": "c07", "format": "png", "style": 5, "lines": ["Pre-order bonus", "complimentary NovaSleeve accessory"], "expected": ["outdated"]},
+    {"id": "c08", "format": "jpeg", "style": 1, "lines": ["The world's fastest", "AI laptop is here"], "expected": ["superlative", "terminology"]},
+    {"id": "c09", "format": "webp", "style": 2, "lines": ["NovaBook AI Pro 16", "Now only ₹74,999"], "expected": ["price_conflict"]},
+    {"id": "c10", "format": "png", "style": 3, "lines": ["Enterprise ready", "2-Year On-Site Limited Hardware Warranty"], "expected": []},
+    {"id": "c11", "format": "png", "style": 0, "lines": ["Wow!! Amazing deal!!", "NovaBook AI Pro 16"], "expected": ["tone"]},
+    {"id": "c12", "format": "jpeg", "style": 4, "lines": ["Unbeatable performance", "guaranteed"], "expected": ["superlative"]},
+    {"id": "c13", "format": "png", "style": 5, "lines": ["Up to 45 TOPS", "sustained AI processing performance"], "expected": []},
+    {"id": "c14", "format": "webp", "style": 1, "lines": ["Students: only ₹69,999", "for a limited time"], "expected": ["price_conflict"]},
+    {"id": "c15", "format": "png", "style": 2, "lines": ["Meet NovaBook AI Pro 16", "Available at ₹79,999"], "expected": []},
+    {"id": "c16", "format": "pdf-text", "style": 0, "lines": ["NovaBook AI Pro 16 launch deck", "10x faster than every competitor", "Launch price Rs. 69,999"], "expected": ["comparative", "terminology", "price_conflict"]},
+    {"id": "c17", "format": "pdf-text", "style": 0, "lines": ["Product overview", "Up to 18 hours mixed productivity workload", "Launch price Rs. 79,999"], "expected": []},
+    {"id": "c18", "format": "pdf-text", "style": 0, "lines": ["Partner kit", "Pre-order bonus: complimentary NovaSleeve accessory"], "expected": ["outdated"]},
+    {"id": "c19", "format": "pdf-scan", "style": 0, "lines": ["NovaBook AI Pro 16", "The world's fastest AI laptop"], "expected": ["superlative", "terminology"]},
+    {"id": "c20", "format": "pdf-scan", "style": 0, "lines": ["Retail flyer", "Now only Rs. 69,999"], "expected": ["price_conflict"]},
+    {"id": "c21", "format": "pdf-scan", "style": 0, "lines": ["NovaBook AI Pro 16", "Up to 45 TOPS sustained AI processing performance"], "expected": []},
+    {"id": "c22", "format": "video", "style": 0, "lines": ["NovaBook AI Pro 16", "The world's fastest AI laptop"], "expected": ["superlative", "terminology"]},
+    {"id": "c23", "format": "video", "style": 0, "lines": ["NovaBook AI Pro 16", "Now only ₹69,999"], "expected": ["price_conflict"]},
+    {"id": "c24", "format": "video", "style": 0, "lines": ["Up to 18 hours", "mixed productivity workload"], "expected": []},
+    {"id": "c25", "format": "png", "style": 3, "lines": ["This cheap device", "Hurry!!! Ends tonight!!!"], "expected": ["terminology", "tone"]},
+    {"id": "c26", "format": "jpeg", "style": 5, "lines": ["NovaBook AI Pro 16", "10x faster than every competitor", "Now only ₹69,999"], "expected": ["comparative", "terminology", "price_conflict"]}
+  ]
+}

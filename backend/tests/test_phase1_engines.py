@@ -296,7 +296,12 @@ class TestKnowledgeGapsApi(_ApiBase):
         try:
             chunks = (db.query(DocumentChunk).join(BrandGuideline, DocumentChunk.guideline_id == BrandGuideline.id)
                       .filter(BrandGuideline.filename == "paged.txt").order_by(DocumentChunk.chunk_index).all())
-            self.assertEqual([c.page_number for c in chunks], [1, 2, 2, 5])
+            # Round 3 chunking merges short paragraphs of the same page into one passage.
+            self.assertEqual(sorted({c.page_number for c in chunks}), [1, 2, 5])
+            by_page = {c.page_number: c.content for c in chunks}
+            self.assertIn("discounts", by_page[2])
+            self.assertIn("Warranty", by_page[5])
+            self.assertEqual(chunks[0].section_label, "Page 1")
         finally:
             db.close()
 

@@ -27,6 +27,25 @@
 | GET | `/` | Product/team metadata, status banner |
 | GET | `/api/v1/health` | Liveness + DB connectivity |
 
+## Round 3 endpoints
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/capabilities` | Which optional engines are live (OCR, embeddings, pgvector, email) |
+| GET | `/api/v1/creative/status` | OCR engine status and limits |
+| POST | `/api/v1/creative/inspect` | Multipart `file` (image/PDF/video), optional `department` → pages, OCR lines, corrections, regions, logo clear space, submission with findings |
+| GET | `/api/v1/creative/inspections[/{id}]` · `/creative/inspections/{id}/pages/{n}/image` | History, detail, page image for the overlay |
+| GET / PUT | `/api/v1/workspace/settings` | Org settings (clear-space ratio, channels, disclaimers, notifications); PUT is Admin-only and validated |
+| GET / POST / DELETE | `/api/v1/integrations/api-keys[/{id}]` | Admin: list, create (key shown once), revoke |
+| GET / POST / DELETE | `/api/v1/integrations/webhooks[/{id}]` · POST `/{id}/test` · GET `/integrations/deliveries` | Admin: signed webhooks and the delivery log |
+| GET | `/api/v1/notifications` · POST `/notifications/read` | In-app notifications for the user's role; mark read |
+| POST | `/api/v1/channels/check` | `{text, channels[], region?, width?, height?}` → Channel Adapter + Disclaimer agent |
+| POST | `/api/v1/public/check` | `X-API-Key` (scope `check`): brand checks; `persist:false` saves nothing |
+| POST | `/api/v1/public/gate` | `X-API-Key` (scope `gate`): `{allowed}` only for copy identical to a current Brand Passport |
+| GET / POST | `/api/v1/public/brand` · `/public/search` · `/public/submissions/{id}` | `X-API-Key` (scope `read`): brand facts, evidence search, review status |
+| POST | `/api/v1/brand/guidelines/upload` | Now accepts .pdf .docx .html .md .txt .csv .xlsx; optional `replaces` (older guideline id) |
+
+Webhook signature: `X-BrandVault-Signature: sha256=HMAC_SHA256(secret, X-BrandVault-Timestamp + "." + body)`.
+
 ## Advanced intelligence (Phase 3)
 | Method | Path | Purpose |
 |---|---|---|

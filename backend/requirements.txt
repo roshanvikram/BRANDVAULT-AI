@@ -14,10 +14,17 @@ anthropic>=0.49.0
 # under pytest: `python -m unittest discover backend/tests` or `pytest`.
 pytest>=8.0.0
 # Production (Postgres + migrations) — not needed for the local SQLite default.
-psycopg2-binary>=2.9.9
+psycopg[binary]>=3.2
 alembic>=1.13.0
 
 # Brand Asset Forensics (image fingerprints, logo localisation)
 pillow>=10.0.0
 numpy>=1.26.0
 opencv-python-headless>=4.9.0
+
+# Round 3 · Creative Inspection: OCR (pip-only, CPU) and PDF page rendering
+rapidocr-onnxruntime>=1.2.3
+pypdfium2>=4.30
+
+# Round 3 · Semantic evidence engine: local dense embeddings (BGE-small, ONNX, CPU)
+fastembed>=0.4

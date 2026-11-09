@@ -84,6 +84,7 @@ def get_guidelines(org_id: Optional[str] = None, db: Session = Depends(get_db),
 async def upload_guideline(
     org_id: Optional[str] = Form(None),
     file: UploadFile = File(...),
+    replaces: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current: User = Depends(require_roles(ROLE_ADMIN)),
 ):
@@ -92,30 +93,29 @@ async def upload_guideline(
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
 
-    # Upload hardening (Milestone D3): restrict type and size.
-    ALLOWED_EXT = (".pdf", ".txt", ".md")
+    # Upload hardening: restrict type and size.
+    from backend.app.services import ingest
     MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
-    fname = (file.filename or "").lower()
-    if not fname.endswith(ALLOWED_EXT):
-        raise HTTPException(status_code=400, detail=f"Unsupported file type. Allowed: {', '.join(ALLOWED_EXT)}")
+    try:
+        ingest.file_type(file.filename or "")
+    except ingest.IngestError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     content_bytes = await file.read()
     if len(content_bytes) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="File exceeds the 15 MB upload limit.")
     if len(content_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
-    raw_text = ""
-    total_pages = 1
+    try:
+        kind, sections, passages, raw_text = ingest.ingest(file.filename, content_bytes)
+    except ingest.IngestError as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
-    if file.filename.lower().endswith(".pdf"):
-        import io
-        pdf_reader = PdfReader(io.BytesIO(content_bytes))
-        total_pages = len(pdf_reader.pages)
-        for page_idx, page in enumerate(pdf_reader.pages):
-            page_text = page.extract_text() or ""
-            raw_text += f"\n--- Page {page_idx + 1} ---\n" + page_text
-    else:
-        raw_text = content_bytes.decode("utf-8", errors="ignore")
+    old = None
+    if replaces:
+        old = db.query(BrandGuideline).filter(BrandGuideline.id == replaces, BrandGuideline.org_id == org_id).first()
+        if old is None:
+            raise HTTPException(status_code=404, detail="The guideline being replaced was not found.")
 
     guideline_id = str(uuid.uuid4())
     guideline = BrandGuideline(
@@ -123,56 +123,43 @@ async def upload_guideline(
         org_id=org_id,
         filename=file.filename,
         file_path=f"/uploads/{file.filename}",
-        file_type="pdf" if file.filename.lower().endswith(".pdf") else "txt",
+        file_type=kind,
         file_size_bytes=len(content_bytes),
-        total_pages=total_pages,
+        total_pages=len(sections),
         status="processed",
         raw_text=raw_text
     )
     db.add(guideline)
+    if old is not None:
+        # Version history: the old document stays on record but is no longer cited as evidence.
+        old.status = "superseded"
+        old.superseded_by_id = guideline_id
+        old.superseded_at = datetime.datetime.utcnow()
 
-    # Chunking & Rule Extraction
-    paragraphs = [p.strip() for p in raw_text.split("\n\n") if len(p.strip()) > 30]
-    # Real page numbers come from the "--- Page N ---" markers written above;
-    # plain-text uploads have no pages and count as page 1.
-    MAX_PARAGRAPHS = 200
-    current_page = 1
-    for idx, para in enumerate(paragraphs[:MAX_PARAGRAPHS]):
-        page_marks = PAGE_MARKER.findall(para)
-        para_page = int(page_marks[0]) if page_marks else current_page
-        if page_marks:
-            current_page = int(page_marks[-1])
-        chunk = DocumentChunk(
-            id=str(uuid.uuid4()),
-            guideline_id=guideline_id,
-            page_number=para_page,
-            chunk_index=idx,
-            content=para
-        )
-        db.add(chunk)
-
-        # Automatically extract candidate rules if policy words found
-        if any(w in para.lower() for w in ["must", "prohibited", "strictly", "price", "forbidden", "standard"]):
-            candidate_rule = BrandRule(
-                id=str(uuid.uuid4()),
-                org_id=org_id,
+    for idx, ps in enumerate(passages):
+        db.add(DocumentChunk(id=str(uuid.uuid4()), guideline_id=guideline_id, page_number=ps["n"], chunk_index=idx,
+                             content=ps["text"], section_label=ps["label"]))
+        para = ps["text"]
+        # Candidate rules stay unconfirmed until an administrator confirms them (human gate #1).
+        if kind not in ("csv", "xlsx") and any(w in para.lower() for w in ["must", "prohibited", "strictly", "price", "forbidden", "standard"]):
+            db.add(BrandRule(
+                id=str(uuid.uuid4()), org_id=org_id,
                 category="Pricing" if "price" in para.lower() else "Guideline Rule",
-                title=f"Extracted Policy #{idx + 1}",
-                rule_text=para[:300],
+                title=f"Extracted Policy #{idx + 1}", rule_text=para[:300],
                 severity="CRITICAL" if any(w in para.lower() for w in ["strictly", "prohibited"]) else "WARNING",
-                source_document=file.filename,
-                page_reference=para_page,
-                is_active=True,
-                is_confirmed=False # Requires admin confirmation!
-            )
-            db.add(candidate_rule)
+                source_document=file.filename, page_reference=ps["n"], is_active=True, is_confirmed=False,
+            ))
+    proposed = _propose_price_facts(db, org_id, kind, sections, file.filename, current) if kind in ("csv", "xlsx") else 0
+    total_pages = len(sections)
 
     db.add(AuditLog(
         id=str(uuid.uuid4()),
         org_id=org_id,
         action="GUIDELINE_UPLOADED",
         actor=f"{current.full_name} ({current.role})",
-        details=f"Uploaded and parsed '{file.filename}' ({len(content_bytes)} bytes, {total_pages} pages)."
+        details=f"Uploaded and parsed '{file.filename}' ({kind}, {len(content_bytes)} bytes, {total_pages} sections, "
+                f"{len(passages)} passages{f', {proposed} price fact(s) proposed' if proposed else ''}"
+                f"{f'; replaces {old.filename}' if old is not None else ''})."
     ))
 
     db.commit()
@@ -263,3 +250,33 @@ def get_terms(org_id: Optional[str] = None, db: Session = Depends(get_db),
     org_id = resolve_org(org_id, current)
     return db.query(TerminologyRule).filter(TerminologyRule.org_id == org_id).all()
 
+def _propose_price_facts(db: Session, org_id: str, kind: str, sections, filename: str, current: User) -> int:
+    """Price lists: rows naming a known product and a price become *pending* Product Truth facts.
+    Nothing is approved automatically; an administrator reviews them in Product Truth."""
+    import re as _re
+    from backend.app.models.product import Product, ProductFact, FACT_PENDING, FACT_APPROVED
+    from backend.app.services import product_truth as pt
+    pt.bootstrap_products(db, org_id)
+    products = {p.name.lower(): p for p in db.query(Product).filter(Product.org_id == org_id).all() if p.name}
+    made = 0
+    for s in sections:
+        row = s["text"]
+        cells = dict((k.strip().lower(), v.strip()) for k, v in (c.split(":", 1) for c in _re.sub(r"^Row \d+:\s*", "", row).rstrip(".").split(" | ") if ":" in c))
+        name = next((v for k, v in cells.items() if "product" in k or "model" in k or k == "name"), None)
+        price = next((v for k, v in cells.items() if "price" in k or "mrp" in k), None)
+        prod = products.get((name or "").lower())
+        if not prod or not price:
+            continue
+        num, unit, qual = pt.parse_fact_value("price", price if _re.search(r"₹|rs|inr", price, _re.I) else f"₹{price}")
+        if num is None:
+            continue
+        dup = db.query(ProductFact).filter(ProductFact.org_id == org_id, ProductFact.product_id == prod.id, ProductFact.attribute == "price",
+                                           ProductFact.value_num == num, ProductFact.status.in_([FACT_PENDING, FACT_APPROVED])).first()
+        if dup:
+            continue
+        db.add(ProductFact(id=str(uuid.uuid4()), org_id=org_id, product_id=prod.id, attribute="price",
+                           value_text=f"₹{num:,.0f}" if unit == "INR" else price, value_num=num, unit=unit, qualifier=qual,
+                           source_document=filename, page_reference=s["n"], evidence_excerpt=row[:300], status=FACT_PENDING,
+                           origin="spreadsheet", created_by=f"{current.full_name} ({current.role})"))
+        made += 1
+    return made

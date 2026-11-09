@@ -128,3 +128,29 @@ In a private/incognito window, confirm the full acceptance flow without a develo
 4. Approval Hub → approve as Reviewer → Brand Passport generated.
 5. Refresh → records persist.
 6. `GET /api/v1/health` returns `healthy` and shows the LLM mode.
+
+## 9. Round 3: keep data across restarts (free PostgreSQL on Neon)
+
+Render's free disk is wiped on every restart, so SQLite data (and, before Round 3, uploads) disappeared.
+Uploads now live in the database, so one setting makes everything persistent:
+
+1. Create a free project at neon.tech and copy its connection string (Dashboard → Connect).
+2. In Render → your backend service → **Environment**, add `DATABASE_URL` = that string
+   (e.g. `postgresql://user:pass@ep-xxx.aws.neon.tech/neondb?sslmode=require`). Both the direct and the
+   `-pooler` endpoints work (server-side prepared statements are disabled for poolers).
+3. Save. On start the app creates all tables, enables pgvector for evidence search, and seeds the demo
+   workspace once. Data now survives restarts and redeploys.
+
+Other Round 3 settings (all optional):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DEMO_ACCOUNTS_ENABLED` | `true` | `false` blocks the published demo sign-ins |
+| `EMBEDDING_PROVIDER` | `auto` | `auto`/`local` = BGE-small baked into the Docker image; `openai` + `EMBEDDING_BASE_URL`/`EMBEDDING_API_KEY`/`EMBEDDING_MODEL`; `none` |
+| `RAG_MODE` | `hybrid` | `tfidf` reverts to the Round 2 retriever |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | empty | Email copies of notifications |
+
+Memory: with OCR and the embedding model loaded the backend uses about 300 MB (Render free = 512 MB).
+The Docker build downloads the embedding model once, so the first build takes a few minutes longer.
+
+MCP: see Settings → MCP in the app, or the header of `backend/mcp_server.py`.

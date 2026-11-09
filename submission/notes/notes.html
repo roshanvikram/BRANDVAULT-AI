@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Notes - Application Development and Deep Learning</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 18mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1d2433; margin: 0; }
+  h1 { font-size: 22pt; color: #1b3a8a; margin: 0 0 6px; }
+  h2 { font-size: 16pt; color: #fff; background: #1b3a8a; padding: 8px 12px; border-radius: 6px; margin: 0 0 12px; }
+  h3 { font-size: 13pt; color: #1b3a8a; border-bottom: 2px solid #c9d6f5; padding-bottom: 3px; margin: 18px 0 8px; }
+  h4 { font-size: 11.5pt; color: #8a3b12; margin: 12px 0 4px; }
+  p { margin: 5px 0; }
+  ul, ol { margin: 4px 0 6px 0; padding-left: 22px; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 10px; font-size: 10pt; page-break-inside: avoid; }
+  th { background: #e4ebfb; color: #1b3a8a; text-align: left; }
+  th, td { border: 1px solid #b9c6e6; padding: 5px 7px; vertical-align: top; }
+  pre { background: #f4f6fb; border: 1px solid #d5dcef; border-left: 4px solid #1b3a8a; padding: 8px 10px; font-family: Consolas, "Courier New", monospace; font-size: 9.3pt; line-height: 1.35; white-space: pre-wrap; border-radius: 4px; page-break-inside: avoid; margin: 6px 0 10px; }
+  code { font-family: Consolas, monospace; background: #eef1f8; padding: 0 3px; border-radius: 3px; font-size: 9.8pt; }
+  pre code { background: none; padding: 0; }
+  .box { border-radius: 6px; padding: 8px 12px; margin: 8px 0 10px; page-break-inside: avoid; }
+  .def { background: #eef4ff; border-left: 5px solid #3a6ee8; }
+  .ex { background: #effaf1; border-left: 5px solid #2e9e4f; }
+  .tip { background: #fff7e6; border-left: 5px solid #e09b16; }
+  .exam { background: #fdeeee; border-left: 5px solid #d64545; }
+  .box b.lbl { display: block; margin-bottom: 2px; }
+  .unit { page-break-before: always; }
+  .cover { text-align: center; padding-top: 70px; }
+  .cover h1 { font-size: 28pt; }
+  .cover .sub { font-size: 14pt; color: #555; margin: 8px 0 30px; }
+  .toc { text-align: left; max-width: 520px; margin: 30px auto; border: 1px solid #c9d6f5; border-radius: 8px; padding: 14px 22px; }
+  .toc h3 { margin-top: 0; }
+  .note { font-size: 9.5pt; color: #666; font-style: italic; }
+  .diagram { font-family: Consolas, monospace; font-size: 9.5pt; background: #fbfbfd; border: 1px dashed #aab4cc; padding: 8px 10px; white-space: pre; page-break-inside: avoid; margin: 6px 0 10px; }
+  .two { display: flex; gap: 12px; }
+  .two > div { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <h1>Easy Study Notes</h1>
+  <div class="sub">B.Tech AI &amp; DS · R2021 · CBCS<br>Explained in simple English with examples</div>
+  <div class="toc">
+    <h3>Contents</h3>
+    <b>Part A: U21AD502 Application Development</b>
+    <ol>
+      <li>Unit I: Web Essentials</li>
+      <li>Unit II: CSS and Client-Side Scripting (JavaScript)</li>
+      <li>Unit III: Server-Side Development with Node.js *</li>
+      <li>Unit IV: Front-End with React *</li>
+      <li>Unit V: Data-Centric Apps with MongoDB *</li>
+    </ol>
+    <b>Part B: Deep Learning (Units III to V)</b>
+    <ol start="6">
+      <li>Unit III: Convolutional Neural Networks</li>
+      <li>Unit IV: Recurrent Neural Networks</li>
+      <li>Unit V: Autoencoders and Generative Models</li>
+    </ol>
+    <b>Last pages:</b> Quick revision and likely exam questions
+    <p class="note">* Your photo shows the full topic list only for Units I and II. Units III to V are written from the
+    Course Outcomes (CO3: Node.js, CO4: React, CO5: MongoDB). Check them against your full syllabus page.</p>
+  </div>
+  <div class="box tip" style="max-width:520px;margin:0 auto;text-align:left">
+    <b class="lbl">How to use these notes</b>
+    <span style="color:#3a6ee8">■ Blue</span> = definition &nbsp;
+    <span style="color:#2e9e4f">■ Green</span> = example &nbsp;
+    <span style="color:#e09b16">■ Orange</span> = tip / memory trick &nbsp;
+    <span style="color:#d64545">■ Red</span> = exam point
+  </div>
+</div>
+
+<!-- ===================== UNIT I ===================== -->
+<div class="unit">
+<h2>PART A · UNIT I: WEB ESSENTIALS</h2>
+<p><b>Syllabus:</b> The Internet and World Wide Web, Basic Protocols, Web Essentials (Clients, Servers and Communication), HTTP Request Message, HTTP Response Message, Web Clients, Web Servers, HTML5 Basic Elements.</p>
+
+<h3>1. The Internet</h3>
+<div class="box def"><b class="lbl">Definition</b>
+The <b>Internet</b> is a worldwide network of networks. It connects billions of computers, phones and servers so they can share data.</div>
+<ul>
+  <li><b>History:</b> It started in 1969 as <b>ARPANET</b>, a US defence project. In 1983 it adopted TCP/IP, which became the base of today's Internet.</li>
+  <li>No single person or company owns it. Groups like ICANN (names and addresses) and the IETF (standards) manage it.</li>
+  <li>Every device on it has an <b>IP address</b>, like a house address. Example: <code>142.250.183.14</code></li>
+  <li>Services that run on the Internet: the Web, email, file transfer, video calls, online games.</li>
+</ul>
+
+<h3>2. The World Wide Web (WWW)</h3>
+<div class="box def"><b class="lbl">Definition</b>
+The <b>WWW</b> is a collection of linked documents (web pages) stored on servers around the world. You open them with a browser over the Internet.
+It was invented by <b>Tim Berners-Lee</b> at CERN in <b>1989</b>.</div>
+<table>
+<tr><th>Internet</th><th>World Wide Web</th></tr>
+<tr><td>A network (the hardware and connections)</td><td>A service (pages and links) that runs on the Internet</td></tr>
+<tr><td>Like the <b>roads</b></td><td>Like the <b>shops</b> along the roads</td></tr>
+<tr><td>Started in 1969</td><td>Started in 1989</td></tr>
+<tr><td>Uses many protocols (TCP/IP, FTP, SMTP...)</td><td>Mainly uses HTTP/HTTPS</td></tr>
+</table>
+<h4>The 3 building blocks of the Web</h4>
+<ol>
+  <li><b>HTML</b>: the language used to write pages.</li>
+  <li><b>URL</b> (Uniform Resource Locator): the address of a page.</li>
+  <li><b>HTTP</b>: the rules for moving pages between server and browser.</li>
+</ol>
+<h4>Parts of a URL</h4>
+<div class="diagram">https://www.shop.com:443/products/shoes.html?color=red#reviews
+  │          │          │         │               │          │
+protocol   domain     port      path           query     fragment
+(scheme)   (host)               (file)      (extra data) (section of page)</div>
+
+<h3>3. Basic Protocols</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>protocol</b> is a set of rules that two computers agree on so they can understand each other. Think of it as a shared language plus good manners.</div>
+<table>
+<tr><th>Protocol</th><th>Full form</th><th>What it does</th><th>Port</th></tr>
+<tr><td><b>IP</b></td><td>Internet Protocol</td><td>Gives addresses and routes packets to the right computer</td><td>–</td></tr>
+<tr><td><b>TCP</b></td><td>Transmission Control Protocol</td><td>Reliable delivery: breaks data into packets, numbers them, resends lost ones</td><td>–</td></tr>
+<tr><td><b>UDP</b></td><td>User Datagram Protocol</td><td>Fast but unreliable (used for video calls and games)</td><td>–</td></tr>
+<tr><td><b>HTTP</b></td><td>HyperText Transfer Protocol</td><td>Transfers web pages</td><td>80</td></tr>
+<tr><td><b>HTTPS</b></td><td>HTTP Secure</td><td>HTTP encrypted with SSL/TLS</td><td>443</td></tr>
+<tr><td><b>FTP</b></td><td>File Transfer Protocol</td><td>Uploads and downloads files</td><td>21</td></tr>
+<tr><td><b>SMTP</b></td><td>Simple Mail Transfer Protocol</td><td><b>Sends</b> email</td><td>25</td></tr>
+<tr><td><b>POP3 / IMAP</b></td><td>Post Office Protocol / Internet Message Access Protocol</td><td><b>Receives</b> email</td><td>110 / 143</td></tr>
+<tr><td><b>DNS</b></td><td>Domain Name System</td><td>Turns a name into an IP address (google.com → 142.250.x.x)</td><td>53</td></tr>
+<tr><td><b>Telnet / SSH</b></td><td>Secure Shell</td><td>Remote login (SSH is the secure one)</td><td>23 / 22</td></tr>
+</table>
+<div class="box tip"><b class="lbl">Memory trick</b>
+<b>S</b>MTP = <b>S</b>end mail. <b>P</b>OP = <b>P</b>ull mail. DNS = the phone book of the Internet.</div>
+
+<h4>TCP/IP model (4 layers)</h4>
+<table>
+<tr><th>Layer</th><th>Job</th><th>Examples</th></tr>
+<tr><td>4. Application</td><td>What the user's program uses</td><td>HTTP, FTP, SMTP, DNS</td></tr>
+<tr><td>3. Transport</td><td>End-to-end delivery</td><td>TCP, UDP</td></tr>
+<tr><td>2. Internet</td><td>Addressing and routing</td><td>IP</td></tr>
+<tr><td>1. Network Access</td><td>The physical wire or Wi-Fi</td><td>Ethernet, Wi-Fi</td></tr>
+</table>
+
+<div class="box ex"><b class="lbl">Example: what happens when you type www.google.com and press Enter?</b>
+<ol>
+<li>The browser asks <b>DNS</b>: "What is the IP of www.google.com?" DNS replies with an IP address.</li>
+<li>The browser opens a <b>TCP</b> connection to that IP on port 443 (the "3-way handshake": SYN, SYN-ACK, ACK).</li>
+<li>A <b>TLS</b> handshake sets up encryption, because it's HTTPS.</li>
+<li>The browser sends an <b>HTTP request</b>: <code>GET / HTTP/1.1</code></li>
+<li>Google's server sends an <b>HTTP response</b>: <code>200 OK</code> plus the HTML.</li>
+<li>The browser reads the HTML, downloads CSS, JS and images, then <b>renders</b> (draws) the page.</li>
+</ol></div>
+
+<h3>4. Web Essentials: Clients, Servers and Communication</h3>
+<div class="diagram">   ┌──────────────┐        HTTP Request         ┌──────────────┐
+   │   CLIENT     │  ────────────────────────▶  │   SERVER     │
+   │  (Browser)   │                             │ (Web server) │
+   │              │  ◀────────────────────────  │   + files    │
+   └──────────────┘        HTTP Response        │   + database │
+                                                └──────────────┘</div>
+<div class="box ex"><b class="lbl">Real-life analogy: a restaurant</b>
+You (the <b>client</b>) look at the menu and place an order (the <b>request</b>). The kitchen (the <b>server</b>) cooks the food and the waiter brings it to you (the <b>response</b>). The waiter is like <b>HTTP</b>.</div>
+<h4>Key points about communication</h4>
+<ul>
+  <li>The <b>client always starts</b> the conversation. The server only answers.</li>
+  <li><b>HTTP is stateless:</b> the server forgets you after each request. To remember you (for example, that you're logged in), websites use <b>cookies</b>, <b>sessions</b> or <b>tokens</b>.</li>
+  <li><b>Request–response cycle:</b> one request, one response.</li>
+  <li>HTTP versions: HTTP/1.0 (one request per connection), HTTP/1.1 (keep-alive connections), HTTP/2 (many requests in parallel), HTTP/3 (runs over QUIC/UDP, faster).</li>
+</ul>
+
+<h3>5. HTTP Request Message</h3>
+<p>This is the message the <b>browser sends</b> to the server. It has 4 parts:</p>
+<div class="diagram">┌─────────────────────────────────────────────┐
+│ 1. Request line : METHOD   URL   VERSION    │
+│ 2. Headers      : Name: value (many lines)  │
+│ 3. Blank line   : (marks the end of headers)│
+│ 4. Body         : data (optional)           │
+└─────────────────────────────────────────────┘</div>
+<div class="box ex"><b class="lbl">Example: a login form submission</b>
+<pre>POST /login HTTP/1.1                       ← request line
+Host: www.example.com                      ← headers start
+User-Agent: Mozilla/5.0 Chrome/120
+Accept: text/html
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 27
+                                           ← blank line
+username=ravi&amp;password=1234                ← body</pre></div>
+<h4>HTTP methods (request types)</h4>
+<table>
+<tr><th>Method</th><th>Meaning</th><th>Real example</th></tr>
+<tr><td><b>GET</b></td><td>Get (read) data</td><td>Open a page, search on Google</td></tr>
+<tr><td><b>POST</b></td><td>Send new data to create something</td><td>Sign up, log in, post a comment</td></tr>
+<tr><td><b>PUT</b></td><td>Replace or update the whole thing</td><td>Update your full profile</td></tr>
+<tr><td><b>PATCH</b></td><td>Update part of it</td><td>Change only your phone number</td></tr>
+<tr><td><b>DELETE</b></td><td>Remove data</td><td>Delete a photo</td></tr>
+<tr><td><b>HEAD</b></td><td>Like GET but returns headers only</td><td>Check whether a file exists or its size</td></tr>
+<tr><td><b>OPTIONS</b></td><td>Ask which methods are allowed</td><td>Used by browsers for CORS checks</td></tr>
+</table>
+<h4>Common request headers</h4>
+<ul>
+  <li><code>Host</code>: which website (required in HTTP/1.1)</li>
+  <li><code>User-Agent</code>: which browser or device</li>
+  <li><code>Accept</code>: what types the client can handle (text/html, application/json)</li>
+  <li><code>Content-Type</code>: the type of data in the body</li>
+  <li><code>Cookie</code>: saved cookies sent back to the server</li>
+  <li><code>Authorization</code>: login token</li>
+</ul>
+<div class="box exam"><b class="lbl">Exam point: GET vs POST</b>
+<table style="margin:4px 0 0">
+<tr><th>GET</th><th>POST</th></tr>
+<tr><td>Data goes in the URL (<code>?q=shoes</code>)</td><td>Data goes in the body</td></tr>
+<tr><td>Visible, can be bookmarked</td><td>Hidden from the URL, can't be bookmarked</td></tr>
+<tr><td>Length is limited</td><td>No practical limit</td></tr>
+<tr><td>Can be cached</td><td>Not cached</td></tr>
+<tr><td>Use for reading or searching</td><td>Use for passwords and forms</td></tr>
+</table></div>
+
+<h3>6. HTTP Response Message</h3>
+<p>This is the message the <b>server sends back</b>. It also has 4 parts:</p>
+<div class="diagram">1. Status line : VERSION  STATUS-CODE  REASON-PHRASE
+2. Headers
+3. Blank line
+4. Body        : the HTML / image / JSON</div>
+<div class="box ex"><b class="lbl">Example</b>
+<pre>HTTP/1.1 200 OK
+Date: Sun, 08 Nov 2026 10:00:00 GMT
+Server: Apache/2.4
+Content-Type: text/html; charset=UTF-8
+Content-Length: 52
+Set-Cookie: session=abc123
+
+&lt;html&gt;&lt;body&gt;&lt;h1&gt;Welcome Ravi!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;</pre></div>
+<h4>Status codes (very important)</h4>
+<table>
+<tr><th>Range</th><th>Meaning</th><th>Examples</th></tr>
+<tr><td>1xx</td><td>Information: "keep going"</td><td>100 Continue, 101 Switching Protocols</td></tr>
+<tr><td>2xx</td><td><b>Success</b> ✔</td><td><b>200 OK</b>, 201 Created, 204 No Content</td></tr>
+<tr><td>3xx</td><td><b>Redirect</b>: "go somewhere else"</td><td>301 Moved Permanently, 302 Found, 304 Not Modified (use your cache)</td></tr>
+<tr><td>4xx</td><td><b>Client error</b>: your mistake</td><td>400 Bad Request, 401 Unauthorized (not logged in), 403 Forbidden (no permission), <b>404 Not Found</b></td></tr>
+<tr><td>5xx</td><td><b>Server error</b>: the server's mistake</td><td><b>500 Internal Server Error</b>, 502 Bad Gateway, 503 Service Unavailable</td></tr>
+</table>
+<div class="box tip"><b class="lbl">Memory trick</b>
+2 = "Yes, here you go". 3 = "Go there". 4 = "<b>You</b> messed up". 5 = "<b>I</b> messed up".</div>
+<h4>Common response headers</h4>
+<ul>
+  <li><code>Content-Type</code>: type of the body (text/html, image/png, application/json)</li>
+  <li><code>Content-Length</code>: size in bytes</li>
+  <li><code>Set-Cookie</code>: asks the browser to store a cookie</li>
+  <li><code>Location</code>: new URL (used with 3xx redirects)</li>
+  <li><code>Cache-Control</code>: how long the browser may cache the response</li>
+</ul>
+
+<h3>7. Web Clients</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>web client</b> is any software that sends HTTP requests and receives responses. The most common one is the web browser.</div>
+<ul>
+  <li><b>Examples:</b> Chrome, Firefox, Edge and Safari (browsers); mobile apps; <code>curl</code> and Postman (testing tools); search-engine crawlers.</li>
+  <li><b>Jobs of a browser:</b>
+    <ol>
+      <li>Take the URL from the user</li>
+      <li>Find the IP using DNS</li>
+      <li>Send the HTTP request</li>
+      <li>Receive the response</li>
+      <li>Parse the HTML into the <b>DOM</b> and the CSS into the CSSOM, then render the page</li>
+      <li>Run the JavaScript</li>
+      <li>Store cookies, cache and history</li>
+    </ol></li>
+  <li><b>Browser parts:</b> user interface, rendering engine (Blink, Gecko, WebKit), JavaScript engine (V8, SpiderMonkey), networking, storage.</li>
+</ul>
+
+<h3>8. Web Servers</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>web server</b> is software (and the computer it runs on) that waits for HTTP requests and sends back web pages or data.</div>
+<ul>
+  <li><b>Examples:</b> Apache HTTP Server, Nginx, Microsoft IIS, Apache Tomcat (for Java), Node.js with Express.</li>
+  <li><b>How it works:</b> listen on a port (80 or 443), accept the request, find the file or run code, build the response, send it.</li>
+</ul>
+<table>
+<tr><th>Static web server</th><th>Dynamic web server</th></tr>
+<tr><td>Sends files exactly as they are stored</td><td>Builds the page at request time using code and a database</td></tr>
+<tr><td>Everyone sees the same page</td><td>The page differs per user</td></tr>
+<tr><td>Example: a college "About Us" page</td><td>Example: your Instagram feed, your bank balance</td></tr>
+<tr><td>Fast and simple</td><td>Needs server-side language: Node.js, PHP, Python, Java</td></tr>
+</table>
+<div class="box ex"><b class="lbl">Example: a tiny web server in Node.js</b>
+<pre>const http = require('http');
+http.createServer((req, res) =&gt; {
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end('&lt;h1&gt;Hello from my server!&lt;/h1&gt;');
+}).listen(3000);
+// Open http://localhost:3000 in the browser</pre></div>
+
+<h3>9. HTML5: Basic Elements</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>HTML (HyperText Markup Language)</b> describes the <b>structure</b> of a web page using <b>tags</b>. HTML5 is the latest version. It adds semantic tags, audio, video and canvas.</div>
+<ul>
+  <li>A <b>tag</b> looks like <code>&lt;p&gt;</code>. Most tags have an opening and closing pair: <code>&lt;p&gt;Hello&lt;/p&gt;</code></li>
+  <li>An <b>element</b> = opening tag + content + closing tag.</li>
+  <li>An <b>attribute</b> gives extra information: <code>&lt;a href="page.html"&gt;</code></li>
+  <li><b>Empty (void) tags</b> have no closing tag: <code>&lt;br&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;hr&gt;</code>, <code>&lt;input&gt;</code></li>
+</ul>
+<h4>Basic page structure</h4>
+<pre>&lt;!DOCTYPE html&gt;                &lt;!-- tells the browser: this is HTML5 --&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;                       &lt;!-- info ABOUT the page (not shown) --&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;My First Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;                       &lt;!-- everything you SEE --&gt;
+    &lt;h1&gt;Hello World&lt;/h1&gt;
+    &lt;p&gt;This is my first web page.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<h4>Common tags</h4>
+<table>
+<tr><th>Purpose</th><th>Tags</th><th>Example</th></tr>
+<tr><td>Headings</td><td><code>h1</code> (biggest) to <code>h6</code> (smallest)</td><td><code>&lt;h1&gt;Title&lt;/h1&gt;</code></td></tr>
+<tr><td>Paragraph and line break</td><td><code>p</code>, <code>br</code>, <code>hr</code></td><td><code>&lt;p&gt;Text&lt;/p&gt;</code></td></tr>
+<tr><td>Text formatting</td><td><code>b</code>/<code>strong</code>, <code>i</code>/<code>em</code>, <code>u</code>, <code>mark</code>, <code>sub</code>, <code>sup</code></td><td>H<sub>2</sub>O, x<sup>2</sup></td></tr>
+<tr><td>Link</td><td><code>a</code></td><td><code>&lt;a href="https://google.com"&gt;Google&lt;/a&gt;</code></td></tr>
+<tr><td>Image</td><td><code>img</code></td><td><code>&lt;img src="cat.jpg" alt="A cat" width="200"&gt;</code></td></tr>
+<tr><td>Lists</td><td><code>ul</code> (bullets), <code>ol</code> (numbers), <code>li</code></td><td>see below</td></tr>
+<tr><td>Table</td><td><code>table</code>, <code>tr</code>, <code>th</code>, <code>td</code></td><td>see below</td></tr>
+<tr><td>Containers</td><td><code>div</code> (block), <code>span</code> (inline)</td><td>For grouping and styling</td></tr>
+</table>
+
+<div class="two">
+<div><b>Lists</b>
+<pre>&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Mango&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+  &lt;li&gt;Wake up&lt;/li&gt;
+  &lt;li&gt;Study&lt;/li&gt;
+&lt;/ol&gt;</pre></div>
+<div><b>Table</b>
+<pre>&lt;table border="1"&gt;
+  &lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Marks&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;Ravi&lt;/td&gt;&lt;td&gt;90&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;Priya&lt;/td&gt;&lt;td&gt;95&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</pre></div>
+</div>
+
+<h4>Forms (to collect user input)</h4>
+<pre>&lt;form action="/register" method="POST"&gt;
+  Name:  &lt;input type="text" name="name" required&gt;
+  Email: &lt;input type="email" name="email"&gt;
+  Age:   &lt;input type="number" min="18"&gt;
+  DOB:   &lt;input type="date"&gt;
+  Gender: &lt;input type="radio" name="g" value="M"&gt; Male
+          &lt;input type="radio" name="g" value="F"&gt; Female
+  &lt;input type="checkbox"&gt; I agree
+  &lt;select name="dept"&gt;&lt;option&gt;AI&amp;DS&lt;/option&gt;&lt;option&gt;CSE&lt;/option&gt;&lt;/select&gt;
+  &lt;textarea rows="3"&gt;&lt;/textarea&gt;
+  &lt;button type="submit"&gt;Register&lt;/button&gt;
+&lt;/form&gt;</pre>
+<p>New HTML5 input types: <code>email, number, date, color, range, url, tel, search</code>. New attributes: <code>required, placeholder, autofocus, pattern</code>.</p>
+
+<h4>HTML5 semantic elements (they say what the content means)</h4>
+<div class="diagram">┌──────────────── &lt;header&gt; ────────────────┐
+│ Logo, site title                          │
+├──────────────── &lt;nav&gt; ───────────────────┤
+│ Home | About | Contact                    │
+├──────── &lt;main&gt; ─────────┬── &lt;aside&gt; ─────┤
+│  &lt;section&gt;              │ Side links,     │
+│    &lt;article&gt; blog post  │ ads             │
+├─────────────────────────┴─────────────────┤
+│                &lt;footer&gt;  © 2026            │
+└───────────────────────────────────────────┘</div>
+<h4>HTML5 media</h4>
+<pre>&lt;video src="movie.mp4" controls width="400"&gt;&lt;/video&gt;
+&lt;audio src="song.mp3" controls&gt;&lt;/audio&gt;
+&lt;canvas id="c" width="200" height="100"&gt;&lt;/canvas&gt;   &lt;!-- draw with JavaScript --&gt;</pre>
+<div class="box exam"><b class="lbl">Exam points</b>
+<ul>
+<li>Block elements (<code>div, p, h1</code>) start on a new line and take the full width. Inline elements (<code>span, a, b, img</code>) stay in the same line.</li>
+<li>HTML4 vs HTML5: HTML5 adds semantic tags, audio/video, canvas, new input types, local storage, and a simple <code>&lt;!DOCTYPE html&gt;</code>.</li>
+</ul></div>
+</div>
+
+<!-- ===================== UNIT II ===================== -->
+<div class="unit">
+<h2>PART A · UNIT II: CSS AND CLIENT-SIDE SCRIPTING</h2>
+<p><b>Syllabus:</b> Introduction to CSS, Basic elements, Inline, Embedded and External style sheets, JavaScript Introduction, JavaScript DOM Model, Using Objects, Regular Expressions.</p>
+
+<h3>1. Introduction to CSS</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>CSS (Cascading Style Sheets)</b> controls how a page <b>looks</b>: colours, fonts, spacing and layout.<br>
+HTML = the <b>skeleton</b> (structure). CSS = the <b>clothes and makeup</b> (style). JavaScript = the <b>muscles</b> (behaviour).</div>
+<p><b>Why "cascading"?</b> When several rules apply to the same element, the browser picks one based on priority, like water flowing down steps.</p>
+<p><b>Advantages:</b> saves time (one CSS file styles the whole site), smaller HTML, consistent look, easy to change, supports different screen sizes.</p>
+
+<h3>2. CSS Syntax (basic elements)</h3>
+<pre>selector {  property: value;  property: value;  }
+
+h1 { color: blue; font-size: 30px; }
+ │      │       │
+selector property value</pre>
+
+<h4>Types of selectors</h4>
+<table>
+<tr><th>Selector</th><th>Syntax</th><th>Selects</th></tr>
+<tr><td>Element</td><td><code>p { }</code></td><td>All &lt;p&gt; tags</td></tr>
+<tr><td>Class</td><td><code>.box { }</code></td><td>All elements with <code>class="box"</code> (can repeat)</td></tr>
+<tr><td>ID</td><td><code>#top { }</code></td><td>The single element with <code>id="top"</code> (must be unique)</td></tr>
+<tr><td>Universal</td><td><code>* { }</code></td><td>Every element</td></tr>
+<tr><td>Group</td><td><code>h1, h2, p { }</code></td><td>All of the listed elements</td></tr>
+<tr><td>Descendant</td><td><code>div p { }</code></td><td>&lt;p&gt; anywhere inside a div</td></tr>
+<tr><td>Child</td><td><code>div &gt; p { }</code></td><td>&lt;p&gt; directly inside a div</td></tr>
+<tr><td>Attribute</td><td><code>input[type="text"] { }</code></td><td>Elements with that attribute</td></tr>
+<tr><td>Pseudo-class</td><td><code>a:hover { }</code></td><td>An element in a special state (hover, first-child, focus)</td></tr>
+<tr><td>Pseudo-element</td><td><code>p::first-letter { }</code></td><td>Part of an element</td></tr>
+</table>
+
+<h4>Common properties</h4>
+<table>
+<tr><th>Group</th><th>Properties</th></tr>
+<tr><td>Colour and background</td><td><code>color, background-color, background-image, opacity</code></td></tr>
+<tr><td>Text and font</td><td><code>font-family, font-size, font-weight, text-align, text-decoration, line-height</code></td></tr>
+<tr><td>Box</td><td><code>width, height, margin, padding, border, border-radius</code></td></tr>
+<tr><td>Layout</td><td><code>display (block/inline/flex/grid/none), position, float, z-index</code></td></tr>
+</table>
+<p>Colour values: by name (<code>red</code>), hex (<code>#ff0000</code>), <code>rgb(255,0,0)</code>, <code>rgba(255,0,0,0.5)</code>. Units: <code>px</code> (fixed), <code>%</code>, <code>em/rem</code> (relative to font size), <code>vw/vh</code> (relative to the screen).</p>
+
+<h4>The CSS box model (very important)</h4>
+<div class="diagram">┌──────────── MARGIN (outside space) ────────────┐
+│  ┌──────────── BORDER ──────────────────────┐  │
+│  │  ┌──────── PADDING (inside space) ────┐  │  │
+│  │  │      ┌───── CONTENT ─────┐         │  │  │
+│  │  │      │   text / image    │         │  │  │
+│  │  │      └───────────────────┘         │  │  │
+│  │  └────────────────────────────────────┘  │  │
+│  └──────────────────────────────────────────┘  │
+└────────────────────────────────────────────────┘
+Total width = content + 2×padding + 2×border + 2×margin</div>
+<div class="box ex"><b class="lbl">Example</b>
+<code>div { width: 200px; padding: 10px; border: 5px solid black; margin: 20px; }</code><br>
+Total width taken = 200 + 20 + 10 + 40 = <b>270px</b></div>
+
+<h3>3. The Three Ways to Add CSS</h3>
+<h4>(a) Inline CSS: inside the tag, using the <code>style</code> attribute</h4>
+<pre>&lt;h1 style="color: red; text-align: center;"&gt;Hello&lt;/h1&gt;</pre>
+<p>✔ Quick for one element. ✘ Messy and can't be reused.</p>
+
+<h4>(b) Embedded / Internal CSS: inside a <code>&lt;style&gt;</code> tag in the head</h4>
+<pre>&lt;head&gt;
+  &lt;style&gt;
+    h1 { color: green; }
+    .note { background: yellow; }
+  &lt;/style&gt;
+&lt;/head&gt;</pre>
+<p>✔ Good for styling a single page. ✘ Can't be shared with other pages.</p>
+
+<h4>(c) External CSS: a separate <code>.css</code> file, linked in</h4>
+<pre>&lt;!-- index.html --&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+
+/* style.css */
+body { font-family: Arial; background: #f0f0f0; }
+h1   { color: navy; }</pre>
+<p>✔ <b>Best way:</b> one file styles the whole website, and the browser caches it. ✘ Needs an extra file download.</p>
+
+<div class="box exam"><b class="lbl">Exam point: priority (cascading order)</b>
+<b>Inline &gt; Embedded/Internal ≈ External</b>. Between internal and external, whichever comes <b>later</b> in the code wins.<br>
+Specificity: <b>ID (100) &gt; Class (10) &gt; Element (1)</b>. Adding <code>!important</code> overrides everything.<br>
+Example: if <code>p {color:red}</code>, <code>.x {color:blue}</code> and <code>#y {color:green}</code> all match <code>&lt;p class="x" id="y"&gt;</code>, the text is <b>green</b>.</div>
+
+<h3>4. Introduction to JavaScript</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>JavaScript (JS)</b> is a scripting language that makes web pages <b>interactive</b>: button clicks, form checks, pop-ups and live updates. It runs <b>inside the browser</b> (client-side). Brendan Eich created it in 1995.</div>
+<p><b>Note:</b> JavaScript has nothing to do with Java. The names are just similar.</p>
+<h4>Adding JS to a page</h4>
+<pre>&lt;script&gt; alert("Hello!"); &lt;/script&gt;           &lt;!-- internal --&gt;
+&lt;script src="app.js"&gt;&lt;/script&gt;                 &lt;!-- external (best) --&gt;
+&lt;button onclick="alert('Hi')"&gt;Click&lt;/button&gt;   &lt;!-- inline --&gt;</pre>
+
+<h4>Variables and data types</h4>
+<pre>var   a = 10;        // old way, function-scoped
+let   b = 20;        // can change, block-scoped
+const PI = 3.14;     // cannot change
+
+let name   = "Ravi";            // String
+let age    = 20;                // Number
+let pass   = true;              // Boolean
+let marks  = [90, 85, 70];      // Array
+let person = {name:"Ravi", age:20};  // Object
+let x;                          // undefined
+let y = null;                   // null (empty on purpose)</pre>
+
+<h4>Operators</h4>
+<p>Arithmetic: <code>+ - * / % **</code> &nbsp; Comparison: <code>== === != &lt; &gt;</code> &nbsp; Logical: <code>&amp;&amp; || !</code></p>
+<div class="box tip"><b class="lbl">== vs ===</b>
+<code>5 == "5"</code> is <b>true</b> because it compares values only. <code>5 === "5"</code> is <b>false</b> because it also compares the type. Always use <code>===</code>.</div>
+
+<h4>Conditions and loops</h4>
+<pre>if (marks &gt;= 50) { console.log("Pass"); } else { console.log("Fail"); }
+
+for (let i = 1; i &lt;= 5; i++) { console.log(i); }       // prints 1 2 3 4 5
+
+let i = 0;
+while (i &lt; 3) { console.log(i); i++; }
+
+switch (day) { case 1: console.log("Mon"); break; default: console.log("?"); }</pre>
+
+<h4>Functions</h4>
+<pre>function add(a, b) { return a + b; }        // normal function
+const mul = (a, b) =&gt; a * b;                 // arrow function
+console.log(add(2, 3), mul(2, 3));           // 5 6</pre>
+
+<h4>Pop-up boxes</h4>
+<p><code>alert("msg")</code> shows a message. <code>confirm("Sure?")</code> returns true or false. <code>prompt("Your name?")</code> returns the text the user types.</p>
+
+<h3>5. The JavaScript DOM Model</h3>
+<div class="box def"><b class="lbl">Definition</b>
+The <b>DOM (Document Object Model)</b> is a <b>tree</b> that the browser builds from the HTML. Every tag becomes a <b>node</b> (object). JavaScript uses the DOM to read and change the page while it's open.</div>
+<div class="two">
+<div><pre>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;My Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;p&gt;Text&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre></div>
+<div class="diagram">         document
+            │
+          html
+         ┌──┴──┐
+       head   body
+        │     ┌─┴─┐
+      title  h1   p
+        │     │   │
+    "My Page" "Hello" "Text"</div>
+</div>
+<p><b>Node types:</b> Document node, Element nodes (tags), Text nodes, Attribute nodes. <b>Relationships:</b> parent, child and sibling.</p>
+
+<h4>Finding (selecting) elements</h4>
+<pre>document.getElementById("title")          // one element by id
+document.getElementsByClassName("box")    // list of elements by class
+document.getElementsByTagName("p")        // list by tag name
+document.querySelector(".box")            // first CSS-selector match
+document.querySelectorAll("ul li")        // all matches</pre>
+<h4>Changing elements</h4>
+<pre>let h = document.getElementById("title");
+h.innerHTML = "New &lt;b&gt;Title&lt;/b&gt;";   // change content (HTML)
+h.textContent = "Plain text";          // change text only
+h.style.color = "red";                 // change CSS
+h.setAttribute("class", "big");        // change an attribute
+h.classList.add("active");             // add a class</pre>
+<h4>Creating and removing elements</h4>
+<pre>let li = document.createElement("li");
+li.textContent = "New item";
+document.getElementById("list").appendChild(li);   // add
+li.remove();                                        // delete</pre>
+<h4>Events (reacting to the user)</h4>
+<p>Common events: <code>click, dblclick, mouseover, keydown, keyup, submit, change, load, input</code></p>
+<div class="box ex"><b class="lbl">Full example: a click counter</b>
+<pre>&lt;h2 id="count"&gt;0&lt;/h2&gt;
+&lt;button id="btn"&gt;Click me&lt;/button&gt;
+&lt;script&gt;
+  let n = 0;
+  document.getElementById("btn").addEventListener("click", function () {
+    n++;
+    document.getElementById("count").textContent = n;
+  });
+&lt;/script&gt;</pre></div>
+<div class="box ex"><b class="lbl">Example: form validation</b>
+<pre>&lt;form onsubmit="return check()"&gt;
+  &lt;input id="age" type="text"&gt; &lt;button&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+&lt;script&gt;
+function check() {
+  let a = document.getElementById("age").value;
+  if (a === "" || isNaN(a)) { alert("Enter a valid age"); return false; }
+  return true;   // form gets submitted
+}
+&lt;/script&gt;</pre></div>
+
+<h3>6. Using Objects in JavaScript</h3>
+<div class="box def"><b class="lbl">Definition</b>
+An <b>object</b> is a collection of <b>properties</b> (data) and <b>methods</b> (functions) stored as key: value pairs. Think of a <b>real thing</b>: a car has properties (colour, brand) and methods (start(), brake()).</div>
+<h4>Ways to create objects</h4>
+<pre>// 1. Object literal (most common)
+let student = {
+  name: "Ravi",
+  age: 20,
+  greet: function () { return "Hi, I am " + this.name; }
+};
+console.log(student.name);       // dot notation      → Ravi
+console.log(student["age"]);     // bracket notation  → 20
+console.log(student.greet());    // → Hi, I am Ravi
+student.dept = "AI&amp;DS";          // add a property
+delete student.age;              // remove a property
+
+// 2. Constructor function
+function Car(brand, year) { this.brand = brand; this.year = year; }
+let c1 = new Car("Tata", 2024);
+
+// 3. Class (ES6)
+class Animal {
+  constructor(name) { this.name = name; }
+  speak() { return this.name + " makes a sound"; }
+}
+class Dog extends Animal {                 // inheritance
+  speak() { return this.name + " barks"; }
+}
+console.log(new Dog("Tommy").speak());     // Tommy barks</pre>
+<p><b><code>this</code></b> refers to the object that is calling the method.</p>
+<h4>Built-in objects</h4>
+<table>
+<tr><th>Object</th><th>Useful parts</th></tr>
+<tr><td><b>String</b></td><td><code>length, toUpperCase(), toLowerCase(), indexOf(), slice(), split(), replace(), trim()</code></td></tr>
+<tr><td><b>Array</b></td><td><code>length, push(), pop(), shift(), unshift(), sort(), reverse(), map(), filter(), reduce(), forEach()</code></td></tr>
+<tr><td><b>Math</b></td><td><code>Math.PI, Math.sqrt(), Math.round(), Math.floor(), Math.ceil(), Math.max(), Math.random()</code></td></tr>
+<tr><td><b>Date</b></td><td><code>new Date(), getDate(), getMonth() (0–11), getFullYear(), getHours()</code></td></tr>
+<tr><td><b>Number</b></td><td><code>toFixed(2), parseInt(), parseFloat(), isNaN()</code></td></tr>
+<tr><td><b>Browser (BOM)</b></td><td><code>window, document, navigator, location, history, screen</code></td></tr>
+</table>
+<pre>let nums = [1, 2, 3, 4];
+nums.map(x =&gt; x * 2);           // [2, 4, 6, 8]
+nums.filter(x =&gt; x % 2 === 0);  // [2, 4]
+nums.reduce((s, x) =&gt; s + x, 0);// 10
+"hello world".split(" ");        // ["hello", "world"]
+Math.floor(Math.random() * 6) + 1;  // dice roll 1–6</pre>
+<p><b>JSON</b> (JavaScript Object Notation) is the text format used to send objects over HTTP:
+<code>JSON.stringify(obj)</code> turns an object into text. <code>JSON.parse(text)</code> turns text back into an object.</p>
+
+<h3>7. Regular Expressions (RegEx)</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>regular expression</b> is a <b>pattern</b> used to search, match or validate text. Examples: checking whether an email or phone number is in the right format.</div>
+<pre>let re1 = /abc/i;                 // literal form   (i = ignore case)
+let re2 = new RegExp("abc", "g"); // constructor form (g = global, find all)</pre>
+<h4>Pattern symbols</h4>
+<table>
+<tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+<tr><td><code>.</code></td><td>Any single character</td><td><code>c.t</code> matches cat, cut</td></tr>
+<tr><td><code>^</code></td><td>Start of the string</td><td><code>^Hi</code></td></tr>
+<tr><td><code>$</code></td><td>End of the string</td><td><code>end$</code></td></tr>
+<tr><td><code>[abc]</code></td><td>Any one of a, b, c</td><td><code>[aeiou]</code> = a vowel</td></tr>
+<tr><td><code>[^abc]</code></td><td>Anything except a, b, c</td><td></td></tr>
+<tr><td><code>[a-z]</code></td><td>A range</td><td><code>[0-9]</code> = a digit</td></tr>
+<tr><td><code>\d  \w  \s</code></td><td>Digit, word character (a-z, 0-9, _), whitespace</td><td><code>\d\d</code> = two digits</td></tr>
+<tr><td><code>\D \W \S</code></td><td>The opposite of the above</td><td></td></tr>
+<tr><td><code>*</code></td><td>0 or more</td><td><code>ab*</code> matches a, ab, abbb</td></tr>
+<tr><td><code>+</code></td><td>1 or more</td><td><code>\d+</code></td></tr>
+<tr><td><code>?</code></td><td>0 or 1 (optional)</td><td><code>colou?r</code> matches color, colour</td></tr>
+<tr><td><code>{n}</code> <code>{n,m}</code></td><td>Exactly n times; between n and m times</td><td><code>\d{10}</code> = 10 digits</td></tr>
+<tr><td><code>(…)</code> and <code>|</code></td><td>Group; OR</td><td><code>(cat|dog)</code></td></tr>
+</table>
+<p><b>Flags:</b> <code>g</code> = global (find all), <code>i</code> = ignore case, <code>m</code> = multiline.</p>
+<h4>Methods</h4>
+<pre>/\d+/.test("abc123")             // true       → does it match?
+"abc123".match(/\d+/)[0]         // "123"      → get the match
+"a1b2c3".replace(/\d/g, "#")     // "a#b#c#"   → replace
+"a,b;c".split(/[,;]/)            // ["a","b","c"]
+"hello".search(/l/)              // 2          → position</pre>
+<div class="box ex"><b class="lbl">Common validation patterns</b>
+<pre>const mobile  = /^[6-9]\d{9}$/;                    // Indian mobile: 10 digits, starts 6–9
+const email   = /^[\w.-]+@[\w-]+\.[a-z]{2,}$/i;    // simple email
+const pincode = /^\d{6}$/;                         // 6-digit PIN
+const pass    = /^(?=.*[A-Z])(?=.*\d).{8,}$/;      // 8+ chars, 1 capital, 1 digit
+
+console.log(mobile.test("9876543210"));  // true
+console.log(email.test("ravi@kpriet.ac.in"));  // true</pre></div>
+</div>
+
+<!-- ===================== UNIT III ===================== -->
+<div class="unit">
+<h2>PART A · UNIT III: SERVER-SIDE APPS WITH NODE.JS</h2>
+<p class="note">Based on CO3: "Develop server side applications using Node.js". Check the exact topics against your full syllabus.</p>
+
+<h3>1. What is Node.js?</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>Node.js</b> is a runtime that lets JavaScript run <b>outside the browser</b>, on the server. It is built on Chrome's <b>V8 engine</b>. It was created by Ryan Dahl in 2009.</div>
+<h4>Features</h4>
+<ul>
+  <li><b>Single-threaded with an event loop:</b> one thread handles many users by not waiting around.</li>
+  <li><b>Non-blocking (asynchronous) I/O:</b> while a file or database is loading, Node serves other requests.</li>
+  <li><b>Fast</b> (V8 compiles JS to machine code).</li>
+  <li><b>npm</b> (Node Package Manager) gives access to over 2 million free packages.</li>
+  <li>The same language (JS) on the front end and back end.</li>
+</ul>
+<div class="box ex"><b class="lbl">Analogy: blocking vs non-blocking</b>
+<b>Blocking:</b> a waiter takes your order and stands in the kitchen until the food is ready. Nobody else gets served.<br>
+<b>Non-blocking (Node):</b> the waiter takes your order, gives it to the kitchen, serves other tables, and brings your food when the kitchen calls.</div>
+<h4>The event loop</h4>
+<div class="diagram">Request ──▶ Event Queue ──▶ EVENT LOOP (single thread)
+                                 │  slow work (file, DB, network)
+                                 ▼
+                         Thread pool / OS does the work
+                                 │  when done → callback
+                                 ▼
+                         Callback queue ──▶ back to event loop ──▶ Response</div>
+
+<h3>2. Modules</h3>
+<p>A <b>module</b> is a reusable block of code in its own file. There are three kinds: <b>core</b> (built in), <b>local</b> (your own) and <b>third-party</b> (from npm).</p>
+<table>
+<tr><th>Core module</th><th>Use</th></tr>
+<tr><td><code>http</code></td><td>Create a web server</td></tr>
+<tr><td><code>fs</code></td><td>Read and write files</td></tr>
+<tr><td><code>path</code></td><td>Work with file paths</td></tr>
+<tr><td><code>os</code></td><td>Operating system information</td></tr>
+<tr><td><code>events</code></td><td>Create and handle custom events</td></tr>
+<tr><td><code>url</code></td><td>Parse URLs</td></tr>
+</table>
+<pre>// math.js   (your own module)
+exports.add = (a, b) =&gt; a + b;
+
+// app.js
+const math = require('./math');
+console.log(math.add(2, 3));   // 5</pre>
+<p><b>npm commands:</b> <code>npm init -y</code> creates package.json. <code>npm install express</code> installs a package. <code>node app.js</code> runs a file.</p>
+
+<h3>3. File System (fs) Module</h3>
+<pre>const fs = require('fs');
+// Asynchronous (non-blocking) – preferred
+fs.readFile('data.txt', 'utf8', (err, data) =&gt; {
+  if (err) return console.log(err);
+  console.log(data);
+});
+// Synchronous (blocking)
+const text = fs.readFileSync('data.txt', 'utf8');
+
+fs.writeFile('out.txt', 'Hello', err =&gt; {});   // create / overwrite
+fs.appendFile('out.txt', ' World', err =&gt; {}); // add to the end
+fs.unlink('out.txt', err =&gt; {});               // delete</pre>
+
+<h3>4. Callbacks, Promises and async/await</h3>
+<pre>// Callback
+setTimeout(() =&gt; console.log("after 1s"), 1000);
+
+// Promise
+const p = new Promise((resolve, reject) =&gt; { resolve("done"); });
+p.then(r =&gt; console.log(r)).catch(e =&gt; console.log(e));
+
+// async / await (cleanest)
+async function load() {
+  try {
+    const data = await fs.promises.readFile('data.txt', 'utf8');
+    console.log(data);
+  } catch (e) { console.log(e); }
+}</pre>
+<div class="box tip"><b class="lbl">Callback hell</b>
+Callbacks nested many levels deep become a "pyramid of doom" that is hard to read. Promises and async/await fix this.</div>
+
+<h3>5. The Events Module</h3>
+<pre>const EventEmitter = require('events');
+const shop = new EventEmitter();
+shop.on('order', item =&gt; console.log("New order: " + item));  // listener
+shop.emit('order', 'Pizza');                                    // fire event</pre>
+
+<h3>6. Express.js: a web framework for Node</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>Express</b> is a small, fast framework that makes it easy to build web servers and REST APIs with Node.js.</div>
+<pre>const express = require('express');
+const app = express();
+app.use(express.json());                     // middleware: read JSON bodies
+
+let students = [{ id: 1, name: "Ravi" }];
+
+app.get('/students', (req, res) =&gt; res.json(students));          // READ all
+app.get('/students/:id', (req, res) =&gt; {                          // READ one
+  const s = students.find(x =&gt; x.id == req.params.id);
+  s ? res.json(s) : res.status(404).send("Not found");
+});
+app.post('/students', (req, res) =&gt; {                             // CREATE
+  students.push(req.body); res.status(201).json(req.body);
+});
+app.delete('/students/:id', (req, res) =&gt; {                       // DELETE
+  students = students.filter(x =&gt; x.id != req.params.id); res.send("Deleted");
+});
+
+app.listen(3000, () =&gt; console.log("Server on http://localhost:3000"));</pre>
+<h4>Key Express ideas</h4>
+<ul>
+  <li><b>Routing:</b> deciding which code runs for which URL and method (<code>app.get</code>, <code>app.post</code>...).</li>
+  <li><b>req</b> (request): <code>req.params</code> (from /:id), <code>req.query</code> (from ?x=1), <code>req.body</code> (form or JSON data).</li>
+  <li><b>res</b> (response): <code>res.send()</code>, <code>res.json()</code>, <code>res.status()</code>, <code>res.redirect()</code>.</li>
+  <li><b>Middleware:</b> a function that runs <b>between</b> the request and the response, used for logging, authentication and parsing. Signature: <code>(req, res, next) =&gt; { ...; next(); }</code></li>
+  <li><b>Static files:</b> <code>app.use(express.static('public'))</code></li>
+</ul>
+<div class="box exam"><b class="lbl">REST API (Representational State Transfer)</b>
+A way to design web APIs using URLs for <b>resources</b> and HTTP methods for <b>actions</b>.
+<b>CRUD to HTTP:</b> Create → POST, Read → GET, Update → PUT/PATCH, Delete → DELETE. Data is usually sent as JSON.</div>
+</div>
+
+<!-- ===================== UNIT IV ===================== -->
+<div class="unit">
+<h2>PART A · UNIT IV: WEB APPS WITH REACT</h2>
+<p class="note">Based on CO4: "Implement web applications using React". Check the exact topics against your full syllabus.</p>
+
+<h3>1. What is React?</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>React</b> is a JavaScript <b>library</b>, made by Facebook (Meta) in 2013, for building <b>user interfaces</b> out of small reusable pieces called <b>components</b>.</div>
+<ul>
+  <li><b>Component-based:</b> the UI is built like LEGO blocks (Navbar, Card, Button).</li>
+  <li><b>Declarative:</b> you describe <i>what</i> the screen should look like, and React works out <i>how</i> to update it.</li>
+  <li><b>Virtual DOM:</b> makes updates fast.</li>
+  <li><b>One-way data flow:</b> data passes from parent to child through props.</li>
+  <li>Used for <b>Single Page Applications (SPAs)</b>, where the page doesn't fully reload (like Gmail).</li>
+</ul>
+<p><b>Create a project:</b> <code>npm create vite@latest myapp -- --template react</code>, then <code>npm install</code>, then <code>npm run dev</code>. (Older: <code>npx create-react-app myapp</code>.)</p>
+
+<h3>2. Virtual DOM</h3>
+<div class="diagram">State changes ─▶ New Virtual DOM ─▶ DIFF with old Virtual DOM ─▶ update ONLY changed parts in the Real DOM
+                                    (called "reconciliation")</div>
+<p>Changing the real DOM is slow. The Virtual DOM is a lightweight copy kept in memory. React compares the old and new copies and updates only the parts that changed.</p>
+
+<h3>3. JSX</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>JSX (JavaScript XML)</b> lets you write HTML-like code inside JavaScript. Babel converts it into normal JS.</div>
+<pre>const name = "Ravi";
+const el = &lt;h1 className="title"&gt;Hello, {name}! 2+2 = {2 + 2}&lt;/h1&gt;;</pre>
+<p><b>JSX rules:</b> use <code>className</code> instead of <code>class</code>. Use <code>{ }</code> for JS expressions. Return <b>one parent element</b> (or a fragment <code>&lt;&gt;…&lt;/&gt;</code>). Close every tag (<code>&lt;img /&gt;</code>). Use camelCase events (<code>onClick</code>).</p>
+
+<h3>4. Components and Props</h3>
+<pre>// Function component (modern way)
+function Welcome(props) {
+  return &lt;h2&gt;Welcome, {props.name}! Dept: {props.dept}&lt;/h2&gt;;
+}
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Welcome name="Ravi"  dept="AI&amp;DS" /&gt;
+      &lt;Welcome name="Priya" dept="CSE" /&gt;
+    &lt;/div&gt;
+  );
+}
+export default App;</pre>
+<table>
+<tr><th>Props</th><th>State</th></tr>
+<tr><td>Data passed <b>into</b> a component from its parent</td><td>Data <b>owned</b> by the component</td></tr>
+<tr><td>Read-only: can't be changed inside the component</td><td>Can change (with a setter function)</td></tr>
+<tr><td>Like a function's <b>arguments</b></td><td>Like a function's <b>own variables</b></td></tr>
+</table>
+
+<h3>5. State and Hooks</h3>
+<p><b>Hooks</b> are special functions that start with <code>use</code>. They give function components extra powers.</p>
+<pre>import { useState, useEffect } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);          // state variable + setter
+  useEffect(() =&gt; {                                // runs after render
+    document.title = "Clicked " + count + " times";
+  }, [count]);                                     // only when count changes
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(0)}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+<table>
+<tr><th>Hook</th><th>Use</th></tr>
+<tr><td><code>useState</code></td><td>Store values that change and redraw the UI</td></tr>
+<tr><td><code>useEffect</code></td><td>Side effects: fetch data, timers, subscriptions</td></tr>
+<tr><td><code>useRef</code></td><td>Access a DOM element directly, or keep a value without redrawing</td></tr>
+<tr><td><code>useContext</code></td><td>Share data globally without passing props down many levels</td></tr>
+</table>
+<p><b>Rules of hooks:</b> call them only at the top level of a component (not inside loops or ifs), and only inside React functions.</p>
+
+<h3>6. Events, Lists, Conditional Rendering and Forms</h3>
+<pre>function TodoApp() {
+  const [items, setItems] = useState([]);
+  const [text, setText]   = useState("");
+
+  const add = (e) =&gt; {
+    e.preventDefault();                       // stop the page reloading
+    if (text.trim() === "") return;
+    setItems([...items, text]); setText("");
+  };
+
+  return (
+    &lt;form onSubmit={add}&gt;
+      &lt;input value={text} onChange={e =&gt; setText(e.target.value)} /&gt;   {/* controlled input */}
+      &lt;button&gt;Add&lt;/button&gt;
+      {items.length === 0 ? &lt;p&gt;No tasks yet&lt;/p&gt;                          /* conditional */
+        : &lt;ul&gt;{items.map((t, i) =&gt; &lt;li key={i}&gt;{t}&lt;/li&gt;)}&lt;/ul&gt;}        {/* list + key */}
+    &lt;/form&gt;
+  );
+}</pre>
+<ul>
+  <li><b>Keys</b> help React track which list items changed. Each key must be unique among its siblings.</li>
+  <li><b>Controlled component:</b> the input's value is stored in React state.</li>
+</ul>
+
+<h3>7. Component Lifecycle</h3>
+<table>
+<tr><th>Phase</th><th>Meaning</th><th>Hook equivalent</th></tr>
+<tr><td>Mounting</td><td>Component appears on the screen</td><td><code>useEffect(() =&gt; {...}, [])</code></td></tr>
+<tr><td>Updating</td><td>State or props change, so it re-renders</td><td><code>useEffect(() =&gt; {...}, [dep])</code></td></tr>
+<tr><td>Unmounting</td><td>Component is removed</td><td>The cleanup function <code>return () =&gt; {...}</code> inside useEffect</td></tr>
+</table>
+<p>Class components use <code>componentDidMount</code>, <code>componentDidUpdate</code> and <code>componentWillUnmount</code>.</p>
+
+<h3>8. Routing and Fetching Data</h3>
+<pre>// React Router: switch pages without reloading
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+&lt;BrowserRouter&gt;
+  &lt;Link to="/"&gt;Home&lt;/Link&gt; &lt;Link to="/about"&gt;About&lt;/Link&gt;
+  &lt;Routes&gt;
+    &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+    &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+  &lt;/Routes&gt;
+&lt;/BrowserRouter&gt;
+
+// Fetch from your Node/Express API
+useEffect(() =&gt; {
+  fetch("http://localhost:3000/students")
+    .then(res =&gt; res.json())
+    .then(data =&gt; setStudents(data));
+}, []);</pre>
+</div>
+
+<!-- ===================== UNIT V ===================== -->
+<div class="unit">
+<h2>PART A · UNIT V: DATA-CENTRIC APPS WITH MONGODB</h2>
+<p class="note">Based on CO5: "Develop data centric applications using MongoDB". Check the exact topics against your full syllabus.</p>
+
+<h3>1. SQL vs NoSQL</h3>
+<table>
+<tr><th>SQL (relational), e.g. MySQL</th><th>NoSQL (non-relational), e.g. MongoDB</th></tr>
+<tr><td>Tables with rows and columns</td><td>Documents (JSON-like), key-value, graph</td></tr>
+<tr><td>Fixed schema</td><td>Flexible schema: each document can differ</td></tr>
+<tr><td>Scales vertically (a bigger machine)</td><td>Scales horizontally (more machines, "sharding")</td></tr>
+<tr><td>Uses joins</td><td>Embeds related data inside one document</td></tr>
+<tr><td>Good for banking and strict data</td><td>Good for big, fast-changing data (social media, IoT)</td></tr>
+</table>
+
+<h3>2. What is MongoDB?</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>MongoDB</b> is an open-source <b>NoSQL document database</b>. It stores data as <b>BSON</b> (Binary JSON) documents.</div>
+<table>
+<tr><th>SQL term</th><th>MongoDB term</th></tr>
+<tr><td>Database</td><td>Database</td></tr>
+<tr><td>Table</td><td><b>Collection</b></td></tr>
+<tr><td>Row</td><td><b>Document</b></td></tr>
+<tr><td>Column</td><td><b>Field</b></td></tr>
+<tr><td>Primary key</td><td><b>_id</b> (added automatically)</td></tr>
+</table>
+<pre>// One document in the "students" collection
+{
+  "_id": ObjectId("6543a1..."),
+  "name": "Ravi",
+  "age": 20,
+  "dept": "AI&amp;DS",
+  "skills": ["Python", "React"],               // array
+  "address": { "city": "Coimbatore", "pin": 641407 }   // embedded document
+}</pre>
+
+<h3>3. CRUD Operations (Mongo shell: mongosh)</h3>
+<pre>use college                                   // switch to (or create) a database
+
+// CREATE
+db.students.insertOne({ name: "Ravi", age: 20, dept: "AI&amp;DS" })
+db.students.insertMany([{ name: "Priya", age: 21 }, { name: "Arun", age: 19 }])
+
+// READ
+db.students.find()                            // all documents
+db.students.find({ dept: "AI&amp;DS" })           // filter
+db.students.findOne({ name: "Ravi" })
+db.students.find({ age: { $gt: 19 } })        // age &gt; 19
+db.students.find({}, { name: 1, _id: 0 })     // projection: only the name field
+db.students.find().sort({ age: -1 }).limit(2) // sort descending, take 2
+
+// UPDATE
+db.students.updateOne({ name: "Ravi" }, { $set: { age: 21 } })
+db.students.updateMany({}, { $inc: { age: 1 } })   // everyone age + 1
+
+// DELETE
+db.students.deleteOne({ name: "Arun" })
+db.students.deleteMany({ age: { $lt: 18 } })</pre>
+<h4>Query operators</h4>
+<table>
+<tr><th>Operator</th><th>Meaning</th><th>Operator</th><th>Meaning</th></tr>
+<tr><td><code>$eq</code></td><td>equal</td><td><code>$in</code></td><td>in a list</td></tr>
+<tr><td><code>$ne</code></td><td>not equal</td><td><code>$and / $or</code></td><td>logical</td></tr>
+<tr><td><code>$gt / $gte</code></td><td>&gt; / ≥</td><td><code>$set</code></td><td>set a field (update)</td></tr>
+<tr><td><code>$lt / $lte</code></td><td>&lt; / ≤</td><td><code>$push</code></td><td>add to an array (update)</td></tr>
+</table>
+
+<h3>4. Indexing and Aggregation</h3>
+<p><b>Index:</b> like the index of a book. It makes searches fast. <code>db.students.createIndex({ name: 1 })</code></p>
+<p><b>Aggregation pipeline:</b> data passes through stages, like water through filters.</p>
+<pre>db.students.aggregate([
+  { $match: { age: { $gte: 19 } } },                  // filter
+  { $group: { _id: "$dept", total: { $sum: 1 },       // group by dept
+              avgAge: { $avg: "$age" } } },
+  { $sort:  { total: -1 } }                            // sort
+])</pre>
+
+<h3>5. Connecting Node.js to MongoDB (Mongoose)</h3>
+<p><b>Mongoose</b> is an ODM (Object Data Modeling) library. It adds schemas and validation on top of MongoDB.</p>
+<pre>const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/college');
+
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  age:  { type: Number, min: 17 },
+  dept: String
+});
+const Student = mongoose.model('Student', studentSchema);
+
+// Express routes using the database
+app.get('/students', async (req, res) =&gt; res.json(await Student.find()));
+app.post('/students', async (req, res) =&gt; res.status(201).json(await Student.create(req.body)));
+app.put('/students/:id', async (req, res) =&gt;
+  res.json(await Student.findByIdAndUpdate(req.params.id, req.body, { new: true })));
+app.delete('/students/:id', async (req, res) =&gt; {
+  await Student.findByIdAndDelete(req.params.id); res.send("Deleted"); });</pre>
+
+<h3>6. MERN Stack: how everything connects</h3>
+<div class="diagram">  ┌───────────┐  fetch / HTTP (JSON)  ┌──────────────────┐  Mongoose  ┌──────────┐
+  │  React    │ ────────────────────▶ │ Express + Node.js│ ─────────▶ │ MongoDB  │
+  │ (frontend)│ ◀──────────────────── │   (backend API)  │ ◀───────── │(database)│
+  └───────────┘        response       └──────────────────┘            └──────────┘
+      M = MongoDB    E = Express    R = React    N = Node.js</div>
+</div>
+
+<!-- ===================== DEEP LEARNING III ===================== -->
+<div class="unit">
+<h2>PART B · DEEP LEARNING UNIT III: CONVOLUTIONAL NEURAL NETWORKS</h2>
+<p><b>Syllabus:</b> Neural Networks and Representation Learning, Convolutional Layers, Implementing the Multichannel Convolution Operation, Train a CNN, Motivation, Pooling, Data Types.</p>
+
+<h3>1. Neural Networks and Representation Learning</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>neural network</b> is a model made of layers of "neurons". Each neuron computes <b>output = activation(w·x + b)</b>.<br>
+<b>Representation learning</b> means the network <b>learns useful features on its own</b> from raw data, instead of a human hand-designing them.</div>
+<div class="box ex"><b class="lbl">Example</b>
+To recognise a cat, older methods needed humans to write rules like "detect whiskers". A deep network learns layer by layer:
+<b>edges → shapes (eyes, ears) → whole objects (cat face)</b>.</div>
+
+<h3>2. Motivation: why CNNs instead of normal (dense) networks?</h3>
+<ul>
+  <li>A 224×224 colour image has 224×224×3 = <b>150,528 inputs</b>. A fully connected layer with 1000 neurons would need about 150 million weights. That is far too many.</li>
+  <li>CNNs use three ideas:
+    <ol>
+      <li><b>Sparse (local) connectivity:</b> each neuron looks at a small patch only (e.g. 3×3).</li>
+      <li><b>Parameter sharing:</b> the same filter slides over the whole image, so there are far fewer weights.</li>
+      <li><b>Translation equivariance:</b> a cat is detected wherever it appears in the image.</li>
+    </ol></li>
+</ul>
+
+<h3>3. The Convolution Operation</h3>
+<p>A small matrix called a <b>filter</b> (or <b>kernel</b>) slides over the image. At each position you multiply element by element and add up the results. The output is called a <b>feature map</b>.</p>
+<div class="box ex"><b class="lbl">Worked example: 4×4 input, 2×2 filter, stride 1</b>
+<pre>Input               Filter          Output (3×3)
+1 2 0 1             1 0             1·1+2·0+0·0+1·1 = 2   ...
+0 1 3 1      *      0 1      =      2  5  1
+1 0 2 2                             0  3  5
+2 1 0 1                             2  1  3</pre>
+Top-left: (1×1)+(2×0)+(0×0)+(1×1) = <b>2</b>. Then slide one step right and repeat.</div>
+<div class="box exam"><b class="lbl">Output size formula (very important)</b>
+<b>Output = ⌊(N − F + 2P) / S⌋ + 1</b><br>
+N = input size, F = filter size, P = padding, S = stride.<br>
+Example: N = 32, F = 5, P = 0, S = 1 gives (32 − 5)/1 + 1 = <b>28</b>, so a 28×28 output.<br>
+With P = 2: (32 − 5 + 4)/1 + 1 = 32 (the size stays the same; this is called "same" padding).</div>
+<ul>
+  <li><b>Stride:</b> how many pixels the filter moves each step. A bigger stride gives a smaller output.</li>
+  <li><b>Padding:</b> adding zeros around the border so the edges aren't lost and the size is kept.</li>
+</ul>
+
+<h3>4. Multichannel Convolution</h3>
+<p>A colour image has <b>3 channels</b> (R, G, B). So each filter also has 3 channels: its shape is <b>F × F × C<sub>in</sub></b>.</p>
+<ul>
+  <li>Convolve each channel with its matching filter slice, then <b>add all the channels together</b> and add the bias. The result is <b>1 feature map</b>.</li>
+  <li>Using <b>K filters</b> gives <b>K output channels</b>.</li>
+  <li>Number of parameters = <b>(F × F × C<sub>in</sub> + 1) × K</b></li>
+</ul>
+<div class="box ex"><b class="lbl">Example</b>
+Input 32×32×3, 10 filters of size 5×5, stride 1, no padding.<br>
+Output = 28×28×10. Parameters = (5×5×3 + 1) × 10 = <b>760</b>.</div>
+<pre># NumPy idea for one output pixel of one filter
+out[i, j, k] = np.sum(x[i:i+F, j:j+F, :] * W[:, :, :, k]) + b[k]</pre>
+
+<h3>5. Pooling</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>Pooling</b> shrinks the feature map (downsampling). It keeps the important information, reduces computation, and makes the network less sensitive to small shifts.</div>
+<pre>Input 4×4                 Max pool 2×2, stride 2     Avg pool 2×2, stride 2
+1 3 | 2 4
+5 6 | 1 0        ──▶          6   4                     3.75  1.75
+----+----
+2 2 | 7 8                     3   8                     2.0   6.25
+1 3 | 5 5</pre>
+<ul>
+  <li><b>Max pooling:</b> takes the biggest value (most common).</li>
+  <li><b>Average pooling:</b> takes the average.</li>
+  <li><b>Global average pooling:</b> averages a whole feature map into one number.</li>
+  <li>Pooling has <b>no learnable parameters</b>.</li>
+</ul>
+
+<h3>6. Full CNN Architecture</h3>
+<div class="diagram">Image ─▶ [Conv ─▶ ReLU ─▶ Pool] ─▶ [Conv ─▶ ReLU ─▶ Pool] ─▶ Flatten ─▶ Dense ─▶ Softmax ─▶ Class
+         (feature extraction, repeated)                     (classification)</div>
+<p><b>ReLU</b> = max(0, x). It adds non-linearity. <b>Softmax</b> turns the outputs into probabilities that add up to 1.</p>
+
+<h3>7. Training a CNN</h3>
+<ol>
+  <li>Prepare the data: resize, normalise (divide pixel values by 255), split into train, validation and test sets.</li>
+  <li><b>Forward pass</b> to get predictions.</li>
+  <li><b>Loss:</b> cross-entropy for classification.</li>
+  <li><b>Backpropagation</b> computes gradients. An <b>optimizer</b> (SGD or Adam) updates the weights.</li>
+  <li>Repeat for many <b>epochs</b> in <b>mini-batches</b>.</li>
+  <li>Avoid overfitting with <b>dropout</b>, <b>data augmentation</b> (flip, rotate, crop), <b>batch normalisation</b>, early stopping and weight decay.</li>
+</ol>
+<pre>import tensorflow as tf
+from tensorflow.keras import layers, models
+model = models.Sequential([
+  layers.Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),
+  layers.MaxPooling2D((2,2)),
+  layers.Conv2D(64, (3,3), activation='relu'),
+  layers.MaxPooling2D((2,2)),
+  layers.Flatten(),
+  layers.Dense(64, activation='relu'),
+  layers.Dropout(0.5),
+  layers.Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(x_train, y_train, epochs=5, batch_size=64, validation_split=0.1)</pre>
+
+<h3>8. Data Types (for convolution)</h3>
+<table>
+<tr><th>Dimensions</th><th>Single channel</th><th>Multi-channel</th></tr>
+<tr><td>1-D</td><td>Audio waveform</td><td>Skeleton/motion data (many joints over time)</td></tr>
+<tr><td>2-D</td><td>Grayscale image; audio spectrogram</td><td>Colour (RGB) image</td></tr>
+<tr><td>3-D</td><td>CT/MRI volume scan</td><td>Colour video (frames × height × width × RGB)</td></tr>
+</table>
+<p>Famous CNNs: LeNet-5, AlexNet, VGG-16, GoogLeNet (Inception), ResNet (skip connections).</p>
+</div>
+
+<!-- ===================== DEEP LEARNING IV ===================== -->
+<div class="unit">
+<h2>PART B · DEEP LEARNING UNIT IV: RECURRENT NEURAL NETWORKS</h2>
+<p><b>Syllabus:</b> Key Limitation: Handling Branching, Automatic Differentiation, Motivation, Recurrent Neural Networks, Implementation of RNNs, RNN Nodes: Vanilla, GRU, LSTM.</p>
+
+<h3>1. Key Limitation: Handling Branching</h3>
+<p>A simple network built as a straight chain of layers (input → layer → layer → output) can't easily handle <b>branching</b>: when one value is used in two places, or two paths join together (as in RNNs and ResNets).</p>
+<p>When a value feeds several paths, its <b>gradient is the sum</b> of the gradients flowing back from every path. Writing that by hand for every model is hard. <b>Automatic differentiation</b> solves this.</p>
+
+<h3>2. Automatic Differentiation (Autograd)</h3>
+<div class="box def"><b class="lbl">Definition</b>
+<b>Automatic differentiation</b> computes derivatives (gradients) automatically. While the forward pass runs, it records every operation in a <b>computational graph</b>. It then applies the <b>chain rule</b> backwards through that graph.</div>
+<div class="box ex"><b class="lbl">Example</b>
+f = (a + b) × b, with a = 2, b = 3.<br>
+Forward: c = a + b = 5, f = c × b = 15.<br>
+Backward: ∂f/∂a = b = 3. ∂f/∂b = c + b = 5 + 3 = <b>8</b>. The gradient of b is the <b>sum</b> from its two paths: the branching case.</div>
+<pre>import torch
+a = torch.tensor(2.0, requires_grad=True)
+b = torch.tensor(3.0, requires_grad=True)
+f = (a + b) * b
+f.backward()
+print(a.grad, b.grad)    # tensor(3.) tensor(8.)</pre>
+
+<h3>3. Motivation for RNNs</h3>
+<ul>
+  <li>Normal networks treat each input separately and have <b>no memory</b>.</li>
+  <li>Much data is <b>sequential</b>: order matters. Examples: sentences, speech, stock prices, weather, music.</li>
+  <li>Example: in "I grew up in France… I speak fluent ___", you need to remember "France" to predict "French".</li>
+  <li>An RNN keeps a <b>hidden state (memory)</b> that is passed from one time step to the next. It can also handle sequences of <b>different lengths</b>.</li>
+</ul>
+
+<h3>4. Recurrent Neural Network (Vanilla RNN)</h3>
+<div class="diagram">          Folded                    Unfolded through time
+        ┌───────┐            y1        y2        y3
+   x ─▶ │  RNN  │ ─▶ y        ▲         ▲         ▲
+        └──┬────┘          ┌─┴─┐ h1  ┌─┴─┐ h2  ┌─┴─┐
+           │ ▲        h0 ─▶│ A │ ───▶│ A │ ───▶│ A │ ─▶ h3
+           └─┘ h           └─▲─┘     └─▲─┘     └─▲─┘
+                             x1        x2        x3
+              (the SAME weights are used at every time step)</div>
+<div class="box exam"><b class="lbl">Equations</b>
+h<sub>t</sub> = tanh(W<sub>xh</sub> · x<sub>t</sub> + W<sub>hh</sub> · h<sub>t−1</sub> + b<sub>h</sub>)<br>
+y<sub>t</sub> = W<sub>hy</sub> · h<sub>t</sub> + b<sub>y</sub></div>
+<h4>Types of RNN by input and output</h4>
+<table>
+<tr><th>Type</th><th>Example</th></tr>
+<tr><td>One-to-one</td><td>Normal classification</td></tr>
+<tr><td>One-to-many</td><td>Image captioning (1 image → a sentence)</td></tr>
+<tr><td>Many-to-one</td><td>Sentiment analysis (a review → positive or negative)</td></tr>
+<tr><td>Many-to-many</td><td>Machine translation (English → Tamil), video labelling</td></tr>
+</table>
+<h4>Training: Backpropagation Through Time (BPTT)</h4>
+<p>Unfold the RNN over all time steps, then backpropagate. The gradient is multiplied by W<sub>hh</sub> again and again, which causes:</p>
+<ul>
+  <li><b>Vanishing gradients:</b> values shrink toward 0, so the network forgets long-term information. Fix: LSTM or GRU.</li>
+  <li><b>Exploding gradients:</b> values blow up. Fix: <b>gradient clipping</b>.</li>
+</ul>
+
+<h3>5. Implementing an RNN</h3>
+<pre># From scratch (NumPy) – forward pass
+h = np.zeros(hidden_size)
+for x_t in sequence:
+    h = np.tanh(W_xh @ x_t + W_hh @ h + b_h)
+    y_t = W_hy @ h + b_y
+
+# Keras
+model = tf.keras.Sequential([
+  tf.keras.layers.Embedding(10000, 32),
+  tf.keras.layers.SimpleRNN(64),          # or LSTM(64) / GRU(64)
+  tf.keras.layers.Dense(1, activation='sigmoid')
+])</pre>
+
+<h3>6. LSTM (Long Short-Term Memory)</h3>
+<p>Proposed by Hochreiter and Schmidhuber in 1997. It adds a <b>cell state (C<sub>t</sub>)</b>, a "conveyor belt" of long-term memory, controlled by <b>3 gates</b>. Each gate is a sigmoid that outputs a value from 0 (block) to 1 (allow).</p>
+<table>
+<tr><th>Gate</th><th>Question it answers</th><th>Formula</th></tr>
+<tr><td><b>Forget gate</b> f<sub>t</sub></td><td>What old memory should be thrown away?</td><td>σ(W<sub>f</sub>[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>f</sub>)</td></tr>
+<tr><td><b>Input gate</b> i<sub>t</sub></td><td>What new information should be stored?</td><td>σ(W<sub>i</sub>[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>i</sub>); candidate C̃<sub>t</sub> = tanh(…)</td></tr>
+<tr><td><b>Output gate</b> o<sub>t</sub></td><td>What should be output now?</td><td>σ(W<sub>o</sub>[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>o</sub>)</td></tr>
+</table>
+<div class="box exam"><b class="lbl">Updates</b>
+C<sub>t</sub> = f<sub>t</sub> ⊙ C<sub>t−1</sub> + i<sub>t</sub> ⊙ C̃<sub>t</sub> &nbsp;&nbsp;&nbsp; h<sub>t</sub> = o<sub>t</sub> ⊙ tanh(C<sub>t</sub>)<br>
+The cell state is updated by <b>addition</b>, so gradients flow easily and vanishing is greatly reduced.</div>
+<div class="box ex"><b class="lbl">Analogy</b>
+Reading a story: the <b>forget gate</b> drops details of a minor character who left. The <b>input gate</b> notes the new hero's name. The <b>output gate</b> decides what's relevant to answer the current question.</div>
+
+<h3>7. GRU (Gated Recurrent Unit)</h3>
+<p>Proposed by Cho et al. in 2014. It's a simpler LSTM with <b>2 gates</b> and no separate cell state.</p>
+<ul>
+  <li><b>Update gate</b> z<sub>t</sub>: how much of the old memory to keep (like forget + input combined).</li>
+  <li><b>Reset gate</b> r<sub>t</sub>: how much of the past to ignore when computing the new candidate.</li>
+  <li>h<sub>t</sub> = (1 − z<sub>t</sub>) ⊙ h<sub>t−1</sub> + z<sub>t</sub> ⊙ h̃<sub>t</sub></li>
+</ul>
+<h3>8. Comparison: Vanilla RNN vs LSTM vs GRU</h3>
+<table>
+<tr><th></th><th>Vanilla RNN</th><th>LSTM</th><th>GRU</th></tr>
+<tr><td>Gates</td><td>0</td><td>3 (forget, input, output)</td><td>2 (update, reset)</td></tr>
+<tr><td>Memory</td><td>Hidden state only</td><td>Hidden state + cell state</td><td>Hidden state only</td></tr>
+<tr><td>Long-term memory</td><td>Poor (vanishing gradient)</td><td>Very good</td><td>Good</td></tr>
+<tr><td>Parameters / speed</td><td>Fewest / fastest</td><td>Most / slowest</td><td>In between</td></tr>
+<tr><td>Use when</td><td>Short sequences</td><td>Long, complex sequences</td><td>Less data, faster training</td></tr>
+</table>
+</div>
+
+<!-- ===================== DEEP LEARNING V ===================== -->
+<div class="unit">
+<h2>PART B · DEEP LEARNING UNIT V: AUTOENCODERS AND GENERATIVE MODELS</h2>
+<p><b>Syllabus:</b> Regularized Autoencoders, Representational Power, Layer Size and Depth, Stochastic Encoders and Decoders, Denoising, Boltzmann Machines, Deep Belief Networks, Directed Generative Nets.</p>
+
+<h3>1. Autoencoder: the basic idea</h3>
+<div class="box def"><b class="lbl">Definition</b>
+An <b>autoencoder</b> is a neural network trained to <b>copy its input to its output</b>. It does this through a narrow middle layer called the <b>code</b> (or <b>bottleneck</b> or latent space). This forces it to learn the most important features. It is <b>unsupervised</b>: no labels are needed.</div>
+<div class="diagram">Input x ─▶ [ ENCODER f ] ─▶  code h  ─▶ [ DECODER g ] ─▶ Output r ≈ x
+ (784)       784→128→32       (32)        32→128→784       (784)
+
+Loss = || x − g(f(x)) ||²   (reconstruction error)</div>
+<div class="box ex"><b class="lbl">Analogy</b>
+Summarising a 10-page chapter into 5 key points (the encoder), then rewriting the chapter from those 5 points (the decoder). If the rewrite is good, your 5 points captured the essence.</div>
+<p><b>Uses:</b> dimensionality reduction, denoising, anomaly detection (a high reconstruction error means unusual data, e.g. fraud), feature learning, image compression.</p>
+<ul>
+  <li><b>Undercomplete AE:</b> the code is smaller than the input. It's forced to compress.</li>
+  <li><b>Overcomplete AE:</b> the code is equal to or bigger than the input. It might just copy, so it needs <b>regularisation</b>.</li>
+  <li>A linear AE with MSE loss learns the same subspace as <b>PCA</b>.</li>
+</ul>
+
+<h3>2. Regularized Autoencoders</h3>
+<p>Instead of only making the code small, add a penalty to the loss so the AE learns <b>useful</b> properties. Loss = reconstruction + Ω(h).</p>
+<table>
+<tr><th>Type</th><th>Idea</th></tr>
+<tr><td><b>Sparse AE</b></td><td>Penalty λ·Σ|h<sub>i</sub>|: only a few neurons are active at a time</td></tr>
+<tr><td><b>Denoising AE (DAE)</b></td><td>Input is corrupted, output should be the clean version (see below)</td></tr>
+<tr><td><b>Contractive AE (CAE)</b></td><td>Penalises the derivative of h with respect to x, so small input changes don't change the code much (robust features)</td></tr>
+</table>
+
+<h3>3. Representational Power, Layer Size and Depth</h3>
+<ul>
+  <li>Even a <b>single-hidden-layer</b> encoder can in theory represent any mapping (the universal approximation theorem), but it may need a huge number of neurons.</li>
+  <li><b>Deep autoencoders</b> (many layers in the encoder and decoder) can:
+    <ul><li>Represent the same function with <b>far fewer parameters</b>.</li>
+        <li>Need <b>less training data</b>.</li>
+        <li>Give <b>better compression</b> than shallow or linear ones.</li></ul></li>
+  <li>A common way to train deep AEs: <b>greedy layer-wise pretraining</b>. Train a stack of shallow AEs one at a time, then fine-tune the whole network.</li>
+  <li><b>Layer size:</b> too small a code underfits (loses information); too large and it just copies the input.</li>
+</ul>
+
+<h3>4. Stochastic Encoders and Decoders</h3>
+<p>Instead of a fixed output, the encoder and decoder output <b>probability distributions</b>:</p>
+<ul>
+  <li>Encoder: p<sub>encoder</sub>(h | x). Decoder: p<sub>decoder</sub>(x | h).</li>
+  <li>Training minimises <b>−log p<sub>decoder</sub>(x | h)</b>. For real values (a Gaussian), this is the same as MSE. For binary values (Bernoulli), it's cross-entropy.</li>
+  <li>Leads to the <b>Variational Autoencoder (VAE)</b>: the encoder outputs a mean μ and spread σ; we <b>sample</b> h = μ + σ·ε (the reparameterisation trick). Loss = reconstruction + KL divergence. We can then <b>generate new data</b> by sampling h and decoding it.</li>
+</ul>
+
+<h3>5. Denoising Autoencoders</h3>
+<div class="diagram">clean x ─▶ add noise ─▶ x̃ (corrupted) ─▶ Encoder ─▶ h ─▶ Decoder ─▶ r      Loss = || x − r ||²
+                                                                           (compare with CLEAN x)</div>
+<ul>
+  <li>Noise types: Gaussian noise, masking (randomly set pixels to 0), salt-and-pepper.</li>
+  <li>The network can't simply copy, so it must learn the <b>real structure</b> of the data.</li>
+  <li>Example: cleaning noisy scanned documents or old photos.</li>
+</ul>
+<pre>noisy = x_train + 0.3 * np.random.normal(size=x_train.shape)
+autoencoder.fit(noisy, x_train, epochs=10)    # input = noisy, target = clean</pre>
+
+<h3>6. Boltzmann Machines</h3>
+<div class="box def"><b class="lbl">Definition</b>
+A <b>Boltzmann Machine (BM)</b> is an <b>energy-based</b>, undirected, stochastic network of binary units. Low-energy states are more likely. P(x) = e<sup>−E(x)</sup> / Z, where Z is the normalising constant (the partition function).</div>
+<ul>
+  <li>It has <b>visible units</b> v (the data) and <b>hidden units</b> h (features).</li>
+  <li>In a <b>full BM</b> every unit connects to every other unit, which makes it very slow to train.</li>
+</ul>
+<h4>Restricted Boltzmann Machine (RBM)</h4>
+<div class="diagram">  Hidden:   (h1)  (h2)  (h3)
+              │ ╲  ╱ │ ╲ ╱ │       connections ONLY between layers
+              │  ╳   │  ╳  │       NO visible–visible or hidden–hidden links
+  Visible:  (v1)  (v2)  (v3)  (v4)</div>
+<ul>
+  <li>Energy: E(v, h) = −bᵀv − cᵀh − vᵀWh</li>
+  <li>Because there are no links within a layer, the hidden units are independent given v, which makes sampling easy.</li>
+  <li>Trained with <b>Contrastive Divergence (CD-k)</b> using Gibbs sampling: v → h → v' → h', then update W ∝ (v·hᵀ)<sub>data</sub> − (v'·h'ᵀ)<sub>model</sub>.</li>
+  <li>Uses: recommender systems (the Netflix prize), feature learning, pretraining.</li>
+</ul>
+
+<h3>7. Deep Belief Networks (DBN)</h3>
+<ul>
+  <li>Proposed by Geoffrey Hinton in 2006. This kick-started modern deep learning.</li>
+  <li>Built by <b>stacking RBMs</b>. The hidden layer of one RBM becomes the visible layer of the next.</li>
+  <li><b>Structure:</b> the top two layers are <b>undirected</b> (an RBM). The lower layers are <b>directed</b> (pointing down toward the data).</li>
+  <li><b>Training:</b>
+    <ol><li><b>Greedy layer-wise pretraining</b> (unsupervised): train RBM 1, freeze it, train RBM 2 on its outputs, and so on.</li>
+        <li><b>Fine-tuning</b> (supervised): add an output layer and train everything with backpropagation.</li></ol></li>
+</ul>
+<div class="diagram">  Top RBM  (undirected)  h3 ═══ h2
+                               ↓     directed
+                               h1
+                               ↓     directed
+                               v  (data)</div>
+
+<h3>8. Directed Generative Nets</h3>
+<p>Models that <b>generate new data</b> by sampling a random code z and passing it through a network: z → network → x.</p>
+<table>
+<tr><th>Model</th><th>Main idea</th></tr>
+<tr><td><b>Sigmoid Belief Networks</b></td><td>Directed graph of binary sigmoid units; each layer generates the one below</td></tr>
+<tr><td><b>Differentiable Generator Networks</b></td><td>A neural net g(z) turns simple noise (Gaussian) into complex data</td></tr>
+<tr><td><b>Variational Autoencoder (VAE)</b></td><td>Encoder + decoder trained to maximise the ELBO (reconstruction − KL); smooth latent space</td></tr>
+<tr><td><b>Generative Adversarial Network (GAN)</b></td><td>Two networks compete: the <b>Generator</b> makes fakes, the <b>Discriminator</b> spots fakes. Both improve until the fakes look real.</td></tr>
+<tr><td><b>Autoregressive nets</b> (PixelCNN, WaveNet)</td><td>Generate one piece at a time: p(x) = Π p(x<sub>i</sub> | x<sub>1..i−1</sub>)</td></tr>
+</table>
+<div class="box ex"><b class="lbl">GAN analogy</b>
+The <b>generator</b> is a forger making fake currency notes. The <b>discriminator</b> is a police officer checking them. As the police get better, the forger improves, until the fakes can't be told apart. Used for realistic faces (StyleGAN), image-to-image translation and super-resolution.</div>
+<div class="box exam"><b class="lbl">GAN loss (minimax game)</b>
+min<sub>G</sub> max<sub>D</sub> &nbsp; E[log D(x)] + E[log(1 − D(G(z)))]</div>
+</div>
+
+<!-- ===================== REVISION ===================== -->
+<div class="unit">
+<h2>QUICK REVISION AND LIKELY EXAM QUESTIONS</h2>
+
+<h3>Application Development: one-line facts</h3>
+<table>
+<tr><th>Topic</th><th>Remember</th></tr>
+<tr><td>WWW inventor</td><td>Tim Berners-Lee, 1989, at CERN</td></tr>
+<tr><td>HTTP / HTTPS ports</td><td>80 / 443</td></tr>
+<tr><td>DNS</td><td>Name → IP address</td></tr>
+<tr><td>SMTP vs POP3/IMAP</td><td>Send vs receive email</td></tr>
+<tr><td>HTTP request parts</td><td>Request line, headers, blank line, body</td></tr>
+<tr><td>HTTP response parts</td><td>Status line, headers, blank line, body</td></tr>
+<tr><td>404 / 500</td><td>Not Found (client) / Internal Server Error (server)</td></tr>
+<tr><td>CSS priority</td><td>Inline &gt; Internal/External (the later one wins); ID &gt; class &gt; element</td></tr>
+<tr><td>Box model</td><td>Content → padding → border → margin</td></tr>
+<tr><td>DOM</td><td>A tree of objects built from HTML; JS changes it</td></tr>
+<tr><td>== vs ===</td><td>Value only vs value AND type</td></tr>
+<tr><td>Regex <code>^ $ \d + * ? {n}</code></td><td>Start, end, digit, 1+, 0+, 0 or 1, exactly n</td></tr>
+<tr><td>Node.js</td><td>JS on the server, V8, event loop, non-blocking</td></tr>
+<tr><td>React</td><td>Components, JSX, props (read-only), state (useState), Virtual DOM</td></tr>
+<tr><td>MongoDB</td><td>Collection = table, document = row, BSON, _id</td></tr>
+</table>
+
+<h3>Deep Learning: one-line facts</h3>
+<table>
+<tr><th>Topic</th><th>Remember</th></tr>
+<tr><td>Conv output size</td><td>(N − F + 2P)/S + 1</td></tr>
+<tr><td>Conv parameters</td><td>(F·F·C<sub>in</sub> + 1)·K</td></tr>
+<tr><td>Why CNNs</td><td>Sparse connections, parameter sharing, translation equivariance</td></tr>
+<tr><td>Pooling</td><td>Downsamples; max or average; no parameters</td></tr>
+<tr><td>Autodiff</td><td>Computational graph + chain rule; branching means gradients add up</td></tr>
+<tr><td>RNN problem</td><td>Vanishing/exploding gradients (fix: LSTM/GRU, gradient clipping)</td></tr>
+<tr><td>LSTM gates</td><td>Forget, input, output + cell state</td></tr>
+<tr><td>GRU gates</td><td>Update, reset</td></tr>
+<tr><td>Autoencoder</td><td>Encoder → bottleneck → decoder; minimise reconstruction error</td></tr>
+<tr><td>Denoising AE</td><td>Noisy input → clean output</td></tr>
+<tr><td>RBM</td><td>Visible + hidden layers, no links within a layer, trained with Contrastive Divergence</td></tr>
+<tr><td>DBN</td><td>Stacked RBMs, greedy layer-wise training (Hinton, 2006)</td></tr>
+<tr><td>GAN</td><td>Generator vs discriminator (minimax)</td></tr>
+</table>
+
+<h3>Likely 2-mark questions</h3>
+<ol>
+<li>Differentiate the Internet and the WWW.</li>
+<li>What is a protocol? Name any four.</li>
+<li>List any four HTTP status codes with their meaning.</li>
+<li>Differentiate GET and POST.</li>
+<li>What are semantic elements in HTML5? Give examples.</li>
+<li>What is the CSS box model?</li>
+<li>What is the DOM?</li>
+<li>Write a regular expression to validate a 10-digit mobile number.</li>
+<li>What is the event loop in Node.js?</li>
+<li>Differentiate props and state in React.</li>
+<li>What is pooling? Why is it used?</li>
+<li>What is the vanishing gradient problem?</li>
+<li>What is a denoising autoencoder?</li>
+<li>Define an RBM.</li>
+</ol>
+
+<h3>Likely 13/16-mark questions</h3>
+<ol>
+<li>Explain the structure of HTTP request and response messages with examples.</li>
+<li>Explain the client–server architecture and the working of web clients and web servers.</li>
+<li>Explain the three types of CSS with examples and their priority.</li>
+<li>Explain the JavaScript DOM model. Write a program to change content and style on a button click.</li>
+<li>Explain JavaScript objects (creation, properties, methods, built-in objects) with examples.</li>
+<li>Explain regular expressions in JavaScript with a form validation example.</li>
+<li>Develop a REST API using Node.js and Express for CRUD operations.</li>
+<li>Explain React components, props, state and hooks with an example.</li>
+<li>Explain CRUD operations in MongoDB with examples.</li>
+<li>Explain the CNN architecture with convolution, multichannel convolution and pooling. Solve an output-size problem.</li>
+<li>Explain the RNN and its training. Compare it with LSTM and GRU using diagrams.</li>
+<li>Explain autoencoders and their types (regularized, denoising, stochastic).</li>
+<li>Explain Boltzmann machines and Deep Belief Networks.</li>
+<li>Explain directed generative networks, including the VAE and GAN.</li>
+</ol>
+<div class="box tip"><b class="lbl">Exam writing tips</b>
+Start with a <b>definition</b>, then a <b>diagram</b>, then the <b>explanation in points</b>, then an <b>example or code</b>, then <b>advantages and applications</b>. Diagrams and examples score extra marks.</div>
+<p style="text-align:center;margin-top:24px;color:#888">— All the best for your exams! —</p>
+</div>
+
+</body>
+</html>

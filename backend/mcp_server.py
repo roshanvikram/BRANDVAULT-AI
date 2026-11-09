@@ -1,183 +1,105 @@
 """
-BRANDVAULT AI — Enterprise Model Context Protocol (MCP) Server
-Allows external AI agents, IDEs, and LLMs to interact with BRANDVAULT brand governance tools.
+BRANDVAULT AI — Model Context Protocol (MCP) server  (Round 3 · Improvement 2)
 
-Tools provided:
-1. get_brand_profile
-2. search_brand_guidelines
-3. verify_marketing_claim
-4. get_approved_asset
-5. analyse_content
-6. create_review_request
-7. get_review_status
+Lets AI assistants and IDEs (Claude Desktop, Claude Code, Cursor, …) use
+BrandVault's governance checks over the standard MCP protocol (JSON-RPC over
+stdio). It is a thin client of BrandVault's public API, so it works against a
+local or deployed instance and never touches the database directly.
+
+Security
+- Authenticates with an organisation API key (created by an Administrator in
+  Settings → API keys). Every call is scoped to that organisation.
+- Every tool is read-only. There is deliberately no tool to approve, publish or
+  change Brand DNA — agents advise, humans decide.
+
+Setup
+    pip install "mcp>=2.3" httpx
+    set BRANDVAULT_URL=https://brandvault-ai.onrender.com      (default: http://127.0.0.1:8000)
+    set BRANDVAULT_API_KEY=bv_...
+    python backend/mcp_server.py            # stdio transport
+
+Claude Desktop / Claude Code config example:
+    {"mcpServers": {"brandvault": {"command": "python", "args": ["backend/mcp_server.py"],
+      "env": {"BRANDVAULT_URL": "https://...", "BRANDVAULT_API_KEY": "bv_..."}}}}
 """
+from __future__ import annotations
 
-import sys
 import os
-import json
-from typing import Dict, Any, List
+import sys
+from typing import Any, Dict, List, Optional
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import httpx
 
-from backend.app.db.session import SessionLocal
-from backend.app.models.brand import Organization, BrandRule, ApprovedFact, TerminologyRule, DocumentChunk
-from backend.app.models.submission import Submission, ClaimVerification
-from backend.app.services.analyzer import ContentAnalyzerService
-from backend.app.services.passport_service import PassportService
-from backend.app.services.seed import seed_sample_brand, NOVA_ORG_ID
+BASE = os.getenv("BRANDVAULT_URL", "http://127.0.0.1:8000").rstrip("/") + "/api/v1/public"
+KEY = os.getenv("BRANDVAULT_API_KEY", "")
+TIMEOUT = float(os.getenv("BRANDVAULT_TIMEOUT", "90"))  # free hosts can take ~60s to wake up
 
-def get_brand_profile(org_id: str = NOVA_ORG_ID) -> Dict[str, Any]:
-    db = SessionLocal()
-    try:
-        seed_sample_brand(db)
-        org = db.query(Organization).filter(Organization.id == org_id).first()
-        if not org:
-            return {"error": f"Organization {org_id} not found"}
-        return {
-            "organization_id": org.id,
-            "organization_name": org.name,
-            "rules_count": len(org.rules),
-            "facts_count": len(org.facts),
-            "guidelines_count": len(org.guidelines),
-            "brand_identity": "Understated, precise, enterprise, monochrome"
-        }
-    finally:
-        db.close()
 
-def search_brand_guidelines(query: str, org_id: str = NOVA_ORG_ID) -> List[Dict[str, Any]]:
-    db = SessionLocal()
-    try:
-        chunks = db.query(DocumentChunk).all()
-        results = []
-        for c in chunks:
-            if any(w.lower() in c.content.lower() for w in query.split() if len(w) > 3):
-                results.append({
-                    "chunk_id": c.id,
-                    "page": c.page_number,
-                    "content": c.content
-                })
-        return results[:5]
-    finally:
-        db.close()
+class BrandVaultError(RuntimeError):
+    pass
 
-def verify_marketing_claim(claim_text: str, org_id: str = NOVA_ORG_ID) -> Dict[str, Any]:
-    db = SessionLocal()
-    try:
-        service = ContentAnalyzerService(db)
-        sub = service.analyze_submission(
-            org_id=org_id,
-            title="MCP Claim Verification",
-            content=claim_text,
-            author_name="MCP Enterprise Agent"
-        )
-        verifications = [
-            {
-                "claim": c.claim_text,
-                "status": c.status,
-                "category": c.category,
-                "explanation": c.explanation,
-                "evidence": c.evidence_text
-            }
-            for c in sub.claim_verifications
-        ]
-        return {
-            "score": sub.overall_score,
-            "findings_count": len(sub.findings),
-            "claims": verifications
-        }
-    finally:
-        db.close()
 
-def get_approved_asset(category: str = "Pricing", org_id: str = NOVA_ORG_ID) -> List[Dict[str, Any]]:
-    db = SessionLocal()
-    try:
-        facts = db.query(ApprovedFact).filter(ApprovedFact.org_id == org_id).all()
-        return [
-            {
-                "key": f.fact_key,
-                "value": f.fact_value,
-                "source": f.verification_source
-            }
-            for f in facts if category.lower() in f.category.lower() or category == "all"
-        ]
-    finally:
-        db.close()
+def _call(method: str, path: str, body: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    if not KEY:
+        raise BrandVaultError("Set BRANDVAULT_API_KEY (Settings → API keys in BrandVault).")
+    r = httpx.request(method, BASE + path, json=body, headers={"X-API-Key": KEY}, timeout=TIMEOUT)
+    if r.status_code >= 400:
+        try:
+            detail = r.json().get("detail")
+        except ValueError:
+            detail = r.text[:200]
+        raise BrandVaultError(f"BrandVault returned {r.status_code}: {detail}")
+    return r.json()
 
-def analyse_content(title: str, copy_text: str, org_id: str = NOVA_ORG_ID) -> Dict[str, Any]:
-    db = SessionLocal()
-    try:
-        service = ContentAnalyzerService(db)
-        sub = service.analyze_submission(
-            org_id=org_id,
-            title=title,
-            content=copy_text,
-            author_name="MCP Client"
-        )
-        return {
-            "submission_id": sub.id,
-            "title": sub.title,
-            "overall_score": sub.overall_score,
-            "status": sub.status,
-            "findings": [
-                {
-                    "issue_category": f.issue_category,
-                    "severity": f.severity,
-                    "original_text": f.original_text,
-                    "explanation": f.explanation,
-                    "suggested_correction": f.suggested_correction,
-                    "confidence": f.confidence
-                }
-                for f in sub.findings
-            ],
-            "claims": [
-                {
-                    "claim": c.claim_text,
-                    "status": c.status,
-                    "explanation": c.explanation
-                }
-                for c in sub.claim_verifications
-            ]
-        }
-    finally:
-        db.close()
 
-def create_review_request(submission_id: str, requester_name: str = "Creator") -> Dict[str, Any]:
-    db = SessionLocal()
-    try:
-        sub = db.query(Submission).filter(Submission.id == submission_id).first()
-        if not sub:
-            return {"error": "Submission not found"}
-        sub.status = "Pending Review"
-        db.commit()
-        return {
-            "submission_id": sub.id,
-            "status": sub.status,
-            "message": "Campaign submitted for formal human review."
-        }
-    finally:
-        db.close()
+# ------------------------------- tool functions --------------------------------
+# Plain functions (testable without MCP); registered as MCP tools below.
+def get_brand_profile() -> Dict[str, Any]:
+    """Approved products, facts (with sources) and terminology for this organisation."""
+    return _call("GET", "/brand")
+
+
+def search_brand_guidelines(query: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    """Search the organisation's approved guideline passages; results include page citations."""
+    return _call("POST", "/search", {"query": query, "top_k": top_k})["results"]
+
+
+def check_copy(text: str, channels: Optional[List[str]] = None, region: Optional[str] = None) -> Dict[str, Any]:
+    """Check marketing copy against Brand DNA, approved facts, channel rules and required disclaimers.
+    Nothing is saved; the result is advice for a human."""
+    return _call("POST", "/check", {"text": text, "channels": channels or [], "region": region, "persist": False})
+
+
+def check_publish_gate(text: str, reference: Optional[str] = None) -> Dict[str, Any]:
+    """Is this exact copy approved for publishing (matches a current Brand Passport)?
+    The check is recorded in BrandVault's append-only integrity log."""
+    return _call("POST", "/gate", {"text": text, "reference": reference})
+
 
 def get_review_status(submission_id: str) -> Dict[str, Any]:
-    db = SessionLocal()
-    try:
-        sub = db.query(Submission).filter(Submission.id == submission_id).first()
-        if not sub:
-            return {"error": "Submission not found"}
-        return {
-            "submission_id": sub.id,
-            "title": sub.title,
-            "status": sub.status,
-            "version": sub.version,
-            "overall_score": sub.overall_score,
-            "has_passport": sub.passport is not None,
-            "passport_number": sub.passport.passport_number if sub.passport else None
-        }
-    finally:
-        db.close()
+    """Review status, score and Brand Passport of a submission."""
+    return _call("GET", f"/submissions/{submission_id}")
+
+
+TOOLS = [get_brand_profile, search_brand_guidelines, check_copy, check_publish_gate, get_review_status]
+
+
+def build_server():
+    from mcp.server.mcpserver import MCPServer
+    from mcp.types import ToolAnnotations
+
+    server = MCPServer(name="brandvault", title="BrandVault AI",
+                       instructions="Brand governance checks for marketing copy. All tools are read-only; "
+                                    "only an authorised person can approve or publish in BrandVault.")
+    read_only = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False)
+    for fn in TOOLS:
+        server.tool(annotations=read_only)(fn)
+    return server
+
 
 if __name__ == "__main__":
-    print("BRANDVAULT AI MCP Server initialized. Running self-test...")
-    profile = get_brand_profile()
-    print("Brand Profile:", json.dumps(profile, indent=2))
-    sample = verify_marketing_claim("NovaBook AI Pro 16 launch price is ₹69,999!")
-    print("Sample Claim Verification:", json.dumps(sample, indent=2))
+    if "--self-test" in sys.argv:
+        print("Tools:", ", ".join(f.__name__ for f in TOOLS))
+        print("Brand:", get_brand_profile().get("organization"))
+        sys.exit(0)
+    build_server().run("stdio")

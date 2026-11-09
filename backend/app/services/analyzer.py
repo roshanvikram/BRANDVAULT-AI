@@ -379,7 +379,26 @@ class ContentAnalyzerService:
         self.db.add(audit)
         self.db.commit()
         self.db.refresh(submission)
+        self._notify(submission)
         return submission
+
+    def _notify(self, submission: Submission) -> None:
+        """Tell reviewers (and webhooks) that a campaign is ready; flag a superseded passport."""
+        from backend.app.services import events
+        try:
+            p = submission.passport
+            if p is not None and p.verification_status == "SUPERSEDED" and getattr(self, "_superseded", False):
+                events.emit(self.db, submission.org_id, "passport.superseded",
+                            {"submission_id": submission.id, "passport_number": p.passport_number, "version": submission.version},
+                            title=f"Passport {p.passport_number} superseded", link="/brand-passport",
+                            body=f"“{submission.title}” changed to version {submission.version}; it must be re-approved before publishing.")
+            events.emit(self.db, submission.org_id, "analysis.completed",
+                        {"submission_id": submission.id, "title": submission.title, "score": submission.overall_score,
+                         "version": submission.version, "status": submission.status},
+                        title=f"Ready for review: {submission.title}", link="/approval-hub",
+                        body=f"Score {submission.overall_score}/100 · {len(submission.findings)} finding(s).")
+        except Exception as exc:  # notifications must never break an analysis
+            print(f"[events] notification skipped: {exc}")
 
     # ------------------------------------------------------------------ #
     #  Optional LLM augmentation pass
@@ -487,6 +506,7 @@ class ContentAnalyzerService:
             created_by=actor,
         ))
         PassportService(self.db).supersede_for_submission(submission)
+        self._superseded = True
 
     def apply_correction(self, submission_id: str, finding_id: str, target_text: str, replacement_text: str,
                          actor_name: Optional[str] = None) -> Submission:

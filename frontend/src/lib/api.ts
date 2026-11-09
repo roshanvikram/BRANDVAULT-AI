@@ -289,15 +289,19 @@ export async function fetchGuidelines(orgId?: string): Promise<BrandGuideline[]>
   return res.json();
 }
 
-export async function uploadGuideline(orgId: string | undefined, file: File): Promise<BrandGuideline> {
+export async function uploadGuideline(orgId: string | undefined, file: File, replaces?: string): Promise<BrandGuideline> {
   const formData = new FormData();
   if (orgId) formData.append("org_id", orgId);
+  if (replaces) formData.append("replaces", replaces);
   formData.append("file", file);
   const res = await apiFetch(`${API_BASE}/brand/guidelines/upload`, {
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to upload guideline");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(typeof body?.detail === "string" ? body.detail : "Failed to upload guideline");
+  }
   return res.json();
 }
 
@@ -1108,3 +1112,86 @@ export async function removeFeedbackBatch(batchId: string) {
   if (!res.ok) return engineError(res, "Could not remove batch");
   return res.json();
 }
+
+// ------------------------------------------------------------------ //
+//  Round 3 · Creative Inspection + workspace settings
+// ------------------------------------------------------------------ //
+export interface OcrLine { text: string; confidence: number; box: [number, number, number, number]; low_confidence?: boolean; ocr_text?: string }
+export interface CreativePage { index: number; label: string; width: number; height: number; source: "ocr" | "pdf-text" | "skipped"; lines: OcrLine[]; has_image: boolean }
+export interface CreativeRegion { kind: "finding" | "claim" | "logo"; id: string; severity: string; category: string; label: string; page: number; box: [number, number, number, number]; text: string }
+export interface ClearSpace { required_px: number; min_margin_px: number; edges: Record<string, number>; tight_edges: string[]; intruding_text: string[]; ok: boolean }
+export interface LogoCheck { page: number; asset_name: string; version_label: string; bbox: number[]; confidence: number; clear_space: ClearSpace; findings: { type: string; severity: string; title: string; measurement: string }[] }
+export interface CreativeInspectionOut {
+  id: string; file_name: string; kind: "image" | "pdf" | "video"; mime: string; score: number | null; text_found: boolean;
+  engine: string; elapsed_ms: number; note: string | null; submission_id: string | null; created_by: string; created_at: string | null;
+  page_count: number; logo_count: number;
+  pages?: CreativePage[]; corrections?: { from: string; to: string; reason: string; page: number }[];
+  regions?: CreativeRegion[]; logo_checks?: LogoCheck[];
+  submission?: {
+    id: string; title: string; status: string; overall_score: number; content: string;
+    findings: { id: string; category: string; severity: string; text: string; explanation: string; rule: string; evidence: string; suggestion: string; engine: string }[];
+    claims: { id: string; text: string; status: string; category: string; explanation: string }[];
+  };
+}
+export const fetchCreativeStatus = () =>
+  getJSON<{ ocr: { available: boolean; engine: string | null; reason?: string }; limits: { pdf_pages: number; ocr_pdf_pages: number; video_frames: number; max_mb: Record<string, number> } }>("/creative/status", "Could not load OCR status.");
+export function inspectCreative(file: File, department?: string) {
+  const f = new FormData(); f.append("file", file); if (department) f.append("department", department);
+  return postForm<CreativeInspectionOut>("/creative/inspect", f, "Inspection failed.");
+}
+export const fetchCreativeInspections = () => getJSON<CreativeInspectionOut[]>("/creative/inspections", "Could not load inspections.");
+export const fetchCreativeInspection = (id: string) => getJSON<CreativeInspectionOut>(`/creative/inspections/${id}`, "Could not load the inspection.");
+
+export interface WorkspaceSettings {
+  logo_clear_space_ratio: number;
+  channels: Record<string, { label: string; max_chars: number; aspect_ratios: string[]; required: string[] }>;
+  disclaimers: { id: string; label: string; trigger: string; region: string; required_any: string[] }[];
+  notifications: { email: string; slack_webhook_url: string; events: string[] };
+}
+export const fetchWorkspaceSettings = () =>
+  getJSON<{ settings: WorkspaceSettings; defaults: WorkspaceSettings; editable: boolean }>("/workspace/settings", "Could not load settings.");
+export async function saveWorkspaceSettings(changes: Partial<WorkspaceSettings>): Promise<{ settings: WorkspaceSettings }> {
+  const res = await apiFetch(`${API_BASE}/workspace/settings`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(changes) });
+  if (!res.ok) return engineError(res, "Could not save settings.");
+  return res.json();
+}
+
+// ------------------------------------------------------------------ //
+//  Round 3 · Integrations: API keys, webhooks, notifications, channels
+// ------------------------------------------------------------------ //
+export interface ApiKeyOut { id: string; name: string; prefix: string; scopes: string[]; created_by: string; created_at: string | null; last_used_at: string | null; use_count: number; revoked: boolean }
+export const fetchApiKeys = () => getJSON<{ keys: ApiKeyOut[]; scopes: Record<string, string> }>("/integrations/api-keys", "Could not load API keys.");
+export const createApiKey = (name: string, scopes: string[]) =>
+  postJSON<{ key: string; api_key: ApiKeyOut; note: string }>("/integrations/api-keys", { name, scopes }, "Could not create the key.");
+export async function revokeApiKey(id: string): Promise<ApiKeyOut> {
+  const res = await apiFetch(`${API_BASE}/integrations/api-keys/${id}`, { method: "DELETE" });
+  if (!res.ok) return engineError(res, "Could not revoke the key.");
+  return res.json();
+}
+export interface WebhookOut { id: string; url: string; events: string[]; active: boolean; created_by: string; created_at: string | null; secret_hint: string; last_status: string | null }
+export const fetchWebhooks = () => getJSON<{ webhooks: WebhookOut[]; events: Record<string, string> }>("/integrations/webhooks", "Could not load webhooks.");
+export const createWebhook = (url: string, events: string[]) =>
+  postJSON<{ webhook: WebhookOut; secret: string; note: string }>("/integrations/webhooks", { url, events }, "Could not add the webhook.");
+export async function disableWebhook(id: string): Promise<WebhookOut> {
+  const res = await apiFetch(`${API_BASE}/integrations/webhooks/${id}`, { method: "DELETE" });
+  if (!res.ok) return engineError(res, "Could not remove the webhook.");
+  return res.json();
+}
+export const testWebhook = (id: string) => postJSON<{ delivery_id: string }>(`/integrations/webhooks/${id}/test`, {}, "Test delivery failed.");
+export interface DeliveryOut { id: string; webhook_id: string; event: string; status: string; status_code: number | null; attempts: number; error: string | null; created_at: string | null; delivered_at: string | null }
+export const fetchDeliveries = () => getJSON<DeliveryOut[]>("/integrations/deliveries", "Could not load deliveries.");
+
+export interface NotificationOut { id: string; event: string; title: string; body: string; link: string | null; read: boolean; channels: Record<string, string>; created_at: string | null }
+export const fetchNotifications = () => getJSON<{ unread: number; email_configured: boolean; items: NotificationOut[] }>("/notifications", "Could not load notifications.");
+export const markNotificationsRead = (ids?: string[]) => postJSON<{ marked: number }>("/notifications/read", ids ?? null, "Could not update notifications.");
+
+export interface ChannelReport {
+  ok: boolean; available_channels: Record<string, string>;
+  channels: { channel: string; label: string; chars?: number; max_chars?: number | null; aspect?: number | null; ok: boolean; issues: string[] }[];
+  disclaimers: { id: string; label: string; region?: string; triggered: boolean; ok: boolean; present?: string[]; required_any?: string[]; issue: string | null }[];
+}
+export const checkChannels = (body: { text: string; channels: string[]; region?: string; width?: number; height?: number }) =>
+  postJSON<ChannelReport>("/channels/check", body, "Channel check failed.");
+export const API_BASE_URL = API_BASE;
+export interface Capabilities { database: string; pgvector: boolean; ocr: { available: boolean; engine: string | null; reason?: string }; embeddings: { available: boolean; provider: string | null; dim?: number; reason?: string }; retrieval_mode: string; email_notifications: boolean; demo_accounts: boolean }
+export const fetchCapabilities = () => getJSON<Capabilities>("/capabilities", "Could not load server capabilities.");

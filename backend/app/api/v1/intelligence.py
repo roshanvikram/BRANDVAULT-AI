@@ -25,6 +25,7 @@ from backend.app.models.passport import AgentRun, AuditLog
 from backend.app.models.product import Product
 from backend.app.models.submission import Submission
 from backend.app.models.user import User, ROLE_ADMIN, ROLE_REVIEWER
+from backend.app.services import filestore
 from backend.app.services import forensics as fx, fraud, reputation, similarity, simulation
 
 router = APIRouter(tags=["Advanced Intelligence"])
@@ -170,8 +171,7 @@ async def similarity_image(file: UploadFile = File(...), db: Session = Depends(g
             for a in db.query(BrandAsset).filter(BrandAsset.org_id == current.org_id).all()]
     for inv in db.query(AssetInvestigation).filter(AssetInvestigation.org_id == current.org_id).all():
         try:
-            with open(inv.file_path, "rb") as fh:
-                dh = fx.dhash(fx.load_image(fh.read())[0])
+            dh = fx.dhash(fx.load_image(filestore.read(db, inv.file_path, current.org_id))[0])
         except (OSError, ValueError):
             continue
         refs.append(("investigation", inv.id, inv.file_name, inv.sha256, inv.phash, dh, inv.created_at))
@@ -274,14 +274,13 @@ async def investigate(url: Optional[str] = Form(default=None), text: Optional[st
             fp = fx.fingerprints(data)
         except ValueError as e:
             raise HTTPException(status_code=415, detail=str(e))
-        path = assets_api._save(current.org_id, "incidents", data, fp["mime"])
+        path = assets_api._save(db, current.org_id, "incidents", data, fp["mime"])
         mime, sha = fp["mime"], fp["sha256"]
         now = datetime.datetime.utcnow()
         refs = []
         for a in db.query(BrandAsset).filter(BrandAsset.org_id == current.org_id).all():
             try:
-                with open(a.file_path, "rb") as fh:
-                    rgb, _, alpha = fx.load_image(fh.read())
+                rgb, _, alpha = fx.load_image(filestore.read(db, a.file_path, current.org_id))
             except (OSError, ValueError):
                 continue
             refs.append({"id": a.id, "name": a.name, "kind": a.kind, "version_label": a.version_label, "status": a.status,
@@ -314,6 +313,9 @@ async def investigate(url: Optional[str] = Form(default=None), text: Optional[st
     _agent(db, current.org_id, "Brand Fraud Agent", "Investigate suspected impersonation", t0, url or text or file.filename,
            f"{inc.number}: {risk} risk — {issue}")
     db.commit()
+    from backend.app.services import events
+    events.emit(db, current.org_id, "incident.opened", {"incident": inc.number, "risk": risk, "source_url": url},
+                title=f"{inc.number}: {risk} risk suspected impersonation", body=issue, link="/risk-radar/fraud")
     return _incident_out(inc)
 
 
@@ -342,7 +344,7 @@ def incident_evidence(iid: str, db: Session = Depends(get_db), current: User = D
     i = _own_incident(db, iid, current)
     if not i.evidence_path:
         raise HTTPException(status_code=404, detail="No evidence file")
-    return FileResponse(i.evidence_path, media_type=i.evidence_mime)
+    return filestore.response(db, i.evidence_path, i.evidence_mime, current.org_id)
 
 
 class StatusIn(BaseModel):

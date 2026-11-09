@@ -18,6 +18,7 @@ from backend.app.models.asset import BrandAsset, AssetInvestigation, ASSET_KINDS
 from backend.app.models.passport import AgentRun, AuditLog
 from backend.app.models.user import User, ROLE_ADMIN
 from backend.app.services import forensics as fx
+from backend.app.services import filestore
 
 router = APIRouter(prefix="/assets", tags=["Brand Asset Library & Forensics"])
 
@@ -26,13 +27,11 @@ MAX_BYTES = 10 * 1024 * 1024
 _EXT = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "image/bmp": ".bmp"}
 
 
-def _save(org_id: str, folder: str, data: bytes, mime: str) -> str:
-    d = os.path.join(STORAGE_ROOT, folder, org_id)
-    os.makedirs(d, exist_ok=True)
-    path = os.path.join(d, f"{uuid.uuid4().hex}{_EXT[mime]}")
-    with open(path, "wb") as f:
-        f.write(data)
-    return path
+def _save(db: Session, org_id: str, folder: str, data: bytes, mime: str) -> str:
+    """Store an upload durably (database-backed; survives container restarts)."""
+    if mime not in _EXT:
+        raise HTTPException(status_code=415, detail="Unsupported image type.")
+    return filestore.put(db, org_id, folder, data, mime)
 
 
 async def _read_image(file: UploadFile) -> bytes:
@@ -111,7 +110,7 @@ async def upload_asset(
     old = _own_asset(db, supersedes_id, current) if supersedes_id else None
     a = BrandAsset(id=str(uuid.uuid4()), org_id=current.org_id, name=name.strip(), kind=kind,
                    version_label=version_label.strip() or "v1", status="active",
-                   file_path=_save(current.org_id, "assets", data, fp["mime"]), mime=fp["mime"],
+                   file_path=_save(db, current.org_id, "assets", data, fp["mime"]), mime=fp["mime"],
                    width=fp["width"], height=fp["height"], sha256=fp["sha256"], phash=fp["phash"], dhash=fp["dhash"],
                    colours=fp["colours"], supersedes_id=old.id if old else None, valid_until=valid_until,
                    effective_from=datetime.datetime.utcnow(), uploaded_by=current.full_name,
@@ -149,7 +148,7 @@ def set_status(asset_id: str, payload: StatusIn, db: Session = Depends(get_db),
 @router.get("/{asset_id}/file")
 def asset_file(asset_id: str, db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     a = _own_asset(db, asset_id, current)
-    return FileResponse(a.file_path, media_type=a.mime)
+    return filestore.response(db, a.file_path, a.mime, current.org_id)
 
 
 # ------------------------------- forensics ----------------------------------
@@ -174,8 +173,7 @@ async def investigate(file: UploadFile = File(...), db: Session = Depends(get_db
     refs = []
     for a in db.query(BrandAsset).filter(BrandAsset.org_id == current.org_id).all():
         try:
-            with open(a.file_path, "rb") as fh:
-                rgb, _, alpha = fx.load_image(fh.read())
+            rgb, _, alpha = fx.load_image(filestore.read(db, a.file_path, current.org_id))
         except (OSError, ValueError):
             continue  # missing/corrupt reference file: skip, never fabricate
         refs.append({"id": a.id, "name": a.name, "kind": a.kind, "version_label": a.version_label, "status": a.status,
@@ -187,7 +185,7 @@ async def investigate(file: UploadFile = File(...), db: Session = Depends(get_db
     if not refs:
         result["summary"] = "No official assets are in the library yet, so nothing could be compared."
     inv = AssetInvestigation(id=str(uuid.uuid4()), org_id=current.org_id, file_name=file.filename or "upload",
-                             file_path=_save(current.org_id, "investigations", data, result["mime"]), mime=result["mime"],
+                             file_path=_save(db, current.org_id, "investigations", data, result["mime"]), mime=result["mime"],
                              width=result["width"], height=result["height"], sha256=result["sha256"],
                              phash=result["phash"], risk=result["risk"], summary=result["summary"],
                              result={"matches": result["matches"], "note": result["note"], "compared": len(refs)},
@@ -228,4 +226,4 @@ def get_investigation(inv_id: str, db: Session = Depends(get_db), current: User 
 @router.get("/investigations/{inv_id}/file")
 def investigation_file(inv_id: str, db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     i = _own_inv(db, inv_id, current)
-    return FileResponse(i.file_path, media_type=i.mime)
+    return filestore.response(db, i.file_path, i.mime, current.org_id)

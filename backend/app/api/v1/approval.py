@@ -65,6 +65,18 @@ def submit_decision(
         reviewer_name=current.full_name,
         reviewer_role=current.role,
     )
+    from backend.app.services import events
+    events.emit(db, submission.org_id, "review.decided",
+                {"submission_id": submission.id, "title": submission.title, "decision": payload.decision,
+                 "version": submission.version, "reviewer": current.full_name},
+                title=f"{payload.decision}: {submission.title}", link="/approval-hub",
+                body=f"{current.full_name} ({current.role}) — {payload.comments[:200] if payload.comments else 'no comment'}")
+    if payload.decision == "Approved" and submission.passport is not None:
+        events.emit(db, submission.org_id, "passport.issued",
+                    {"submission_id": submission.id, "passport_number": submission.passport.passport_number,
+                     "content_hash": submission.passport.content_hash},
+                    title=f"Brand Passport {submission.passport.passport_number} issued", link="/brand-passport",
+                    body=f"“{submission.title}” version {submission.version} is approved for publishing.")
     return submission
 
 @router.get("/history/{submission_id}", response_model=List[ApprovalRecordResponse])

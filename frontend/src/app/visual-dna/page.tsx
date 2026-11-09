@@ -55,19 +55,20 @@ export default function VisualDNAInspector() {
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">Visual & Creative Asset Auditor</h2>
           <p className="text-[13px] text-slate-600 mt-1 max-w-2xl">
-            Deterministic color-palette, luminance, and contrast analysis against brand design systems. PNG and BMP supported.
+            Measured colour palette, luminance and contrast. PNG, JPEG, WebP and BMP supported. To check the text inside a creative, use Creative Inspection.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href="/visual-dna/creative" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-colors">Creative Inspection</Link>
           <Link href="/visual-dna/forensics" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Asset Forensics</Link>
-          <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/png,image/bmp" className="hidden" />
+          <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/png,image/bmp,image/jpeg,image/webp" className="hidden" />
           <button
             onClick={() => fileInputRef.current?.click()}
             className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white transition-all flex items-center space-x-2 shadow-md shadow-indigo-500/20 active:scale-[0.99]"
           >
             <Upload className="w-4 h-4 text-indigo-200" />
-            <span>Upload PNG or BMP</span>
+            <span>Upload image</span>
           </button>
         </div>
       </div>
@@ -89,7 +90,7 @@ export default function VisualDNAInspector() {
                 <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <ImageIcon className="w-7 h-7" />
                 </div>
-                <div className="text-sm font-bold text-slate-900">Upload a PNG or BMP creative asset</div>
+                <div className="text-sm font-bold text-slate-900">Upload a creative image (PNG, JPEG, WebP or BMP)</div>
                 <div className="text-xs text-slate-500 mt-1 max-w-xs">Deterministic pixel analysis — JPEG/WebP/SVG not analysed here</div>
                 <span className="mt-3 text-xs font-semibold text-indigo-600 group-hover:underline">Browse file</span>
               </div>

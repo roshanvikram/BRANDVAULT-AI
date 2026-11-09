@@ -129,7 +129,24 @@ def decode_image(data: bytes) -> Optional[Dict]:
     """Decode to sampled RGB pixels, or None if the format is unsupported here."""
     if not data:
         return None
-    return _decode_png(data) or _decode_bmp(data)
+    return _decode_png(data) or _decode_bmp(data) or _decode_pillow(data)
+
+
+def _decode_pillow(data: bytes) -> Optional[Dict]:
+    """JPEG/WebP (and PNG variants the pure-Python path skips) via Pillow, sampled the same way."""
+    try:
+        import io
+        from PIL import Image
+        img = Image.open(io.BytesIO(data))
+        fmt = (img.format or "").lower()
+        if fmt not in ("jpeg", "webp", "png", "bmp"):
+            return None
+        img = img.convert("RGB")
+        w, h = img.size
+        small = img.resize((min(w, 200), min(h, 200)))
+        return {"width": w, "height": h, "format": fmt, "pixels": list(small.getdata())}
+    except Exception:
+        return None
 
 
 # --------------------------- metrics (measured) ---------------------------- #
@@ -178,12 +195,26 @@ class OCRProvider:
 
 
 class NullOCR(OCRProvider):
-    """No OCR engine installed (no Tesseract). Never fabricates text."""
-    reason = "OCR engine not installed (Tesseract/vision model unavailable in this environment)."
+    """No OCR engine installed. Never fabricates text."""
+    reason = "OCR engine not installed in this environment."
+
+
+class RapidOCRProvider(OCRProvider):
+    """Real OCR (services/ocr.py). Returns the recognised lines in reading order."""
+    name = "rapidocr-onnx"
+    available = True
+
+    def extract_text(self, data: bytes) -> Optional[str]:
+        from backend.app.services import ocr as ocr_svc
+        try:
+            return "\n".join(l["text"] for l in ocr_svc.recognise(data)["lines"]) or None
+        except Exception:
+            return None
 
 
 def get_ocr_provider() -> OCRProvider:
-    return NullOCR()
+    from backend.app.services import ocr as ocr_svc
+    return RapidOCRProvider() if ocr_svc.available() else NullOCR()
 
 
 # --------------------------- persistence / orchestration ------------------- #
@@ -225,13 +256,18 @@ def analyze_and_persist(db, org_id: str, filename: str, data: bytes, author_name
     findings: List[Finding] = []
     deductions = 0
     chromatic = metrics.get("chromatic_fraction", 0.0)
-    if chromatic > 0.10:
+    # Only judge colours against a palette rule this organisation actually has.
+    from backend.app.models.brand import BrandRule
+    palette_rule = next((r for r in db.query(BrandRule).filter(BrandRule.org_id == org_id, BrandRule.is_active == True,
+                                                               BrandRule.is_confirmed == True).all()
+                         if "monochrom" in f"{r.title} {r.rule_text}".lower()), None)
+    if palette_rule and chromatic > 0.10:
         findings.append(Finding(
             id=str(uuid.uuid4()), submission_id=submission.id,
             issue_category="Visual", severity="WARNING",
             original_text=f"{int(chromatic * 100)}% of sampled pixels are chromatic (non-grayscale)",
-            explanation="The approved NOVA TECH palette is monochrome. Measured colour content exceeds the monochrome threshold.",
-            rule_reference="Monochrome Brand Palette rule",
+            explanation=f"{org.name}'s confirmed palette rule requires monochrome. Measured colour content exceeds the monochrome threshold.",
+            rule_reference=palette_rule.title,
             evidence_source=citation,
             confidence=0.9, suggested_correction="Restrict the asset to approved monochrome values (e.g. #0A0A0A, #171717, #FFFFFF).",
             analysis_engine="visual-cv",
@@ -276,5 +312,8 @@ def analyze_and_persist(db, org_id: str, filename: str, data: bytes, author_name
         "metrics": metrics,
         "format": decoded["format"],
         "dimensions": {"width": decoded["width"], "height": decoded["height"]},
-        "ocr": {"available": ocr.available, "text": None, "reason": getattr(ocr, "reason", None)},
+        "ocr": {"available": ocr.available, "text": ocr.extract_text(data) if ocr.available else None,
+                "reason": getattr(ocr, "reason", None), "engine": ocr.name,
+                "note": "Use Creative Inspection to check the claims in this text against your Brand DNA."},
+        "palette_rule": palette_rule.title if palette_rule else None,
     }

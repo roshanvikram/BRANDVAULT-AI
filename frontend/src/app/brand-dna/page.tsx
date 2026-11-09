@@ -37,6 +37,8 @@ export default function BrandDNAStudio() {
   const [activeTab, setActiveTab] = useState<"rules" | "facts" | "terms" | "guidelines">("rules");
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [replaces, setReplaces] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadData = () => {
@@ -65,12 +67,15 @@ export default function BrandDNAStudio() {
 
     setUploading(true);
     setUploadSuccess(null);
+    setUploadError(null);
     try {
-      const res = await uploadGuideline(undefined, file);
-      setUploadSuccess(`Successfully ingested '${res.filename}' (${res.total_pages} pages parsed).`);
+      const res = await uploadGuideline(undefined, file, replaces || undefined);
+      const replaced = guidelines.find((g) => g.id === replaces);
+      setUploadSuccess(`Ingested '${res.filename}' (${res.total_pages} section${res.total_pages === 1 ? "" : "s"})${replaced ? ` — '${replaced.filename}' is now kept as history and no longer cited as evidence` : ""}. New rules wait for your confirmation.`);
+      setReplaces("");
       loadData();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setUploadError(err?.message || "Upload failed.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -109,7 +114,7 @@ export default function BrandDNAStudio() {
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept=".pdf,.txt,.docx"
+            accept=".pdf,.docx,.html,.htm,.md,.txt,.csv,.xlsx"
             className="hidden"
           />
           <button
@@ -118,13 +123,22 @@ export default function BrandDNAStudio() {
             className="px-4 py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm shadow-indigo-200 transition-all flex items-center space-x-2"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>{uploading ? "Ingesting PDF…" : "Upload Guideline (PDF/TXT)"}</span>
+            <span>{uploading ? "Ingesting…" : "Upload guideline"}</span>
           </button>
+          <select value={replaces} onChange={(e) => setReplaces(e.target.value)} aria-label="Replaces an existing document"
+                  className="h-10 px-2.5 rounded-xl text-xs text-slate-700 bg-white border border-slate-200 max-w-[220px]">
+            <option value="">New document</option>
+            {guidelines.filter((g) => g.status !== "superseded").map((g) => <option key={g.id} value={g.id}>Replaces: {g.filename}</option>)}
+          </select>
           <Link href="/brand-dna/products" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Product Truth</Link>
           <Link href="/brand-dna/knowledge-gaps" className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Knowledge gaps</Link>
         </div>
       </div>
 
+      <p className="-mt-3 text-[11px] text-slate-500">Accepted: PDF, Word (.docx), HTML, Markdown/text, and CSV/Excel price lists. Passages are cited by page, section or row. Price-list rows for known products become pending facts in Product Truth.</p>
+      {uploadError && (
+        <div role="alert" className="p-3 rounded-xl border border-rose-200 bg-rose-50 text-xs text-rose-800">{uploadError}</div>
+      )}
       {uploadSuccess && (
         <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/80 text-xs text-emerald-800 flex items-center justify-between font-medium">
           <div className="flex items-center gap-2">

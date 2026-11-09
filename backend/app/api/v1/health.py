@@ -36,3 +36,20 @@ def get_health(db: Session = Depends(get_db)):
         llm=llm_status,
     )
 
+
+
+@router.get("/capabilities")
+def get_capabilities(db: Session = Depends(get_db)):
+    """Which optional engines are live on this server (shown in Settings; never assumed)."""
+    from backend.app.services import embeddings, events, ocr
+    from backend.app.services import rag
+    dialect = db.get_bind().dialect.name
+    return {
+        "database": dialect,
+        "pgvector": bool(dialect == "postgresql" and any(rag._PGV_READY.values())),
+        "ocr": ocr.status(),
+        "embeddings": embeddings.status(),
+        "retrieval_mode": settings.RAG_MODE,
+        "email_notifications": events.email_configured(),
+        "demo_accounts": settings.DEMO_ACCOUNTS_ENABLED,
+    }

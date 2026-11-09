@@ -22,6 +22,8 @@ async def lifespan(app: FastAPI):
         seed_vortexa_brand(db)
         augment_integrity_demo(db)
         seed_demo_users(db)
+        from backend.app.services.seed import apply_demo_account_policy
+        apply_demo_account_policy(db, settings.DEMO_ACCOUNTS_ENABLED)
         # Build/refresh RAG vector embeddings for every org's guideline chunks.
         from backend.app.models.brand import Organization
         from backend.app.services.rag import RagRetriever

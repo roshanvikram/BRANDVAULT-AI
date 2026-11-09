@@ -16,6 +16,8 @@ const PAGE_TITLES: Record<string, { section: string; title: string }> = {
   "/brand-dna/products": { section: "Brand DNA Studio", title: "Product Truth" },
   "/brand-dna/knowledge-gaps": { section: "Brand DNA Studio", title: "Knowledge Gaps" },
   "/visual-dna/forensics": { section: "Visual DNA", title: "Asset Forensics" },
+  "/visual-dna/creative": { section: "Visual DNA", title: "Creative Inspection" },
+  "/approval-hub/publishing": { section: "Approval Hub", title: "Publishing Gate" },
   "/brand-passport/verify": { section: "Brand Passport", title: "Campaign Integrity" },
   "/approval-hub/readiness": { section: "Approval Hub", title: "Launch Readiness" },
   "/approval-hub/insights": { section: "Approval Hub", title: "Reviewer Intelligence" },

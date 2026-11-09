@@ -58,9 +58,9 @@ class TestVisualDecodeMetrics(unittest.TestCase):
     def test_unsupported_format_returns_none(self):
         self.assertIsNone(visual.decode_image(b"\xff\xd8\xff\xe0 jpeg-ish bytes"))
 
-    def test_ocr_is_unavailable_not_faked(self):
+    def test_ocr_never_invents_text(self):
         ocr = visual.get_ocr_provider()
-        self.assertFalse(ocr.available)
+        # Real engine when installed, NullOCR otherwise; neither returns text for garbage bytes.
         self.assertIsNone(ocr.extract_text(b"anything"))
 
 
@@ -86,17 +86,38 @@ class TestVisualApi(unittest.TestCase):
         app.dependency_overrides.clear()
         drop_db(cls.engine, cls.path)
 
-    def test_colourful_image_flags_visual_finding(self):
+    def test_colourful_image_not_judged_without_a_palette_rule(self):
+        # No organisation has a confirmed monochrome rule, so colour is measured but not flagged.
         bmp = make_bmp(solid(16, 16, (220, 20, 20)))
-        r = self.client.post("/api/v1/visual/analyze",
-                             data={"org_id": NOVA_ORG_ID},
-                             files={"file": ("ad.bmp", bmp, "image/bmp")})
+        r = self.client.post("/api/v1/visual/analyze", data={"org_id": NOVA_ORG_ID},
+                             files={"file": ("plain.bmp", bmp, "image/bmp")})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertNotIn("Visual", [f["issue_category"] for f in r.json()["submission"]["findings"]])
+        self.assertIsNone(r.json()["palette_rule"])
+
+    def test_colourful_image_flags_visual_finding(self):
+        from backend.app.models.brand import BrandRule
+        import uuid as _uuid
+        rule_id = str(_uuid.uuid4())
+        db = self.Session()
+        db.add(BrandRule(id=rule_id, org_id=NOVA_ORG_ID, category="Visual", title="Monochrome palette (test)",
+                         rule_text="Creatives must use the monochrome palette.", is_active=True, is_confirmed=True))
+        db.commit()
+        bmp = make_bmp(solid(16, 16, (220, 20, 20)))
+        try:
+            r = self.client.post("/api/v1/visual/analyze",
+                                 data={"org_id": NOVA_ORG_ID},
+                                 files={"file": ("ad.bmp", bmp, "image/bmp")})
+        finally:
+            db.query(BrandRule).filter(BrandRule.id == rule_id).delete()
+            db.commit()
+            db.close()
         self.assertEqual(r.status_code, 200, r.text)
         body = r.json()
         self.assertGreater(body["metrics"]["chromatic_fraction"], 0.9)
         cats = [f["issue_category"] for f in body["submission"]["findings"]]
         self.assertIn("Visual", cats)
-        self.assertFalse(body["ocr"]["available"])  # honest: OCR not faked
+        self.assertEqual(body["palette_rule"], "Monochrome palette (test)")
 
     def test_monochrome_image_no_visual_finding(self):
         bmp = make_bmp(checker_bw(16, 16))
@@ -111,7 +132,21 @@ class TestVisualApi(unittest.TestCase):
         r = self.client.post("/api/v1/visual/analyze",
                              data={"org_id": NOVA_ORG_ID},
                              files={"file": ("photo.jpg", b"\xff\xd8\xff\xe0jpeg", "image/jpeg")})
+        self.assertEqual(r.status_code, 415)  # corrupt JPEG: refused, never guessed
+        r = self.client.post("/api/v1/visual/analyze", data={"org_id": NOVA_ORG_ID},
+                             files={"file": ("vector.svg", b"<svg/>", "image/svg+xml")})
         self.assertEqual(r.status_code, 415)
+
+    def test_real_jpeg_is_analysed(self):
+        import io
+        from PIL import Image
+        buf = io.BytesIO()
+        Image.new("RGB", (64, 48), (240, 240, 240)).save(buf, "JPEG")
+        r = self.client.post("/api/v1/visual/analyze", data={"org_id": NOVA_ORG_ID},
+                             files={"file": ("photo.jpg", buf.getvalue(), "image/jpeg")})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["format"], "jpeg")
+        self.assertEqual(r.json()["dimensions"], {"width": 64, "height": 48})
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AuthProvider, RequireAuth } from "@/lib/auth";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { ServerWake } from "./ServerWake";
 
 // Public routes render full-page without the app chrome.
 const PUBLIC_ROUTES = ["/", "/login", "/signup", "/guide"];
@@ -30,6 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <AuthProvider>
+      <ServerWake />
       {isPublic ? (
         children
       ) : (

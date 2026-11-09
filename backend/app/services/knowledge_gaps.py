@@ -45,7 +45,7 @@ def _corpus(db: Session, org_id: str) -> List[tuple]:
     for r in db.query(BrandRule).filter(BrandRule.org_id == org_id, BrandRule.is_confirmed == True).all():  # noqa: E712
         out.append((f"{r.title}. {r.rule_text}", r.source_document or f"Rule: {r.title}", r.page_reference))
     rows = (db.query(DocumentChunk, BrandGuideline).join(BrandGuideline, DocumentChunk.guideline_id == BrandGuideline.id)
-            .filter(BrandGuideline.org_id == org_id).all())
+            .filter(BrandGuideline.org_id == org_id, BrandGuideline.status != "superseded").all())
     for ch, g in rows:
         out.append((ch.content, g.filename, ch.page_number))
     return out
@@ -244,6 +244,31 @@ def detect_gaps(db: Session, org_id: str) -> Optional[dict]:
         items.append(_item(f"expired_fact:{f.id}", f"Expired fact still on record: {f.fact_key}", STALE, LOW,
                            f"Expired on {f.valid_until:%d %b %Y}{'; superseded by ' + f.superseded_by if f.superseded_by else ''}.",
                            "Keep it for history, and make sure campaigns no longer use it.", group="Sources"))
+    # Guideline Gap Agent: product values that disagree across the current documents.
+    for c in guideline_conflicts(db, org_id):
+        a, b = c["values"][0], c["values"][1]
+        items.append(_item(f"guideline_conflict:{c['product']}:{c['attribute']}",
+                           f"Guidelines disagree: {c['product']} {c['attribute_label']}", CONFLICT, HIGH,
+                           f"{a['text']} ({a['source']}, {a['where']}) vs {b['text']} ({b['source']}, {b['where']})"
+                           + (f" and {len(c['values']) - 2} more" if len(c["values"]) > 2 else "") + ".",
+                           "Decide which value is correct, fix the other document, and re-upload it.",
+                           evidence=(a["source"], a["page"], a["sentence"]), action={"label": "Open Brand DNA", "href": _UPLOAD_HREF},
+                           group="Sources"))
+    # Facts and rules whose source document has been replaced by a newer version.
+    replaced = {g.filename: g for g in db.query(BrandGuideline).filter(BrandGuideline.org_id == org_id,
+                                                                     BrandGuideline.status == "superseded").all()}
+    if replaced:
+        for f in db.query(ProductFact).filter(ProductFact.org_id == org_id, ProductFact.status == FACT_APPROVED,
+                                              ProductFact.source_document.in_(list(replaced))).all():
+            items.append(_item(f"replaced_source:{f.id}", f"Fact from a replaced document: {f.product.name} {f.attribute}",
+                               WEAK, MEDIUM, f"“{f.value_text}” came from {f.source_document}, which has been replaced by a newer version.",
+                               "Confirm the value against the new document.", action={"label": "Open Product Truth", "href": "/brand-dna/products"},
+                               group="Sources"))
+        for r in db.query(BrandRule).filter(BrandRule.org_id == org_id, BrandRule.is_active == True,  # noqa: E712
+                                            BrandRule.source_document.in_(list(replaced))).all():
+            items.append(_item(f"replaced_rule:{r.id}", f"Rule from a replaced document: {r.title}", WEAK, LOW,
+                               f"Taken from {r.source_document}, which has been replaced.", "Re-confirm or retire this rule.",
+                               action={"label": "Review rules", "href": _UPLOAD_HREF}, group="Sources"))
     if not db.query(BrandGuideline).filter(BrandGuideline.org_id == org_id).count():
         items.append(_item("no_documents", "Brand guideline documents", MISSING, HIGH, "No guideline has been uploaded.",
                            "Upload your brand guideline PDF.", action={"label": "Upload guideline", "href": _UPLOAD_HREF},
@@ -280,3 +305,49 @@ def detect_gaps(db: Session, org_id: str) -> Optional[dict]:
         "basis": "Computed from stored Brand DNA records. Gaps are never filled automatically.",
         "generated_at": now.isoformat() + "Z",
     }
+
+
+_SENTENCES = re.compile(r"(?<=[.!?])\s+")
+_NEGATED = re.compile(r"\b(not|never|no longer|prohibited|forbidden|incorrect|wrong|instead of|must not|do not|don't|contradict\w*)\b", re.I)
+_ATTR_LABELS = {"price": "price", "battery": "battery life", "ai_performance": "AI performance", "processor": "clock speed",
+                "storage": "storage", "display": "display size", "display_refresh": "refresh rate", "weight": "weight",
+                "warranty": "warranty"}
+
+
+def guideline_conflicts(db: Session, org_id: str) -> List[dict]:
+    """Guideline Gap Agent: the same product attribute stated with different values in current documents.
+
+    Values come from the same deterministic parser Product Truth uses. A conflict is
+    reported only when two passages that both name the product give values that differ
+    by more than 1%, so wording differences alone never count.
+    """
+    products = [p.name for p in db.query(Product).filter(Product.org_id == org_id).all() if p.name]
+    if not products:
+        return []
+    rows = (db.query(DocumentChunk, BrandGuideline).join(BrandGuideline, DocumentChunk.guideline_id == BrandGuideline.id)
+            .filter(BrandGuideline.org_id == org_id, BrandGuideline.status != "superseded").all())
+    seen: Dict[tuple, List[dict]] = {}
+    for ch, g in rows:
+        low = (ch.content or "").lower()
+        named = [p for p in products if p.lower() in low]
+        if len(named) != 1:  # ambiguous or no product: do not guess which product a number belongs to
+            continue
+        for sentence in _SENTENCES.split(ch.content or ""):
+            if _NEGATED.search(sentence):  # "never advertise ₹69,999" states a forbidden value, not a fact
+                continue
+            for v in pt.parse_values(sentence):
+                if v.qualifier == "min" or v.attribute not in _ATTR_LABELS:
+                    continue
+                seen.setdefault((named[0], v.attribute), []).append(
+                    {"value": v.value, "unit": v.unit, "text": v.text.strip(), "source": g.filename, "page": ch.page_number,
+                     "where": ch.section_label or f"page {ch.page_number}", "sentence": sentence.strip()[:240]})
+    out = []
+    for (product, attr), vals in seen.items():
+        distinct: List[dict] = []
+        for v in vals:
+            if not any(abs(v["value"] - d["value"]) <= 0.01 * max(abs(d["value"]), 1e-9) for d in distinct):
+                distinct.append(v)
+        # Only documents contradicting *each other* count; one document is assumed internally consistent.
+        if len(distinct) > 1 and len({d["source"] for d in distinct}) > 1:
+            out.append({"product": product, "attribute": attr, "attribute_label": _ATTR_LABELS[attr], "values": distinct})
+    return out

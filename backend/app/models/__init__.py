@@ -26,6 +26,10 @@ from backend.app.models.integrity import CampaignIntegrityCheck
 from backend.app.models.asset import BrandAsset, AssetInvestigation
 from backend.app.models.governance import LaunchCheckConfig, LaunchReadinessReport
 from backend.app.models.intelligence import SimulationRun, SimilarityDismissal, OfficialDomain, FraudIncident, FeedbackRecord
+from backend.app.models.storage import StoredFile
+from backend.app.models.creative import CreativeInspection, OrgSetting
+from backend.app.models.integration import ApiKey, Webhook, WebhookDelivery, Notification
+from backend.app.models.retrieval import ChunkEmbedding
 
 __all__ = [
     "User",
