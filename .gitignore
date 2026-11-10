@@ -55,3 +55,4 @@ backend/.secret_key
 backend/storage/
 .next-check/
 backups/
+.neon

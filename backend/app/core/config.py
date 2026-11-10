@@ -121,9 +121,17 @@ class Settings(BaseSettings):
     LLM_TIMEOUT_SECONDS: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "20"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1500"))
     
+    # Neon's direct (non-pooled) connection, written by `neon deploy`. Used for schema
+    # changes at startup; requests use the pooled DATABASE_URL.
+    DATABASE_URL_UNPOOLED: str = os.getenv("DATABASE_URL_UNPOOLED", "")
+
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        # .env.local (written by tools such as the Neon CLI) overrides .env.
+        env_file = (".env", ".env.local")
+        # Other tools add their own variables to these files (NEON_BRANCH, NEON_REALTIME_URL, ...);
+        # ignore names this app does not use instead of refusing to start.
+        extra = "ignore"
 
 _DEV_SECRET_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".secret_key")
 

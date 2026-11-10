@@ -38,14 +38,30 @@ class KeepAwakeTests(unittest.TestCase):
 class StorageFlagTests(unittest.TestCase):
     def test_sqlite_on_render_is_temporary(self):
         from fastapi.testclient import TestClient
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from backend.app.db.session import get_db
         from backend.main import app
-        c = TestClient(app)
-        with mock.patch.dict(os.environ, {"RENDER": "true", "STORAGE_PERSISTENT": ""}):
-            j = c.get("/api/v1/capabilities").json()
-        if j["database"] == "sqlite":
+        # Never touch the developer's real database (it may be Neon/PostgreSQL).
+        Session = sessionmaker(bind=create_engine("sqlite://"))
+
+        def _db():
+            d = Session()
+            try:
+                yield d
+            finally:
+                d.close()
+        app.dependency_overrides[get_db] = _db
+        try:
+            c = TestClient(app)
+            with mock.patch.dict(os.environ, {"RENDER": "true", "STORAGE_PERSISTENT": ""}):
+                j = c.get("/api/v1/capabilities").json()
+            self.assertEqual(j["database"], "sqlite")
             self.assertFalse(j["persistent_storage"])
-        with mock.patch.dict(os.environ, {"RENDER": ""}):
-            self.assertTrue(c.get("/api/v1/capabilities").json()["persistent_storage"])
+            with mock.patch.dict(os.environ, {"RENDER": ""}):
+                self.assertTrue(c.get("/api/v1/capabilities").json()["persistent_storage"])
+        finally:
+            app.dependency_overrides.pop(get_db, None)
 
 
 if __name__ == "__main__":

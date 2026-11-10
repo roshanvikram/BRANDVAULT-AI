@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.db.base import Base
-from backend.app.db.session import engine, SessionLocal
+from backend.app.db.session import engine, ddl_engine, SessionLocal
 from backend.app.db.migrations import run_light_migrations
 from backend.app.api.v1 import api_router
 from backend.app.services.seed import seed_sample_brand, augment_integrity_demo, seed_demo_users, seed_vortexa_brand
@@ -12,10 +12,10 @@ from backend.app.services.seed import seed_sample_brand, augment_integrity_demo,
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create tables, apply additive migrations, seed baseline brand
-    Base.metadata.create_all(bind=engine)
-    run_light_migrations(engine)
+    Base.metadata.create_all(bind=ddl_engine)
+    run_light_migrations(ddl_engine)
     from backend.app.db.migrations import fix_chunk_page_numbers
-    fix_chunk_page_numbers(engine)
+    fix_chunk_page_numbers(ddl_engine)
     db = SessionLocal()
     try:
         seed_sample_brand(db)
@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
         db.close()
     # PostgreSQL only: database-level tenant isolation (after seeding, so every table exists).
     from backend.app.db import rls
-    rls.enable(engine)
+    rls.enable(ddl_engine)
     from backend.app.services import keepawake
     awake_task = keepawake.start(list(settings.BACKEND_CORS_ORIGINS))
     from backend.app.services import ctwatch
@@ -79,14 +79,17 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+from fastapi import Depends as _Depends
+from backend.app.db.session import get_db as _get_db
+
+
 @app.get("/api/v1/ready", include_in_schema=False)
-def ready():
+def ready(db=_Depends(_get_db)):
     """Readiness for load balancers: 200 only when the database answers."""
     from sqlalchemy import text as _t
     from fastapi.responses import JSONResponse
     try:
-        with engine.connect() as c:
-            c.execute(_t("SELECT 1"))
+        db.execute(_t("SELECT 1"))
         return {"ready": True}
     except Exception:
         return JSONResponse({"ready": False}, status_code=503)

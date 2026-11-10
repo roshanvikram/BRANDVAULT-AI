@@ -25,6 +25,15 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Schema changes at startup (create tables, add columns, Row-Level Security policies)
+# go over a direct connection when one is configured: Neon recommends running DDL
+# outside its connection pooler. Falls back to the normal engine.
+_ddl_url = settings.DATABASE_URL_UNPOOLED or ""
+if _ddl_url.startswith("postgres://"):
+    _ddl_url = "postgresql://" + _ddl_url[len("postgres://"):]
+ddl_engine = (create_engine(_ddl_url, connect_args=connect_args, pool_pre_ping=True, pool_size=1, max_overflow=1)
+              if _ddl_url.startswith("postgresql") and _url.startswith("postgresql") else engine)
+
 def get_db():
     db = SessionLocal()
     try:
