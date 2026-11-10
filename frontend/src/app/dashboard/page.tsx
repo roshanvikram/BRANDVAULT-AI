@@ -128,12 +128,17 @@ export default function Dashboard() {
   const [period, setPeriod] = useState<Period>(7);
   const [metric, setMetric] = useState<Metric>("reviews");
 
+  // Parts that failed to load. Shown as a notice so a failure never looks like "0 reviews".
+  const [failed, setFailed] = useState<string[]>([]);
+  const fail = (what: string) => (e: unknown) => { console.error(e); setFailed((f) => (f.includes(what) ? f : [...f, what])); };
+
   const loadData = () => {
-    fetchSubmissions().then(setSubmissions).catch(console.error).finally(() => setLoaded(true));
-    fetchRules().then(setRules).catch(console.error);
-    fetchAgentRuns().then((r) => setRuns(r.slice(0, 5))).catch(console.error);
-    fetchPassports().then(setPassports).catch(console.error);
-    fetchOnboardingStatus().then(setOnboarding).catch(console.error);
+    setFailed([]);
+    fetchSubmissions().then(setSubmissions).catch(fail("reviews")).finally(() => setLoaded(true));
+    fetchRules().then(setRules).catch(fail("brand rules"));
+    fetchAgentRuns().then((r) => setRuns(r.slice(0, 5))).catch(fail("agent activity"));
+    fetchPassports().then(setPassports).catch(fail("passports"));
+    fetchOnboardingStatus().then(setOnboarding).catch(fail("setup status"));
   };
   useEffect(() => { loadData(); }, []);
 
@@ -182,6 +187,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {failed.length > 0 && (
+        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
+          <span className="flex-1 min-w-0">Couldn&apos;t load {failed.join(", ")}. The numbers below may be incomplete. If the server was just restarted it may still be starting up.</span>
+          <button onClick={loadData} className="font-semibold text-amber-900 underline underline-offset-2">Try again</button>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
         <div>
