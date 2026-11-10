@@ -25,7 +25,7 @@ function HeatGrid({ data, rowLabel }: { data: Heatmap; rowLabel: string }) {
                 return (
                   <td key={j} title={`${r} · ${data.columns[j]}: ${v}`}
                       className="text-center rounded-md h-9 tabular-nums font-semibold"
-                      style={{ background: v ? `rgba(225, 29, 72, ${0.08 + 0.72 * t})` : "#f8fafc", color: t > 0.55 ? "#fff" : "#334155" }}>
+                      style={{ background: v ? `rgba(225, 29, 72, ${0.08 + 0.72 * t})` : "#E6E9ED", color: t > 0.55 ? "#fff" : "#3E4248" }}>
                     {v || ""}
                   </td>
                 );

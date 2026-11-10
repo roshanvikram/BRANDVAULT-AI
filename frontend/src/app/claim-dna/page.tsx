@@ -30,7 +30,7 @@ const GLASS = "bg-white border border-slate-200/80 shadow-soft rounded-2xl";
 const STATE_META: Record<EvidenceState, { label: string; shade: string; bg: string; border: string; text: string }> = {
   supported:   { label: "Supported",   shade: "#10B981", bg: "#ECFDF5", border: "#A7F3D0", text: "#047857" },
   contradicted:{ label: "Contradicted",shade: "#F43F5E", bg: "#FFF1F2", border: "#FECDD3", text: "#BE123C" },
-  outdated:    { label: "Outdated",    shade: "#8B5CF6", bg: "#F5F3FF", border: "#DDD6FE", text: "#6D28D9" },
+  outdated:    { label: "Outdated",    shade: "#3F5B8F", bg: "#F5F3FF", border: "#DDD6FE", text: "#6D28D9" },
   missing:     { label: "Missing",     shade: "#0284C7", bg: "#F0F9FF", border: "#BAE6FD", text: "#0369A1" },
   review:      { label: "Needs review",shade: "#F59E0B", bg: "#FFFBEB", border: "#FDE68A", text: "#B45309" },
 };

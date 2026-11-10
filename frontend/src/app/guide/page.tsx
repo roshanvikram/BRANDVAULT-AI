@@ -44,12 +44,12 @@ function VideoEmbed({ url }: { url: string }) {
 }
 
 /* ------------------------------- illustrations ---------------------------- */
-const F = "#EEF2FF", B = "#4F46E5", G = "#6366F1", E = "#C7D2FE";
+const F = "#EFF5FF", B = "#2554D9", G = "#3B6FEF", E = "#BFD5FD";
 const EMERALD_BG = "#ECFDF5", EMERALD_FG = "#10B981", EMERALD_BD = "#A7F3D0";
 const ROSE_BG = "#FFF1F2", ROSE_FG = "#F43F5E", ROSE_BD = "#FECDD3";
 const AMBER_BG = "#FFFBEB", AMBER_FG = "#F59E0B", AMBER_BD = "#FDE68A";
 const SKY_BG = "#F0F9FF", SKY_FG = "#0284C7", SKY_BD = "#BAE6FD";
-const PURPLE_BG = "#FAF5FF", PURPLE_FG = "#8B5CF6", PURPLE_BD = "#DDD6FE";
+const PURPLE_BG = "#FAF5FF", PURPLE_FG = "#3F5B8F", PURPLE_BD = "#DDD6FE";
 
 function IllAccount() {
   return (
@@ -109,7 +109,7 @@ function IllVisual() {
       <rect x="34" y="20" width="132" height="76" rx="8" fill={SKY_BG} stroke={SKY_BD} />
       <circle cx="60" cy="44" r="8" fill="#FDE047" stroke="#FACC15" />
       <path d="M44 86l24-24 16 14 20-18 18 16v12H44z" fill="#34D399" stroke="#10B981" />
-      {["#4F46E5", "#06B6D4", "#10B981", "#F59E0B"].map((c, i) => (<rect key={i} x={48 + i * 24} y={104} width="18" height="18" rx="4" fill={c} stroke="white" />))}
+      {["#2554D9", "#06B6D4", "#10B981", "#F59E0B"].map((c, i) => (<rect key={i} x={48 + i * 24} y={104} width="18" height="18" rx="4" fill={c} stroke="white" />))}
       <rect x="140" y="104" width="22" height="18" rx="4" fill={EMERALD_BG} stroke={EMERALD_BD} />
       <text x="151" y="117" fontFamily="sans-serif" fontSize="8" fontWeight="700" fill={EMERALD_FG} textAnchor="middle">AA</text>
     </svg>

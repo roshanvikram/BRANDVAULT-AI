@@ -12,21 +12,21 @@
 :root {
   --font-geist-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-geist-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  --background: #F8FAFC;
+  --background: #E6E9ED;
   --surface: #FFFFFF;
-  --surface-muted: #F1F5F9;
-  --surface-hover: #F8FAFC;
-  --border: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --foreground: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
+  --surface-muted: #ECEEF1;
+  --surface-hover: #E6E9ED;
+  --border: #DCE0E5;
+  --border-strong: #C3C8CF;
+  --foreground: #222427;
+  --text-secondary: #555A62;
+  --text-muted: #727881;
   
   /* Primary Brand (Indigo & Violet) */
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --primary-light: #EEF2FF;
-  --primary-border: #C7D2FE;
+  --primary: #2554D9;
+  --primary-hover: #1D42B8;
+  --primary-light: #EFF5FF;
+  --primary-border: #BFD5FD;
   
   /* Semantic Light Accents */
   --success: #10B981;
@@ -49,21 +49,21 @@
   --info-border: #BAE6FD;
   --info-text: #0369A1;
 
-  --ring: #4F46E5;
+  --ring: #2554D9;
 
   /* Glass tokens with light color tint */
-  --glass-bg: rgba(255, 255, 255, 0.90);
-  --glass-bg-strong: rgba(255, 255, 255, 0.96);
+  --glass-bg: rgba(252,252,253, 0.90);
+  --glass-bg-strong: rgba(252,252,253, 0.96);
   --glass-bg-subtle: rgba(248, 250, 252, 0.85);
   --glass-border: rgba(226, 232, 240, 0.8);
-  --glass-border-strong: #CBD5E1;
+  --glass-border-strong: #C3C8CF;
   --glass-blur: blur(12px);
   --glass-blur-strong: blur(20px);
 
-  --shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 16px -4px rgba(79, 70, 229, 0.04);
-  --shadow-medium: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(79, 70, 229, 0.04);
-  --shadow-float: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(79, 70, 229, 0.08);
-  --shadow-primary: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
+  --shadow-soft: 0 1px 3px rgba(34,36,39, 0.04), 0 6px 16px -4px rgba(37,84,217, 0.04);
+  --shadow-medium: 0 4px 12px -2px rgba(34,36,39, 0.06), 0 2px 6px -1px rgba(37,84,217, 0.04);
+  --shadow-float: 0 12px 32px -8px rgba(34,36,39, 0.12), 0 4px 12px -2px rgba(37,84,217, 0.08);
+  --shadow-primary: 0 4px 14px 0 rgba(37,84,217, 0.25);
 }
 
 *, *::before, *::after {
@@ -79,8 +79,8 @@ body {
   background-color: var(--background);
   /* Atmospheric light canvas with subtle pastel gradients */
   background-image:
-    radial-gradient(1100px 520px at 20% -12%, rgba(224, 231, 255, 0.55) 0%, rgba(224, 231, 255, 0) 70%),
-    radial-gradient(900px 480px at 95% -8%, rgba(237, 233, 254, 0.45) 0%, rgba(237, 233, 254, 0) 65%);
+    radial-gradient(1100px 520px at 20% -12%, rgba(220,224,229, 0.55) 0%, rgba(220,224,229, 0) 70%),
+    radial-gradient(900px 480px at 95% -8%, rgba(195,200,207, 0.45) 0%, rgba(195,200,207, 0) 65%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-geist-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -93,7 +93,7 @@ body {
 
 h1, h2, h3, h4 {
   letter-spacing: -0.025em;
-  color: #0F172A;
+  color: #222427;
 }
 
 /* Metadata / labels: sans with tabular numbers */
@@ -109,36 +109,36 @@ h1, h2, h3, h4 {
 
 /* Primary actions: indigo/violet gradient with soft glow */
 .btn-primary {
-  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  background: linear-gradient(135deg, #2554D9 0%, #3B6FEF 100%);
   color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28);
+  box-shadow: 0 2px 8px rgba(37,84,217, 0.28);
   transition: all 0.15s ease-in-out;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.38);
+  background: linear-gradient(135deg, #1D42B8 0%, #2554D9 100%);
+  box-shadow: 0 4px 14px rgba(37,84,217, 0.38);
   transform: translateY(-1px);
 }
 
 /* Secondary actions: white with light border */
 .btn-secondary {
   background-color: #FFFFFF;
-  color: #334155;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  color: #3E4248;
+  border: 1px solid #DCE0E5;
+  box-shadow: 0 1px 2px rgba(34,36,39, 0.04);
   transition: all 0.15s ease-in-out;
 }
 .btn-secondary:hover {
-  background-color: #F8FAFC;
-  color: #0F172A;
-  border-color: #CBD5E1;
+  background-color: #E6E9ED;
+  color: #222427;
+  border-color: #C3C8CF;
 }
 
 /* Colored Badge Utilities */
 .badge-indigo {
-  background-color: #EEF2FF;
-  color: #4338CA;
-  border: 1px solid #C7D2FE;
+  background-color: #EFF5FF;
+  color: #1D42B8;
+  border: 1px solid #BFD5FD;
 }
 .badge-emerald {
   background-color: #ECFDF5;
@@ -168,8 +168,8 @@ h1, h2, h3, h4 {
 
 /* Selection */
 ::selection {
-  background: #C7D2FE;
-  color: #1E1B4B;
+  background: #BFD5FD;
+  color: #152147;
 }
 
 /* Custom Minimalist Scrollbar */
@@ -181,30 +181,30 @@ h1, h2, h3, h4 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #C3C8CF;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #9AA1AA;
 }
 
 /* Glass cards */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(252,252,253, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid #E2E8F0;
+  border: 1px solid #DCE0E5;
   border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(79, 70, 229, 0.05);
+  box-shadow: 0 1px 3px rgba(34,36,39, 0.04), 0 8px 24px -8px rgba(37,84,217, 0.05);
 }
 
 .glass-floating {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(252,252,253, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid #CBD5E1;
+  border: 1px solid #C3C8CF;
   border-radius: 16px;
-  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 12px 32px -8px rgba(34,36,39, 0.12), 0 4px 12px -2px rgba(37,84,217, 0.08);
 }
 
 /* ---------------------------------------------------------------- Motion ---- */
@@ -212,20 +212,20 @@ h1, h2, h3, h4 {
 @keyframes bv-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
 .bv-page-enter { animation: bv-fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .bv-shimmer {
-  background-image: linear-gradient(90deg, #F1F5F9 0px, #E2E8F0 120px, #F1F5F9 240px);
+  background-image: linear-gradient(90deg, #ECEEF1 0px, #DCE0E5 120px, #ECEEF1 240px);
   background-size: 800px 100%;
   animation: bv-shimmer 1.3s linear infinite;
 }
 /* Faint dot grid used behind page headers. */
 .bv-grid {
-  background-image: radial-gradient(rgba(79, 70, 229, 0.18) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(37,84,217, 0.18) 1px, transparent 1px);
   background-size: 18px 18px;
   mask-image: linear-gradient(to left, black, transparent 70%);
 }
 /* Cards lift slightly on hover when they are interactive. */
 .bv-lift { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
-.bv-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(15, 23, 42, 0.28); border-color: #C7D2FE; }
-:focus-visible { outline: 2px solid #6366F1; outline-offset: 2px; }
+.bv-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(34,36,39, 0.28); border-color: #BFD5FD; }
+:focus-visible { outline: 2px solid #3B6FEF; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .bv-page-enter, .bv-shimmer, .bv-lift { animation: none !important; transition: none !important; transform: none !important; }
 }
@@ -238,10 +238,44 @@ body:has(.bv-glass-app) { background: transparent; background-image: none; }
 .bv-glass-app main [class*="rounded-3xl"].bg-white,
 .bv-glass-app main [class*="rounded-xl"][class*="shadow"].bg-white,
 .bv-glass-app main .glass-panel {
-  background-color: rgb(255 255 255 / 0.7);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  backdrop-filter: blur(20px) saturate(1.5);
-  border-color: rgb(255 255 255 / 0.7);
+  /* No live backdrop blur on cards: with many cards it made scrolling lag. The
+     background is already soft, so a translucent fill reads as frosted glass. */
+  background-color: rgb(252 252 253 / 0.8);
+  border-color: rgb(252 252 253 / 0.75);
 }
 /* Inputs stay solid so typing is always crisp. */
-.bv-glass-app main input, .bv-glass-app main textarea, .bv-glass-app main select { background-color: rgb(255 255 255 / 0.92); }
+.bv-glass-app main input, .bv-glass-app main textarea, .bv-glass-app main select { background-color: rgb(252 252 253 / 0.92); }
+
+/* ------------------------------------------------------------ Morphism ---- */
+/* Shapes that slowly change form (header art, background blobs). */
+@keyframes bv-morph {
+  0%, 100% { border-radius: 42% 58% 63% 37% / 45% 39% 61% 55%; transform: translate(0, 0) rotate(0deg); }
+  33% { border-radius: 63% 37% 41% 59% / 58% 62% 38% 42%; transform: translate(6px, -8px) rotate(8deg); }
+  66% { border-radius: 36% 64% 55% 45% / 38% 47% 53% 62%; transform: translate(-5px, 6px) rotate(-6deg); }
+}
+@keyframes bv-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+@keyframes bv-drift {
+  0%, 100% { border-radius: 46% 54% 60% 40% / 50% 42% 58% 50%; transform: translate(0, 0) scale(1); }
+  50% { border-radius: 60% 40% 38% 62% / 40% 60% 40% 60%; transform: translate(4vw, -3vh) scale(1.08); }
+}
+.bv-morph { border-radius: 42% 58% 63% 37% / 45% 39% 61% 55%; animation: bv-morph 14s ease-in-out infinite; will-change: transform; }
+.bv-morph-slow { animation-duration: 21s; animation-direction: reverse; }
+.bv-float { animation: bv-float 7s ease-in-out infinite; will-change: translate; }
+.bv-float-delay { animation-delay: -3.5s; }
+.bv-drift { animation: bv-drift 26s ease-in-out infinite; }
+.bv-drift-b { animation-duration: 34s; animation-delay: -11s; animation-direction: reverse; }
+.bv-drift-c { animation-duration: 40s; animation-delay: -20s; }
+
+/* Glass edge: a light top rim and a soft sheen, like a sheet of glass catching light. */
+.bv-glass-edge,
+.bv-glass-app main [class*="rounded-2xl"].bg-white,
+.bv-glass-app main [class*="rounded-3xl"].bg-white,
+.bv-glass-app main .glass-panel {
+  background-image: linear-gradient(140deg, rgb(255 255 255 / 0.55) 0%, rgb(255 255 255 / 0.12) 45%, rgb(255 255 255 / 0) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 0 0 1px rgb(255 255 255 / 0.25),
+              0 1px 2px rgb(34 36 39 / 0.04), 0 12px 32px -16px rgb(34 36 39 / 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bv-morph, .bv-float, .bv-drift { animation: none !important; }
+}

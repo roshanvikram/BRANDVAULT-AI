@@ -50,7 +50,7 @@ export function NotificationsMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[340px] rounded-2xl border border-slate-200 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.22)] z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-[340px] rounded-2xl border border-slate-200 bg-white shadow-[0_16px_40px_-12px_rgba(34,36,39,0.22)] z-50 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
             <span className="text-[13px] font-semibold text-slate-900">Notifications</span>
             {unread > 0 && <button onClick={() => markNotificationsRead().then(load)} className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800">Mark all read</button>}

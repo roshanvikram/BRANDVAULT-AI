@@ -62,10 +62,10 @@ function Gauge({ value, size = 150 }: { value: number; size?: number }) {
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
         <defs>
           <linearGradient id="gauge" x1="0" x2="1" y1="1" y2="0">
-            <stop offset="0%" stopColor="#6366F1" /><stop offset="100%" stopColor="#8B5CF6" />
+            <stop offset="0%" stopColor="#3B6FEF" /><stop offset="100%" stopColor="#3F5B8F" />
           </linearGradient>
         </defs>
-        <circle cx={c} cy={c} r={r} fill="none" stroke="#EEF2FF" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${arc} ${circ}`} transform={`rotate(135 ${c} ${c})`} />
+        <circle cx={c} cy={c} r={r} fill="none" stroke="#EFF5FF" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${arc} ${circ}`} transform={`rotate(135 ${c} ${c})`} />
         <circle cx={c} cy={c} r={r} fill="none" stroke="url(#gauge)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${val} ${circ}`} transform={`rotate(135 ${c} ${c})`} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -79,8 +79,8 @@ function Gauge({ value, size = 150 }: { value: number; size?: number }) {
 const CLAIM_STATUSES = [
   { key: "Supported", label: "Supported", shade: "#10B981" },
   { key: "Needs Human Review", label: "Needs review", shade: "#F59E0B" },
-  { key: "Outdated", label: "Outdated", shade: "#8B5CF6" },
-  { key: "Unsupported", label: "Unsupported", shade: "#94A3B8" },
+  { key: "Outdated", label: "Outdated", shade: "#3F5B8F" },
+  { key: "Unsupported", label: "Unsupported", shade: "#9AA1AA" },
   { key: "Contradicted", label: "Contradicted", shade: "#F43F5E" },
 ];
 
@@ -268,7 +268,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-3 text-[11px] text-slate-500">
-                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-indigo-500" style={{ background: chart.color === "emerald" ? "#059669" : chart.color === "rose" ? "#E11D48" : "#4F46E5" }} /> This period</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-indigo-500" style={{ background: chart.color === "emerald" ? "#059669" : chart.color === "rose" ? "#E11D48" : "#2554D9" }} /> This period</span>
                 {d.hasPrior && <span className="inline-flex items-center gap-1.5"><span className="w-3 border-t border-dashed border-slate-400" /> Prior period</span>}
               </div>
               <Segmented label="Chart metric" value={metric} onChange={setMetric}

@@ -174,7 +174,7 @@ export default function ForensicsPage() {
                       {match ? <>Matched official asset · {match.asset_name} {match.version_label} <Badge tone={match.current ? "good" : "neutral"}>{match.asset_status}</Badge></> : "No official asset matched"}
                     </div>
                     {match ? (
-                      <div className="rounded-xl overflow-hidden border border-slate-200 bg-[repeating-conic-gradient(#f1f5f9_0%_25%,#fff_0%_50%)] bg-[length:16px_16px]">
+                      <div className="rounded-xl overflow-hidden border border-slate-200 bg-[repeating-conic-gradient(#ECEEF1_0%_25%,#fff_0%_50%)] bg-[length:16px_16px]">
                         <ProtectedImage path={`/assets/${match.asset_id}/file`} alt={`Official ${match.asset_name}`} className="w-full h-auto block" />
                       </div>
                     ) : <div className="h-40 rounded-xl bg-slate-50 border border-slate-200" />}
@@ -265,7 +265,7 @@ export default function ForensicsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {assets.map((a) => (
                 <div key={a.id} className={`${CARD} overflow-hidden ${a.current ? "" : "opacity-80"}`}>
-                  <div className="aspect-video bg-[repeating-conic-gradient(#f1f5f9_0%_25%,#fff_0%_50%)] bg-[length:16px_16px] flex items-center justify-center">
+                  <div className="aspect-video bg-[repeating-conic-gradient(#ECEEF1_0%_25%,#fff_0%_50%)] bg-[length:16px_16px] flex items-center justify-center">
                     <ProtectedImage path={`/assets/${a.id}/file`} alt={a.name} className="max-h-full max-w-full object-contain" />
                   </div>
                   <div className="p-3.5 space-y-1.5">

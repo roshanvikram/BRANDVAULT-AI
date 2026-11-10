@@ -276,7 +276,7 @@ class GroqProvider(LLMProvider):
                         wait = float(he.headers.get("retry-after") or 0)
                     except (TypeError, ValueError):
                         wait = 0.0
-                    time.sleep(min(max(wait, 1.5 * (attempt + 1)), 8.0))
+                    time.sleep(min(max(wait, 1.0 * (attempt + 1)), 4.0))  # keep the page responsive
             choices = (data or {}).get("choices") or []
             if not choices:
                 return None

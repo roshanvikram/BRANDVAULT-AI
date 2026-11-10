@@ -94,7 +94,7 @@ Product problems found and fixed:
 - **Fixes:**
   - AI-only findings are now *suggestions for the reviewer* (severity SUGGESTION, small score effect).
   - Findings whose quote is not in the copy are dropped.
-  - Groq 429/503 replies are retried up to twice, waiting at most 8 s.
+  - Groq 429/503 replies are retried up to twice, waiting at most 4 s each.
 - **After fixes:** 50/50 exact, precision 1.00, recall 1.00, 14/14 clean texts pass, 0 failed calls.
 
 ## 3. Creative Inspection evaluation (Improvement 1)

@@ -20,7 +20,7 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#F8FAFC] text-[#0F172A] min-h-screen antialiased">
+      <body className="bg-[#E6E9ED] text-[#222427] min-h-screen antialiased">
         <AppShell>{children}</AppShell>
       </body>
     </html>

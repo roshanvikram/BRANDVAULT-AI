@@ -17,7 +17,7 @@ function smoothPath(pts: [number, number][]) {
 }
 
 const COLORS = {
-  indigo: { line: "#4F46E5", fill: "#6366F1" },
+  indigo: { line: "#2554D9", fill: "#3B6FEF" },
   rose: { line: "#E11D48", fill: "#F43F5E" },
   emerald: { line: "#059669", fill: "#10B981" },
   amber: { line: "#D97706", fill: "#F59E0B" },
@@ -95,10 +95,10 @@ export function TrendChart({
                   <stop offset="100%" stopColor={c.fill} stopOpacity="0" />
                 </linearGradient>
               </defs>
-              {pri.length > 1 && <path d={smoothPath(pri)} fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />}
+              {pri.length > 1 && <path d={smoothPath(pri)} fill="none" stroke="#9AA1AA" strokeWidth="1.5" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />}
               {cur.length > 1 && <path d={`${line} L${cur[cur.length - 1][0]},${H} L${cur[0][0]},${H} Z`} fill={`url(#t${id})`} />}
               <path d={line} fill="none" stroke={c.line} strokeWidth="2.25" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={0} y2={H} stroke="#CBD5E1" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
+              {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={0} y2={H} stroke="#C3C8CF" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
             </svg>
             {hover !== null && values[hover] !== null && (
               <span className="absolute w-2.5 h-2.5 -ml-[5px] -mt-[5px] rounded-full bg-white ring-2 pointer-events-none"

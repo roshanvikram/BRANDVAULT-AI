@@ -94,7 +94,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
         "relative flex items-center h-9 rounded-xl text-[13px] transition-all duration-150 group",
         collapsed ? "justify-center px-0" : "px-3 justify-between",
         active
-          ? "bg-white text-slate-900 font-semibold shadow-[0_1px_2px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/90"
+          ? "bg-slate-900 text-silver-100 font-semibold shadow-[0_6px_16px_-8px_rgba(34,36,39,0.55)] ring-1 ring-slate-900"
           : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
       )}
     >
@@ -103,7 +103,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
           aria-hidden
           className={cn(
             "w-4 h-4 shrink-0 transition-colors",
-            active ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"
+            active ? "text-indigo-400" : "text-slate-400 group-hover:text-slate-600"
           )}
           strokeWidth={active ? 2 : 1.75}
         />
@@ -171,7 +171,7 @@ export function Sidebar() {
         {/* Brand + organisation */}
         <div className={cn("h-16 flex items-center border-b border-slate-200/60 shrink-0", isCollapsed ? "justify-center" : "px-4 justify-between")}>
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 text-white flex items-center justify-center text-xs font-bold shadow-md shadow-indigo-200 shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-slate-900 text-indigo-300 ring-1 ring-indigo-500/40 flex items-center justify-center text-xs font-bold shadow-md shadow-indigo-900/20 shrink-0 group-hover:scale-105 transition-transform">
               BV
             </div>
             {!isCollapsed && (
@@ -239,7 +239,7 @@ export function Sidebar() {
           </button>
 
           {!isCollapsed && org && (
-            <div className="mt-2 rounded-xl bg-white ring-1 ring-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.04)] p-3">
+            <div className="mt-2 rounded-xl bg-white ring-1 ring-slate-200/80 shadow-[0_1px_2px_rgba(34,36,39,0.04)] p-3">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="flex items-center gap-1.5 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />

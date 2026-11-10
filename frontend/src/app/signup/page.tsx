@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthShell } from "@/components/auth/AuthShell";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,11 +38,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 select-none relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-200/40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-purple-200/40 blur-3xl" />
-
+    <AuthShell>
       <div className="w-full max-w-sm relative z-10">
         {/* Brand */}
         <Link href="/" className="flex items-center justify-center space-x-3 mb-8 group">
@@ -178,6 +175,6 @@ export default function SignUpPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </AuthShell>
   );
 }

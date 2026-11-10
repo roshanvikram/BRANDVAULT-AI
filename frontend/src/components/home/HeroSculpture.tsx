@@ -4,9 +4,8 @@ import { useMemo } from "react";
 
 /**
  * Geometric Brand Vault Rose / Dahlia Sculpture.
- * Arranged on a phyllotaxis golden-angle spiral with a rich,
- * iridescent chromatic palette (Indigo, Violet, Cyan, Emerald, Rose, Amber, Gold).
- * Pure scalable SVG with 360-degree chromatic spectrum and luminous core.
+ * Arranged on a phyllotaxis golden-angle spiral in the brand palette (signal red,
+ * deep red, moonlit silver, charcoal grey). Static (no animation). Pure scalable SVG.
  */
 const GOLDEN_ANGLE = 137.508;
 const PETALS = 260;
@@ -73,93 +72,93 @@ export function HeroSculpture({ className }: { className?: string }) {
       className={className}
       aria-hidden
       role="presentation"
-      style={{ filter: "drop-shadow(0 20px 45px rgba(99, 102, 241, 0.25))" }}
+      style={{ filter: "drop-shadow(0 20px 45px rgba(59,111,239, 0.25))" }}
     >
       <defs>
         {/* 1. Indigo / Royal Blue */}
         <linearGradient id="bv-petal-indigo" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#312E81" />
-          <stop offset="35%" stopColor="#4F46E5" />
-          <stop offset="70%" stopColor="#818CF8" />
-          <stop offset="100%" stopColor="#E0E7FF" />
+          <stop offset="0%" stopColor="#1E3375" />
+          <stop offset="35%" stopColor="#2554D9" />
+          <stop offset="70%" stopColor="#6093F6" />
+          <stop offset="100%" stopColor="#DBE8FE" />
         </linearGradient>
 
         {/* 2. Electric Violet */}
         <linearGradient id="bv-petal-violet" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#4C1D95" />
-          <stop offset="40%" stopColor="#7C3AED" />
-          <stop offset="75%" stopColor="#A855F7" />
-          <stop offset="100%" stopColor="#F3E8FF" />
+          <stop offset="0%" stopColor="#151618" />
+          <stop offset="40%" stopColor="#222427" />
+          <stop offset="75%" stopColor="#1C2C4B" />
+          <stop offset="100%" stopColor="#B8C0CA" />
         </linearGradient>
 
         {/* 3. Radiant Fuchsia / Magenta */}
         <linearGradient id="bv-petal-fuchsia" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#701A75" />
-          <stop offset="40%" stopColor="#C026D3" />
-          <stop offset="75%" stopColor="#E879F9" />
-          <stop offset="100%" stopColor="#FDF4FF" />
+          <stop offset="0%" stopColor="#16233C" />
+          <stop offset="40%" stopColor="#2E4675" />
+          <stop offset="75%" stopColor="#5F7BAD" />
+          <stop offset="100%" stopColor="#DDE6F2" />
         </linearGradient>
 
         {/* 4. Vivid Rose / Coral */}
         <linearGradient id="bv-petal-rose" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#881337" />
-          <stop offset="40%" stopColor="#E11D48" />
-          <stop offset="75%" stopColor="#FB7185" />
-          <stop offset="100%" stopColor="#FFE4E6" />
+          <stop offset="0%" stopColor="#1E3894" />
+          <stop offset="40%" stopColor="#3B6FEF" />
+          <stop offset="75%" stopColor="#93B8FB" />
+          <stop offset="100%" stopColor="#EFF5FF" />
         </linearGradient>
 
         {/* 5. Golden Amber / Sunset */}
         <linearGradient id="bv-petal-amber" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#78350F" />
-          <stop offset="40%" stopColor="#D97706" />
-          <stop offset="75%" stopColor="#FBBF24" />
-          <stop offset="100%" stopColor="#FEF3C7" />
+          <stop offset="0%" stopColor="#4E5560" />
+          <stop offset="40%" stopColor="#9AA7B6" />
+          <stop offset="75%" stopColor="#C9D1DB" />
+          <stop offset="100%" stopColor="#FCFCFD" />
         </linearGradient>
 
         {/* 6. Luminous Emerald */}
         <linearGradient id="bv-petal-emerald" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#064E3B" />
-          <stop offset="40%" stopColor="#059669" />
-          <stop offset="75%" stopColor="#34D399" />
-          <stop offset="100%" stopColor="#D1FAE5" />
+          <stop offset="0%" stopColor="#222427" />
+          <stop offset="40%" stopColor="#2E3135" />
+          <stop offset="75%" stopColor="#555A62" />
+          <stop offset="100%" stopColor="#C3C8CF" />
         </linearGradient>
 
         {/* 7. Radiant Teal */}
         <linearGradient id="bv-petal-teal" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#134E4A" />
-          <stop offset="40%" stopColor="#0D9488" />
-          <stop offset="75%" stopColor="#2DD4BF" />
-          <stop offset="100%" stopColor="#CCFBF1" />
+          <stop offset="0%" stopColor="#1D42B8" />
+          <stop offset="40%" stopColor="#6093F6" />
+          <stop offset="75%" stopColor="#BFD5FD" />
+          <stop offset="100%" stopColor="#FCFCFD" />
         </linearGradient>
 
         {/* 8. Electric Cyan / Azure */}
         <linearGradient id="bv-petal-cyan" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#0C4A6E" />
-          <stop offset="40%" stopColor="#0284C7" />
-          <stop offset="75%" stopColor="#38BDF8" />
-          <stop offset="100%" stopColor="#E0F2FE" />
+          <stop offset="0%" stopColor="#151618" />
+          <stop offset="40%" stopColor="#2A2C30" />
+          <stop offset="75%" stopColor="#24385E" />
+          <stop offset="100%" stopColor="#B8C0CA" />
         </linearGradient>
 
         {/* Inner Glowing Core Petals */}
         <linearGradient id="bv-petal-inner" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#F59E0B" />
-          <stop offset="50%" stopColor="#FDE047" />
-          <stop offset="100%" stopColor="#FFFFFF" />
+          <stop offset="0%" stopColor="#2554D9" />
+          <stop offset="50%" stopColor="#BFD5FD" />
+          <stop offset="100%" stopColor="#FCFCFD" />
         </linearGradient>
 
         {/* Core Glowing Orb */}
         <radialGradient id="bv-core-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="35%" stopColor="#FEF08A" />
-          <stop offset="75%" stopColor="#F59E0B" />
-          <stop offset="100%" stopColor="#D97706" />
+          <stop offset="0%" stopColor="#FCFCFD" />
+          <stop offset="35%" stopColor="#DBE8FE" />
+          <stop offset="75%" stopColor="#3B6FEF" />
+          <stop offset="100%" stopColor="#1E3894" />
         </radialGradient>
 
         {/* Outer Halo */}
         <radialGradient id="bv-halo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#818CF8" stopOpacity="0.28" />
-          <stop offset="50%" stopColor="#C084FC" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#67E8F9" stopOpacity="0" />
+          <stop offset="0%" stopColor="#6093F6" stopOpacity="0.28" />
+          <stop offset="50%" stopColor="#222427" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#C9D1DB" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -168,6 +167,7 @@ export function HeroSculpture({ className }: { className?: string }) {
 
       {/* Full flower rosette with isometric perspective */}
       <g transform="scale(1 0.78) rotate(-4)">
+        <g>
         {petals.map((p, i) => (
           <path
             key={i}
@@ -180,6 +180,8 @@ export function HeroSculpture({ className }: { className?: string }) {
             opacity={p.isInner ? 0.98 : 0.92}
           />
         ))}
+
+        </g>
 
         {/* Radiant Center Core */}
         <circle r="26" fill="url(#bv-core-glow)" stroke="#FFFFFF" strokeWidth="2.5" />

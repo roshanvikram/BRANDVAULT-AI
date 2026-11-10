@@ -9,16 +9,16 @@ import { fetchBrandGraph, BrandGraph, GraphNode, GraphNodeType } from "@/lib/api
 
 /* ----------------------------- node styling ------------------------------- */
 const STYLE: Record<GraphNodeType, { r: number; fill: string; stroke: string; text: string; label: string }> = {
-  brand:     { r: 26, fill: "#4F46E5", stroke: "#818CF8", text: "#FFFFFF", label: "Brand" },
-  category:  { r: 17, fill: "#7C3AED", stroke: "#C084FC", text: "#FFFFFF", label: "Category" },
+  brand:     { r: 26, fill: "#2554D9", stroke: "#6093F6", text: "#FFFFFF", label: "Brand" },
+  category:  { r: 17, fill: "#2E4675", stroke: "#C084FC", text: "#FFFFFF", label: "Category" },
   guideline: { r: 12, fill: "#0284C7", stroke: "#38BDF8", text: "#FFFFFF", label: "Guideline" },
-  campaign:  { r: 12, fill: "#6366F1", stroke: "#A5B4FC", text: "#FFFFFF", label: "Campaign" },
+  campaign:  { r: 12, fill: "#3B6FEF", stroke: "#93B8FB", text: "#FFFFFF", label: "Campaign" },
   rule:      { r: 10, fill: "#F59E0B", stroke: "#FDE68A", text: "#FFFFFF", label: "Rule" },
   fact:      { r: 10, fill: "#10B981", stroke: "#A7F3D0", text: "#FFFFFF", label: "Fact" },
   term:      { r: 10, fill: "#EC4899", stroke: "#FBCFE8", text: "#FFFFFF", label: "Term" },
   evidence:  { r: 8,  fill: "#06B6D4", stroke: "#BAE6FD", text: "#FFFFFF", label: "Evidence" },
   finding:   { r: 8,  fill: "#F43F5E", stroke: "#FECDD3", text: "#FFFFFF", label: "Finding" },
-  claim:     { r: 8,  fill: "#8B5CF6", stroke: "#DDD6FE", text: "#FFFFFF", label: "Claim" },
+  claim:     { r: 8,  fill: "#3F5B8F", stroke: "#DDD6FE", text: "#FFFFFF", label: "Claim" },
   passport:  { r: 13, fill: "#059669", stroke: "#6EE7B7", text: "#FFFFFF", label: "Passport" },
 };
 const RING = 165;

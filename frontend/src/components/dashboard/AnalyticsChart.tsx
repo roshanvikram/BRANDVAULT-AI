@@ -60,7 +60,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
   const area = `${line} L ${pts[pts.length - 1].x.toFixed(1)},110 L ${pts[0].x.toFixed(1)},110 Z`;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_20px_-8px_rgba(79,70,229,0.06)] space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-[0_1px_3px_rgba(34,36,39,0.04),0_8px_20px_-8px_rgba(37,84,217,0.06)] space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -121,9 +121,9 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
         <svg viewBox="0 0 500 130" className="w-full h-full overflow-visible">
           <defs>
             <linearGradient id="chartIndigoGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.22" />
-              <stop offset="60%" stopColor="#818CF8" stopOpacity="0.08" />
-              <stop offset="100%" stopColor="#EEF2FF" stopOpacity="0.00" />
+              <stop offset="0%" stopColor="#2554D9" stopOpacity="0.22" />
+              <stop offset="60%" stopColor="#6093F6" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#EFF5FF" stopOpacity="0.00" />
             </linearGradient>
             <linearGradient id="chartRoseGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.22" />
@@ -133,9 +133,9 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
           </defs>
 
           {/* Grid lines */}
-          <line x1="0" y1="20" x2="500" y2="20" stroke="#E2E8F0" strokeDasharray="3 3" />
-          <line x1="0" y1="60" x2="500" y2="60" stroke="#E2E8F0" strokeDasharray="3 3" />
-          <line x1="0" y1="100" x2="500" y2="100" stroke="#E2E8F0" strokeDasharray="3 3" />
+          <line x1="0" y1="20" x2="500" y2="20" stroke="#DCE0E5" strokeDasharray="3 3" />
+          <line x1="0" y1="60" x2="500" y2="60" stroke="#DCE0E5" strokeDasharray="3 3" />
+          <line x1="0" y1="100" x2="500" y2="100" stroke="#DCE0E5" strokeDasharray="3 3" />
 
           {/* Area fill */}
           <path d={area} fill={tab === "volume" ? "url(#chartIndigoGrad)" : "url(#chartRoseGrad)"} />
@@ -144,7 +144,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
           <path
             d={line}
             fill="none"
-            stroke={tab === "volume" ? "#4F46E5" : "#F43F5E"}
+            stroke={tab === "volume" ? "#2554D9" : "#F43F5E"}
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -158,7 +158,7 @@ export function AnalyticsChart({ submissions }: AnalyticsChartProps) {
               cy={p.y}
               r="4.5"
               className={`fill-white stroke-2 cursor-pointer transition-all hover:scale-125 ${
-                tab === "volume" ? "stroke-[#4F46E5]" : "stroke-[#F43F5E]"
+                tab === "volume" ? "stroke-[#2554D9]" : "stroke-[#F43F5E]"
               }`}
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover(null)}

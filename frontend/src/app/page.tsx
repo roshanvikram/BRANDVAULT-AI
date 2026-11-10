@@ -85,7 +85,7 @@ function SampleCards() {
       </FloatCard>
 
       {/* Claim verification */}
-      <FloatCard className="hidden md:block right-[2%] lg:right-[5%] top-[4%] w-[250px] rotate-[3deg] [animation-delay:1.2s] border-indigo-200/90 shadow-[0_20px_45px_-12px_rgba(99,102,241,0.22)]">
+      <FloatCard className="hidden md:block right-[2%] lg:right-[5%] top-[4%] w-[250px] rotate-[3deg] [animation-delay:1.2s] border-indigo-200/90 shadow-[0_20px_45px_-12px_rgba(59,111,239,0.22)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5">
             <span className="w-2 h-2 rounded-full bg-indigo-500" />
@@ -149,7 +149,7 @@ export default function Home() {
   const primaryHref = user ? "/dashboard" : "/signup";
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+    <div className="min-h-screen bg-[#E6E9ED] text-slate-900">
       <style>{`
         .bv-float { animation: bv-float-y 6s ease-in-out infinite; }
         @keyframes bv-float-y { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
@@ -160,7 +160,7 @@ export default function Home() {
         <section className="relative overflow-hidden rounded-[32px] bg-white border border-slate-200/80 shadow-soft">
           {/* Ambient Colorful Background Glow Orbs */}
           <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-br from-indigo-200/50 via-purple-200/30 to-transparent blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -top-20 -right-40 w-96 h-96 rounded-full bg-gradient-to-bl from-pink-200/50 via-purple-200/30 to-transparent blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -top-20 -right-40 w-96 h-96 rounded-full bg-gradient-to-bl from-indigo-200/50 via-purple-200/30 to-transparent blur-3xl" />
           <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-cyan-100/40 via-emerald-100/30 to-indigo-100/40 blur-3xl" />
 
           {/* Nav */}
@@ -205,7 +205,7 @@ export default function Home() {
             </div>
             <h1 className="mt-5 text-[38px] leading-[1.08] sm:text-6xl lg:text-[72px] font-extrabold tracking-[-0.035em] text-slate-900">
               Brand intelligence for{" "}
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-slate-900 bg-clip-text text-transparent">
                 modern enterprises
               </span>
             </h1>
@@ -227,13 +227,13 @@ export default function Home() {
           <div className="relative mt-8 sm:mt-10 h-[520px] sm:h-[660px] lg:h-[760px] flex items-center justify-center overflow-visible">
             {/* Colorful Orbit Rings */}
             <svg aria-hidden viewBox="0 0 1200 640" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-              <ellipse cx="600" cy="320" rx="540" ry="210" fill="none" stroke="rgba(99, 102, 241, 0.22)" strokeWidth="1.5" />
-              <ellipse cx="600" cy="340" rx="620" ry="260" fill="none" stroke="rgba(168, 85, 247, 0.35)" strokeWidth="1.8" strokeDasharray="3 9" strokeLinecap="round" />
-              <ellipse cx="600" cy="300" rx="460" ry="170" fill="none" stroke="rgba(6, 182, 212, 0.25)" strokeWidth="1.2" transform="rotate(-6 600 300)" />
+              <ellipse cx="600" cy="320" rx="540" ry="210" fill="none" stroke="rgba(59,111,239, 0.22)" strokeWidth="1.5" />
+              <ellipse cx="600" cy="340" rx="620" ry="260" fill="none" stroke="rgba(34,36,39, 0.28)" strokeWidth="1.8" strokeDasharray="3 9" strokeLinecap="round" />
+              <ellipse cx="600" cy="300" rx="460" ry="170" fill="none" stroke="rgba(154,161,170, 0.35)" strokeWidth="1.2" transform="rotate(-6 600 300)" />
               {/* Colorful orbital glow nodes */}
-              <circle cx="180" cy="240" r="4.5" fill="#6366F1" />
-              <circle cx="1020" cy="390" r="4.5" fill="#EC4899" />
-              <circle cx="850" cy="180" r="4" fill="#06B6D4" />
+              <circle cx="180" cy="240" r="4.5" fill="#3B6FEF" />
+              <circle cx="1020" cy="390" r="4.5" fill="#222427" />
+              <circle cx="850" cy="180" r="4" fill="#C9D1DB" />
               <circle cx="340" cy="460" r="4" fill="#10B981" />
             </svg>
 
