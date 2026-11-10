@@ -47,6 +47,8 @@ def make_seeded_db():
             retriever.index_org(org.id)
     finally:
         db.close()
+    from backend.app.db import rls
+    rls.enable(engine)  # PostgreSQL runs only; a no-op on SQLite
     return engine, Session, path
 
 

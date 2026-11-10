@@ -8,6 +8,8 @@ Public routes:     /public/* authenticated with an organisation API key (X-API-K
 """
 from __future__ import annotations
 
+from backend.app.db.rls import set_tenant
+
 import datetime
 import hashlib
 import secrets
@@ -94,6 +96,7 @@ def api_key_org(scope: str):
         k.last_used_at = datetime.datetime.utcnow()
         k.use_count = (k.use_count or 0) + 1
         db.commit()
+        set_tenant(db, k.org_id)  # database-level isolation for the rest of the request
         return k
     return dep
 
@@ -192,6 +195,81 @@ def mark_read(ids: Optional[List[str]] = None, db: Session = Depends(get_db), cu
             n_marked += 1
     db.commit()
     return {"marked": n_marked}
+
+
+# ------------------------------------------------------------ browser push ----
+class PushKeys(BaseModel):
+    p256dh: str = Field(min_length=20, max_length=200)
+    auth: str = Field(min_length=8, max_length=60)
+
+
+class PushSubIn(BaseModel):
+    endpoint: str = Field(min_length=12, max_length=1000)
+    keys: PushKeys
+
+
+def _push_endpoint_ok(url: str) -> bool:
+    from urllib.parse import urlparse
+    u = urlparse(url)
+    return u.scheme == "https" and bool(u.netloc)
+
+
+@router.get("/push/public-key")
+def push_public_key(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    from backend.app.models.push import PushSubscription
+    from backend.app.services import webpush
+    n = db.query(PushSubscription).filter(PushSubscription.user_id == current.id).count()
+    return {"public_key": webpush.public_key(db), "subscriptions": n}
+
+
+@router.post("/push/subscribe")
+def push_subscribe(payload: PushSubIn, user_agent: Optional[str] = Header(default=None),
+                   db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    from backend.app.models.push import PushSubscription
+    if not _push_endpoint_ok(payload.endpoint):
+        raise HTTPException(status_code=400, detail="Push endpoint must be an https URL from the browser.")
+    sub = db.query(PushSubscription).filter(PushSubscription.endpoint == payload.endpoint).first()
+    if sub is None:
+        sub = PushSubscription(endpoint=payload.endpoint, org_id=current.org_id, user_id=current.id,
+                               p256dh=payload.keys.p256dh, auth=payload.keys.auth, user_agent=(user_agent or "")[:300])
+        db.add(sub)
+    else:  # the same browser, possibly a different user now
+        sub.org_id, sub.user_id, sub.p256dh, sub.auth = current.org_id, current.id, payload.keys.p256dh, payload.keys.auth
+    db.commit()
+    return {"subscribed": True}
+
+
+@router.post("/push/unsubscribe")
+def push_unsubscribe(payload: PushSubIn, db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    from backend.app.models.push import PushSubscription
+    n = db.query(PushSubscription).filter(PushSubscription.endpoint == payload.endpoint,
+                                          PushSubscription.user_id == current.id).delete()
+    db.commit()
+    return {"removed": n}
+
+
+@router.post("/push/test")
+def push_test(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    """Send a test notification to this user's own browsers."""
+    from backend.app.models.push import PushSubscription
+    from backend.app.services import webpush
+    subs = db.query(PushSubscription).filter(PushSubscription.user_id == current.id).all()
+    if not subs:
+        raise HTTPException(status_code=400, detail="Turn on browser notifications first.")
+    sent = 0
+    for sub in subs:
+        try:
+            code, _ = webpush.send(db, sub, {"title": "BrandVault test notification",
+                                             "body": "Browser notifications are working.", "link": "/settings"},
+                                   poster=events.push_poster)
+        except Exception:
+            continue
+        if code in (404, 410):
+            db.delete(sub)
+        elif 200 <= code < 300:
+            sent += 1
+    db.commit()
+    return {"sent": sent, "devices": len(subs)}
 
 
 # ---------------------------------------------------------- channel checks ----

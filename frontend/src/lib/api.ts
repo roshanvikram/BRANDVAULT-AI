@@ -1195,3 +1195,9 @@ export const checkChannels = (body: { text: string; channels: string[]; region?:
 export const API_BASE_URL = API_BASE;
 export interface Capabilities { database: string; persistent_storage?: boolean; keep_awake?: { enabled: boolean; window: string | null; last_ping: string | null }; pgvector: boolean; ocr: { available: boolean; engine: string | null; reason?: string }; embeddings: { available: boolean; provider: string | null; dim?: number; reason?: string }; retrieval_mode: string; email_notifications: boolean; demo_accounts: boolean }
 export const fetchCapabilities = () => getJSON<Capabilities>("/capabilities", "Could not load server capabilities.");
+
+// ---------------------------------------------------------- browser push ----
+export const fetchPushKey = () => getJSON<{ public_key: string; subscriptions: number }>("/push/public-key", "Could not load push settings.");
+export const savePushSubscription = (sub: PushSubscriptionJSON) => postJSON<{ subscribed: boolean }>("/push/subscribe", sub, "Could not turn on browser notifications.");
+export const removePushSubscription = (sub: PushSubscriptionJSON) => postJSON<{ removed: number }>("/push/unsubscribe", sub, "Could not turn off browser notifications.");
+export const sendTestPush = () => postJSON<{ sent: number; devices: number }>("/push/test", {}, "Could not send a test notification.");

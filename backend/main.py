@@ -43,6 +43,9 @@ async def lifespan(app: FastAPI):
         resume_unfinished(db)
     finally:
         db.close()
+    # PostgreSQL only: database-level tenant isolation (after seeding, so every table exists).
+    from backend.app.db import rls
+    rls.enable(engine)
     from backend.app.services import keepawake
     awake_task = keepawake.start(list(settings.BACKEND_CORS_ORIGINS))
     yield

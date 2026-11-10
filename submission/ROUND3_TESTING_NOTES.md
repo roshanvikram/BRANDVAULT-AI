@@ -2,7 +2,7 @@
 
 All numbers below were measured on the final code. Commands are run from the repository root.
 
-## 1. Automated test suite — 244 tests
+## 1. Automated test suite — 255 tests
 
 ```
 backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
@@ -28,11 +28,12 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Configuration | 5 |
 | **Round 3 end-to-end workflow** (one test, every step) | 1 |
 | Keep-awake, storage flag, AI suggestions and retry | 6 |
-| **Total** | **244** |
+| Shared rate limits, Row-Level Security, push, sentiment | 11 |
+| **Total** | **255** |
 
 Results:
-- **SQLite:** 244 run, all pass (1 skipped: the pgvector-only test).
-- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 21 newest tests were added; those are pure text tests with no database.
+- **SQLite:** 255 run, all pass (3 skipped: the pgvector and Row-Level Security tests, which need PostgreSQL).
+- **PostgreSQL 18 + pgvector, Row-Level Security on** (`BV_TEST_DATABASE_URL=postgresql://…`): 255 run, all pass.
 
 The end-to-end test walks the whole product:
 1. A Word guideline is uploaded and an admin confirms the extracted rule.

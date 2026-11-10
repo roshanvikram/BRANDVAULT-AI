@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.config import settings
 from backend.app.core.security import decode_token
 from backend.app.db.session import get_db
+from backend.app.db.rls import set_tenant
 from backend.app.models.user import User
 
 
@@ -28,6 +29,7 @@ def get_current_user(
     user = db.query(User).filter(User.id == payload["sub"]).first()
     if not user or not user.is_active:
         raise _unauthorized("User not found or inactive")
+    set_tenant(db, user.org_id)  # database-level isolation (PostgreSQL Row-Level Security)
     return user
 
 

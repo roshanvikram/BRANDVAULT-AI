@@ -167,6 +167,53 @@ def _external(notification_id: str, slack_url: str, email_to: str, title: str, t
             db.close()
 
 
+# ------------------------------- browser push ---------------------------------
+push_poster = None  # swappable for tests: (endpoint, body, headers) -> (status, text)
+
+
+def _push(org_id: str, roles: List[str], title: str, body: str, link: Optional[str],
+          caller_db: Optional[Session] = None) -> None:
+    """Web Push to every subscribed browser whose user should see this notification.
+
+    Runs on a background thread with its own session; in SYNC mode (tests) it reuses
+    the caller's session, like webhook delivery, so single-session test databases
+    such as PGlite never wait on themselves."""
+    db = caller_db or session_factory()
+    try:
+        _push_with(db, org_id, roles, title, body, link)
+    except Exception as exc:  # push is best-effort; never affect the event that triggered it
+        db.rollback()
+        log_push(f"push skipped: {type(exc).__name__}")
+    finally:
+        if caller_db is None:
+            db.close()
+
+
+def _push_with(db: Session, org_id: str, roles: List[str], title: str, body: str, link: Optional[str]) -> None:
+    from backend.app.models.push import PushSubscription
+    from backend.app.models.user import User
+    from backend.app.services import webpush
+    q = db.query(PushSubscription, User).join(User, User.id == PushSubscription.user_id).filter(
+        PushSubscription.org_id == org_id, User.is_active == True)  # noqa: E712
+    payload = {"title": title, "body": body[:300], "link": link or "/dashboard"}
+    for sub, user in q.all():
+        if roles and user.role not in roles:
+            continue
+        try:
+            code, _ = webpush.send(db, sub, payload, poster=push_poster)
+        except Exception as exc:
+            log_push(f"push failed: {type(exc).__name__}")
+            continue
+        if code in (404, 410):  # the browser unsubscribed or the subscription expired
+            db.delete(sub)
+    db.commit()
+
+
+def log_push(msg: str) -> None:
+    import logging
+    logging.getLogger("brandvault.push").warning(msg)
+
+
 # ----------------------------------- emit -------------------------------------
 def emit(db: Session, org_id: str, event: str, data: Dict, *, title: str, body: str = "",
          link: Optional[str] = None, roles: Optional[List[str]] = None) -> Notification:
@@ -193,6 +240,7 @@ def emit(db: Session, org_id: str, event: str, data: Dict, *, title: str, body: 
         if slack and not url_allowed(slack)[0]:
             slack = ""
         _run(_external, n.id, slack, prefs.get("email") or "", title, body)
+    _run(_push, org_id, list(n.roles or []), title, body, link, db=db)
     return n
 
 

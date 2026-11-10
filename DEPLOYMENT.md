@@ -181,3 +181,15 @@ To fix it, connect a free PostgreSQL database:
 
 Uploaded files are stored in the database too, so nothing else is needed. Keep the connection string private: add it in Render yourself and never commit it.
 
+
+## 12. Push notifications, email, shared rate limits and Row-Level Security
+
+| Setting | What it does |
+|---|---|
+| `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Optional. Identify this server to browser push services. Without them a key is generated once and stored in the database. `VAPID_SUBJECT` is a contact such as `mailto:brand@company.com`. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USER`, `SMTP_PASSWORD` | Turn on email copies of notifications. |
+| `RATE_LIMIT_BACKEND` | `database` (default): limits are shared by every server instance. `memory`: per process. |
+| `RLS_ENABLED` | `true` (default): on PostgreSQL, Row-Level Security policies keep each organisation's rows separate. The app must connect as a normal role, not a superuser; Neon's default role is fine. |
+| `REPUTATION_LLM_MAX_ROWS` | Most unrated feedback rows per upload that the AI model scores (default 300); the rest use the lexicon. |
+
+People turn on browser notifications themselves in **Settings → Notifications → Turn on**. The server is started with `--proxy-headers` so rate limits use each visitor's real IP behind Render's proxy.

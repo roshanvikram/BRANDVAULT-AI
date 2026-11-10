@@ -9,6 +9,7 @@ import {
   API_BASE_URL, fetchCapabilities, Capabilities,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { PushToggle } from "@/components/layout/PushToggle";
 import { CARD, Badge, PageHeader, ErrorNote, Loading, Segmented, BTN_PRIMARY, BTN_SECONDARY, INPUT } from "@/components/engines/ui";
 
 type Tab = "workspace" | "channels" | "notifications" | "keys" | "webhooks" | "mcp";
@@ -114,7 +115,8 @@ export default function SettingsPage() {
       ) : tab === "notifications" ? (
         <div className={`${CARD} p-5 max-w-2xl space-y-3`}>
           <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><Bell className="w-4 h-4 text-slate-400" /> Notifications</h3>
-          <p className="text-xs text-slate-500">In-app notifications are always on. Slack and email are optional copies for the selected events.</p>
+          <p className="text-xs text-slate-500">In-app notifications are always on. Browser, Slack and email notifications are optional copies.</p>
+          <PushToggle />
           <label className="block text-xs text-slate-600">Slack incoming-webhook URL
             <input disabled={!isAdmin} value={draft.notifications.slack_webhook_url} placeholder="https://hooks.slack.com/services/…"
                    onChange={(e) => setDraft({ ...draft, notifications: { ...draft.notifications, slack_webhook_url: e.target.value } })} className={`${INPUT} h-9 mt-1`} /></label>
