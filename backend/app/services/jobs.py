@@ -181,3 +181,36 @@ def _content_analysis(db: Session, job: Job) -> Optional[str]:
         submission_id=data.get("submission_id"), author_name=data.get("author_name") or "Creator",
     )
     return sub.id
+
+
+@register_handler("bulk_analysis")
+def _bulk_analysis(db: Session, job: Job) -> Optional[str]:
+    """Check many pieces of copy in one job. Results are saved after every item, so a
+    restart continues where it stopped instead of starting again."""
+    from backend.app.services.analyzer import ContentAnalyzerService
+    data = dict(job.input_data or {})
+    items = data.get("items") or []
+    results = list(data.get("results") or [])
+    service = ContentAnalyzerService(db)
+    for i in range(len(results), len(items)):
+        it = items[i]
+        _set(db, job, stage=f"Checking {i + 1} of {len(items)}: {it['title'][:80]}")
+        try:
+            sub = service.analyze_submission(org_id=job.org_id, title=it["title"], content=it["content"],
+                                             author_name=data.get("author_name") or "Creator")
+            if it.get("department"):
+                sub.department = it["department"][:100]
+            crit = sum(1 for f in sub.findings if f.severity == "CRITICAL")
+            results.append({"index": i, "title": it["title"], "submission_id": sub.id, "score": sub.overall_score,
+                            "critical": crit, "warnings": sum(1 for f in sub.findings if f.severity == "WARNING"),
+                            "findings": len(sub.findings), "status": sub.status})
+        except Exception as exc:  # noqa: BLE001 - one bad item must not stop the batch
+            db.rollback()
+            results.append({"index": i, "title": it["title"], "error": f"{type(exc).__name__}: {str(exc)[:200]}"})
+        data["results"] = results
+        job = db.query(Job).filter(Job.id == job.id).first()
+        job.input_data = dict(data)  # reassign so the JSON column is saved
+        db.commit()
+    done = sum(1 for r in results if "error" not in r)
+    _set(db, job, stage=f"Checked {done} of {len(items)}")
+    return None

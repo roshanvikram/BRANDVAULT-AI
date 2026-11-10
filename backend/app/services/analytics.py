@@ -17,6 +17,7 @@ from backend.app.models.asset import AssetInvestigation
 from backend.app.models.brand import Organization
 from backend.app.models.product import Product
 from backend.app.models.submission import Submission
+from backend.app.db.eager import SUBMISSION_FULL
 
 DEMO_ORGS = {"nova-tech-org-001", "vortexa-tech-org-002"}
 NO_PRODUCT = "No product named"
@@ -44,7 +45,7 @@ def consistency(db: Session, org_id: str, *, date_from: Optional[str] = None, da
     start, end = _parse_date(date_from), _parse_date(date_to, end=True)
     products = [p.name for p in db.query(Product).filter(Product.org_id == org_id).all()]
 
-    q = db.query(Submission).filter(Submission.org_id == org_id)
+    q = db.query(Submission).options(*SUBMISSION_FULL).filter(Submission.org_id == org_id)
     if start:
         q = q.filter(Submission.created_at >= start)
     if end:

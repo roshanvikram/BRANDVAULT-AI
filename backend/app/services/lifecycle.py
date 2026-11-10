@@ -21,6 +21,7 @@ from backend.app.models.product import Product, ProductFact, PRODUCT_ATTRIBUTES
 from backend.app.models.submission import Submission
 from backend.app.services import product_truth as pt
 from backend.app.services.launch_readiness import get_config
+from backend.app.db.eager import APPROVALS
 
 EXPIRING_DAYS = 30
 STATES = ["Draft", "Pending Approval", "Approved", "Active", "Expiring Soon", "Expired", "Superseded", "Archived"]
@@ -52,6 +53,9 @@ def _iso(d):
 
 
 def lifecycle(db: Session, org_id: str, scan_campaigns: bool = True) -> dict:
+    if scan_campaigns:
+        # Sync products first: it commits, which would make every campaign loaded below stale.
+        pt.bootstrap_products(db, org_id)
     now = datetime.datetime.utcnow()
     items: List[dict] = []
 
@@ -108,7 +112,7 @@ def lifecycle(db: Session, org_id: str, scan_campaigns: bool = True) -> dict:
 
     # ---- approvals that have lapsed (validity window from launch policy)
     cfg = get_config(db, org_id)
-    subs = db.query(Submission).filter(Submission.org_id == org_id).all()
+    subs = db.query(Submission).options(APPROVALS).filter(Submission.org_id == org_id).all()
     for s in subs:
         appr = [a for a in s.approvals if a.decision == "Approved"]
         if not appr:
@@ -126,8 +130,9 @@ def lifecycle(db: Session, org_id: str, scan_campaigns: bool = True) -> dict:
     # ---- campaigns still using outdated product information
     affected: List[dict] = []
     if scan_campaigns:
+        catalogue = pt.load_catalogue(db, org_id)
         for s in subs:
-            r = pt.verify_text(db, org_id, s.content)
+            r = pt.verify_text(db, org_id, s.content, catalogue=catalogue)
             old = [c for c in r["claims"] if c["status"] == "Outdated"]
             if old:
                 affected.append({"submission_id": s.id, "title": s.title, "status": s.status,

@@ -21,6 +21,7 @@ import {
 import {
   analyzeContent,
   applyCorrection,
+  fixAll,
   fetchSubmissionDetail,
   submitApprovalDecision,
   Submission,
@@ -99,6 +100,26 @@ function ContentIntelligenceContent() {
     }
   };
 
+  const handleFixAll = async () => {
+    if (!submission) return;
+    setAnalyzing(true);
+    setReviewMessage(null);
+    try {
+      const r = await fixAll(submission.id, submission.version);
+      setSubmission(r.submission);
+      setContent(r.submission.content);
+      setSelectedFinding(r.submission.findings[0] || null);
+      const manual = r.skipped.length ? ` ${r.skipped.length} need a manual edit (${r.skipped.map((s) => s.category).filter((c, i, a) => a.indexOf(c) === i).join(", ")}).` : "";
+      setReviewMessage(r.applied.length
+        ? `Applied ${r.applied.length} fix${r.applied.length === 1 ? "" : "es"} and re-checked: score ${r.submission.overall_score}/100, version ${r.submission.version}.${manual}`
+        : `Nothing could be fixed automatically.${manual}`);
+    } catch (err: any) {
+      setReviewMessage(err?.message || "Could not apply the fixes.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const handleSubmitForReview = async () => {
     if (!submission) return;
     setSubmittingReview(true);
@@ -128,8 +149,9 @@ function ContentIntelligenceContent() {
         title="Marketing copy review"
         description="Check copy against your Brand DNA, see the evidence behind each finding, and apply one-click corrections."
         actions={<>
+          <Link href="/content-intelligence/bulk" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Bulk check →</Link>
           <Link href="/content-intelligence/similarity" className="inline-flex items-center h-8 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">Similarity detector →</Link>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-3">
           {submission && (
             <div className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-center space-x-2">
               <span className="text-[13px] text-slate-500 font-medium">Health score</span>
@@ -215,7 +237,12 @@ function ContentIntelligenceContent() {
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Findings ({submission?.findings.length || 0})
             </span>
-            <span className="text-[11px] font-semibold text-indigo-600">Multi-Agent Audit</span>
+            {submission && submission.findings.some((f) => !f.is_applied) ? (
+              <button onClick={handleFixAll} disabled={analyzing} title="Apply every suggested word replacement at once, then re-check"
+                      className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50">
+                <Sparkles className="w-3 h-3" /> Fix all
+              </button>
+            ) : <span className="text-[11px] font-semibold text-indigo-600">Multi-Agent Audit</span>}
           </div>
 
           <div className="p-3 flex-1 overflow-y-auto space-y-2.5">

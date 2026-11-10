@@ -382,6 +382,18 @@ export async function applyCorrection(payload: {
   return res.json();
 }
 
+/** Light campaign list for dashboards (preview text, finding severities and claim statuses only). */
+export type SubmissionSummary = Pick<Submission, "id" | "title" | "content" | "status" | "version" | "overall_score" | "author_name" | "created_at" | "updated_at"> & {
+  department?: string | null;
+  findings: { severity: string }[];
+  claim_verifications: { status: string }[];
+};
+export async function fetchSubmissionSummaries(): Promise<SubmissionSummary[]> {
+  const res = await apiFetch(`${API_BASE}/content/submissions-summary`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch submissions");
+  return res.json();
+}
+
 export async function fetchSubmissions(orgId?: string): Promise<Submission[]> {
   const res = await apiFetch(`${API_BASE}/content/submissions${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch submissions");
@@ -1287,3 +1299,49 @@ export interface WatchScanSummary { terms: string[]; certificates: number; domai
 export const fetchWatch = () => getJSON<{ hits: WatchHit[]; terms: string[]; official_domains: string[]; scan: { running?: boolean; last_scan?: string; last_error?: string | null; found?: number; summary?: WatchScanSummary } | null; source: string }>("/fraud/watch", "Could not load the domain watch.");
 export const runWatchScan = () => postJSON<{ started: boolean; already_running: boolean; terms: string[] }>("/fraud/watch/scan", {}, "Could not start the certificate log search.");
 export const setWatchStatus = (id: string, status: "new" | "dismissed" | "incident") => postJSON<WatchHit>(`/fraud/watch/${id}`, { status }, "Could not update the hit.");
+
+// ------------------------------------------------------- productivity ----
+export interface BulkItemIn { title: string; content: string; department?: string; source?: string }
+export interface BulkResult { index: number; title: string; submission_id?: string; score?: number; critical?: number; warnings?: number; findings?: number; status?: string; error?: string }
+export interface BulkBatch {
+  id: string; status: string; stage: string; total: number; done: number; error: string | null; created_at: string | null;
+  results?: BulkResult[];
+  summary: { checked: number; failed: number; with_critical: number; clean: number; average_score: number | null };
+}
+export const parseBulkFiles = (files: File[]) => {
+  const fd = new FormData();
+  files.forEach((f) => fd.append("files", f));
+  return postForm<{ items: BulkItemIn[]; truncated: number; errors: string[]; max_items: number }>("/content/bulk/parse", fd, "Could not read the files.");
+};
+export const startBulkCheck = (items: BulkItemIn[]) => postJSON<{ job_id: string; count: number }>("/content/bulk", { items }, "Could not start the batch.");
+export const fetchBulkBatch = (id: string) => getJSON<BulkBatch>(`/content/bulk/${id}`, "Could not load the batch.");
+export const fetchBulkBatches = () => getJSON<BulkBatch[]>("/content/bulk", "Could not load recent batches.");
+
+export interface FixAllResult {
+  submission: Submission;
+  applied: { finding_id: string; severity: string; category: string; from: string; to: string }[];
+  skipped: { finding_id: string; severity: string; category: string; text: string; reason: string }[];
+}
+export const fixAll = (submission_id: string, expected_version: number) =>
+  postJSON<FixAllResult>("/content/fix-all", { submission_id, expected_version }, "Could not apply the fixes.");
+
+export interface QueueItem { id: string; title: string; status: string; version: number; score: number; author_name: string; department: string | null; critical: number; warnings: number; suggestions: number; updated_at: string | null }
+export interface QueuePage { total: number; limit: number; offset: number; status_counts: Record<string, number>; items: QueueItem[] }
+export const fetchQueue = (p: { status?: string; q?: string; sort?: string; limit?: number; offset?: number }) => {
+  const qs = new URLSearchParams(Object.entries(p).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => [k, String(v)]));
+  return getJSON<QueuePage>(`/content/queue?${qs}`, "Could not load the review list.");
+};
+export const bulkDecide = (items: { submission_id: string; expected_version: number }[], decision: string, comments: string) =>
+  postJSON<{ decided: { submission_id: string; title: string; status: string; passport: string | null }[]; skipped: { submission_id: string; title?: string; reason: string }[] }>(
+    "/approval/bulk", { items, decision, comments }, "Bulk decision failed.");
+
+/** Download a CSV from the API (sent with the sign-in token). */
+export async function downloadCsv(path: string, fallbackName: string): Promise<void> {
+  const res = await apiFetch(`${API_BASE}${path}`, { cache: "no-store" });
+  if (!res.ok) return engineError(res, "Download failed.");
+  const name = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") || "")?.[1] || fallbackName;
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}

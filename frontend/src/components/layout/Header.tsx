@@ -25,6 +25,8 @@ const PAGE_TITLES: Record<string, { section: string; title: string }> = {
   "/dashboard/consistency": { section: "Command Center", title: "Consistency Heatmap" },
   "/assistant/simulator": { section: "Brand Assistant", title: "Campaign Stress Testing" },
   "/content-intelligence/similarity": { section: "Content Intelligence", title: "Similarity Detector" },
+  "/content-intelligence/bulk": { section: "Content Intelligence", title: "Bulk Check" },
+  "/approval-hub/bulk": { section: "Approval Hub", title: "Bulk Review" },
   "/risk-radar/fraud": { section: "Risk Radar", title: "Brand Fraud Intelligence" },
   "/risk-radar/reputation": { section: "Risk Radar", title: "Reputation Early Warning" },
   "/brand-memory": { section: "Brand", title: "Brand Memory" },

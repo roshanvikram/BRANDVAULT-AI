@@ -23,6 +23,7 @@ from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from backend.app.models.submission import Submission, Revision
+from backend.app.db.eager import SUBMISSION_FULL
 
 MIN_EVIDENCE = 2           # occurrences needed before calling something a pattern
 AUTHORITATIVE = ("Approved", "Rejected", "Revision Requested")
@@ -34,7 +35,7 @@ def _hours(a: datetime.datetime, b: datetime.datetime) -> float:
 
 def analyse(db: Session, org_id: str) -> dict:
     now = datetime.datetime.utcnow()
-    subs = db.query(Submission).filter(Submission.org_id == org_id).all()
+    subs = db.query(Submission).options(*SUBMISSION_FULL).filter(Submission.org_id == org_id).all()
     decisions = []  # (submission, approval)
     for s in subs:
         for a in s.approvals:

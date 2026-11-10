@@ -162,6 +162,11 @@ def _csv(data: bytes) -> List[Dict]:
 
 def _xlsx(data: bytes) -> List[Dict]:
     """First worksheet of an .xlsx (shared strings + inline values), no extra dependency."""
+    return _rows_to_sections(xlsx_rows(data))
+
+
+def xlsx_rows(data: bytes) -> List[List[str]]:
+    """Cell values of the first worksheet, row by row."""
     try:
         z = zipfile.ZipFile(io.BytesIO(data))
         ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
@@ -190,7 +195,7 @@ def _xlsx(data: bytes) -> List[Dict]:
                 rows.append([vals.get(i, "") for i in range(max(vals) + 1)])
     except (zipfile.BadZipFile, KeyError, IndexError, ET.ParseError):
         raise IngestError("This .xlsx file could not be read.")
-    return _rows_to_sections(rows)
+    return rows
 
 
 READERS = {"pdf": _pdf, "docx": _docx, "html": _html, "md": _markdown, "txt": _markdown, "csv": _csv, "xlsx": _xlsx}

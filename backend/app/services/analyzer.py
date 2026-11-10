@@ -23,6 +23,60 @@ AMBIGUOUS_SUPERLATIVES = [
 _TOKEN_RE = re.compile(r"[a-z0-9']+")
 
 
+# Plain wording that replaces an unprovable superlative, by what the claim boasts about.
+_SUPERLATIVE_ADJ = [
+    (re.compile(r"fastest|most\s+powerful|strongest|quickest", re.I), "high-performance"),
+    (re.compile(r"thinnest", re.I), "slim"),
+    (re.compile(r"lightest", re.I), "lightweight"),
+    (re.compile(r"smartest", re.I), "intelligent"),
+]
+_SUPERLATIVE_WORDS = re.compile(
+    r"\b(?:world'?s|fastest|best|most\s+\w+|strongest|thinnest|lightest|smartest|quickest|first|unbeatable|"
+    r"number\s+one|no\.?\s?1|ever\s+(?:made|built|created)|money\s+can\s+buy|in\s+(?:india|asia|the\s+world)|ever)\b|#\s?1",
+    re.I)
+_PERFORMANCE = re.compile(r"\b(?:tops|ghz|benchmark|processor|engine|npu|cpu|gpu|speed|performance)\b", re.I)
+
+
+def superlative_fix(claim: str, facts) -> str:
+    """Replacement words for a superlative such as "world's fastest AI laptop".
+
+    Keeps what the claim is about ("AI laptop"), swaps the boast for a plain
+    description, and for speed claims quotes the company's own approved
+    performance fact when it has one. Never uses another company's figures.
+    """
+    noun = re.sub(r"\s+", " ", _SUPERLATIVE_WORDS.sub(" ", claim)).strip(" ,.-!")
+    adj = next((a for rx, a in _SUPERLATIVE_ADJ if rx.search(claim)), "")
+    if not adj and re.search(r"\bunbeatable\b", claim, re.I):
+        adj = "competitive" if re.search(r"\b(?:price|prices|pricing|deal|deals|offer|value)\b", noun, re.I) else "strong"
+    if adj and not noun:
+        noun = "choice"  # "the world's fastest!" -> "the high-performance choice!"
+    spec = None
+    if adj == "high-performance":
+        spec = next((f for f in facts if "price" not in f.fact_key.lower() and re.search(r"\d", f.fact_value or "")
+                     and _PERFORMANCE.search(f"{f.fact_key} {f.fact_value}")), None)
+    if noun:
+        text = f"{adj} {noun}".strip() if adj else noun
+        return f"{text} ({spec.fact_value})" if spec else text
+    return "well-designed"
+
+
+def replace_once(content: str, quote: str, fix: str) -> str:
+    """Replace the first `quote` with `fix`, correcting a/an right before it ("an unbeatable" -> "a competitive")."""
+    i = content.find(quote)
+    if i < 0:
+        return content
+    before = content[:i]
+    if fix and quote[:1].isupper() and fix[:1].islower():
+        fix = fix[0].upper() + fix[1:]  # keep a capital at the start of a sentence
+    m = re.search(r"\b(an?|An?)(\s+)$", before)
+    if m and fix:
+        vowel = fix[0].lower() in "aeiou"
+        art = m.group(1)
+        new_art = (art[0] + "n") if vowel else art[0]
+        before = before[:m.start()] + new_art + m.group(2)
+    return before + fix + content[i + len(quote):]
+
+
 class ContentAnalyzerService:
     def __init__(self, db: Session, llm_provider: Optional["llm_mod.LLMProvider"] = None):
         self.db = db
@@ -294,7 +348,7 @@ class ContentAnalyzerService:
                 rule_reference="Superlative Claim Prohibition",
                 evidence_source=ev["citation"] if ev else "No supporting guideline passage retrieved",
                 confidence=0.96 if ev else 0.7,
-                suggested_correction="engineered for sustained 45 TOPS AI processing",
+                suggested_correction=superlative_fix(matched_claim, facts),
             ))
             claims_list.append(ClaimVerification(
                 id=str(uuid.uuid4()), submission_id=submission.id, claim_text=matched_claim, status="Unsupported",
@@ -583,9 +637,9 @@ class ContentAnalyzerService:
 
         new_content = submission.content
         if target_text and target_text in new_content:
-            new_content = new_content.replace(target_text, replacement_text, 1)
+            new_content = replace_once(new_content, target_text, replacement_text)
         elif finding.original_text in new_content:
-            new_content = new_content.replace(finding.original_text, replacement_text, 1)
+            new_content = replace_once(new_content, finding.original_text, replacement_text)
 
         finding.is_applied = True
         self.db.commit()
@@ -594,6 +648,69 @@ class ContentAnalyzerService:
             org_id=submission.org_id, title=submission.title, content=new_content,
             submission_id=submission.id, author_name=actor_name or submission.author_name,
         )
+
+    # Suggestions that describe what to do rather than giving replacement words.
+    _INSTRUCTION = re.compile(r"^(replace|use|remove|restrict|add|avoid|consider|ensure|rewrite|reduce|keep|change|"
+                              r"include|state|clarify|cite|substantiate|qualify|limit|drop|delete)\b", re.I)
+    _SEVERITY_RANK = {"CRITICAL": 0, "WARNING": 1, "SUGGESTION": 2}
+
+    def fixable(self, finding: Finding, content: str) -> tuple[Optional[str], str]:
+        """(replacement words, "") when a finding can be fixed automatically, else (None, reason)."""
+        if finding.is_applied:
+            return None, "already applied"
+        quote, fix = (finding.original_text or "").strip(), (finding.suggested_correction or "").strip()
+        if not quote or quote not in content:
+            return None, "describes the whole text; edit it by hand"
+        if not fix or fix == quote:
+            return None, "no replacement wording"
+        if self._INSTRUCTION.match(fix) or len(fix) > max(3 * len(quote), len(quote) + 120):
+            return None, "the suggestion is advice, not replacement wording"
+        return fix.split(" / ")[0].strip(), ""
+
+    def fix_all(self, submission_id: str, actor_name: Optional[str] = None) -> tuple[Submission, list, list]:
+        """Apply every automatic fix at once, then re-check once (one new version).
+
+        Returns (submission, applied, skipped). Overlapping quotes are handled longest
+        first; when several findings quote the same words, the most severe one wins.
+        """
+        submission = self.db.query(Submission).filter(Submission.id == submission_id).first()
+        if not submission:
+            raise ValueError(f"Submission {submission_id} not found.")
+        content = submission.content
+        chosen: dict = {}
+        skipped = []
+        for f in sorted(submission.findings, key=lambda f: self._SEVERITY_RANK.get(f.severity, 3)):
+            fix, why = self.fixable(f, content)
+            if fix is None:
+                if why != "already applied":
+                    skipped.append({"finding_id": f.id, "severity": f.severity, "category": f.issue_category,
+                                    "text": f.original_text[:200], "reason": why})
+                continue
+            quote = f.original_text.strip()
+            if quote in chosen:
+                chosen[quote]["also"].append(f)
+            else:
+                chosen[quote] = {"finding": f, "fix": fix, "also": []}
+        applied = []
+        new_content = content
+        for quote in sorted(chosen, key=len, reverse=True):
+            c = chosen[quote]
+            if quote not in new_content:
+                # A longer fix already rewrote these words: nothing left to do for this finding.
+                for f in [c["finding"]] + c["also"]:
+                    f.is_applied = True
+                continue
+            new_content = replace_once(new_content, quote, c["fix"])
+            for f in [c["finding"]] + c["also"]:
+                f.is_applied = True
+            applied.append({"finding_id": c["finding"].id, "severity": c["finding"].severity,
+                            "category": c["finding"].issue_category, "from": quote[:200], "to": c["fix"][:200]})
+        if not applied:
+            return submission, applied, skipped
+        self.db.commit()
+        result = self.analyze_submission(org_id=submission.org_id, title=submission.title, content=new_content,
+                                         submission_id=submission.id, author_name=actor_name or submission.author_name)
+        return result, applied, skipped
 
     def _record_agent_run(self, agent_name: str, task_name: str, elapsed_seconds: float, input_preview: str, output_preview: str, details: dict, status: str = "COMPLETED"):
         elapsed_us = max(1, round(elapsed_seconds * 1_000_000))

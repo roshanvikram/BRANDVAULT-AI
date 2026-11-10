@@ -25,6 +25,7 @@ from backend.app.api.v1.integrations import router as integrations_router
 from backend.app.api.v1.team import router as team_router
 from backend.app.api.v1.privacy import router as privacy_router
 from backend.app.api.v1.system import router as system_router
+from backend.app.api.v1.productivity import router as productivity_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -53,3 +54,4 @@ api_router.include_router(integrations_router)
 api_router.include_router(team_router)
 api_router.include_router(privacy_router)
 api_router.include_router(system_router)
+api_router.include_router(productivity_router)

@@ -30,6 +30,7 @@ from backend.app.models.brand import (
     Organization, BrandGuideline, DocumentChunk, BrandRule, ApprovedFact, TerminologyRule,
 )
 from backend.app.models.submission import Submission
+from backend.app.db.eager import SUBMISSION_FULL
 
 
 def _node(nid: str, ntype: str, label: str, parent: Optional[str] = None,
@@ -63,6 +64,7 @@ def build_brand_graph(db: Session, org_id: str) -> Optional[dict]:
     terms = db.query(TerminologyRule).filter(TerminologyRule.org_id == org_id).all()
     subs = (
         db.query(Submission)
+        .options(*SUBMISSION_FULL)
         .filter(Submission.org_id == org_id)
         .order_by(Submission.created_at.desc())
         .all()

@@ -84,6 +84,7 @@ export default function ApprovalHub() {
         description="Only Reviewers and Administrators can decide. Each approval is locked to the exact version reviewed and issues a Brand Passport."
         actions={<>
         <div className="flex flex-wrap items-center gap-2">
+          <Link href="/approval-hub/bulk" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">Bulk review</Link>
           <Link href="/approval-hub/readiness" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Launch readiness</Link>
           <Link href="/approval-hub/insights" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">Reviewer intelligence</Link>
           <Link href="/approval-hub/publishing" className="h-9 px-3.5 inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-colors">Publishing gate</Link>

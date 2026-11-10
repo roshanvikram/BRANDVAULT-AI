@@ -179,6 +179,40 @@ def _recommend(label: str, d: dict) -> str:
     return "Covers the same topic and vocabulary. Usually fine — check it does not repeat a rejected or outdated message."
 
 
+def _similar_pairs(docs: List[dict], threshold: float):
+    """Pairs (i, j) with identical text or shingle Jaccard >= threshold.
+
+    Prefix filtering: order each set's shingles from rarest to most common; two sets
+    with Jaccard >= t must share a shingle within the first |s| - ceil(t*|s|) + 1 of
+    each. Only those candidates are compared exactly, so the result equals the
+    all-pairs comparison while skipping almost every pair.
+    """
+    by_sha: Dict[str, int] = {}
+    for i, d in enumerate(docs):
+        if d["sha"] in by_sha:
+            yield by_sha[d["sha"]], i
+        else:
+            by_sha[d["sha"]] = i
+    freq = Counter(sh for d in docs for sh in d["shingles"])
+    index: Dict[tuple, List[int]] = {}
+    for i, d in enumerate(docs):
+        s = d["shingles"]
+        if not s:
+            continue
+        ordered = sorted(s, key=lambda sh: (freq[sh], sh))
+        prefix = ordered[:len(s) - math.ceil(threshold * len(s)) + 1]
+        seen = set()
+        for sh in prefix:
+            for j in index.get(sh, ()):
+                if j in seen:
+                    continue
+                seen.add(j)
+                o = docs[j]["shingles"]
+                if min(len(s), len(o)) >= threshold * max(len(s), len(o)) and _jaccard(s, o) >= threshold:
+                    yield j, i
+            index.setdefault(sh, []).append(i)
+
+
 def clusters(db: Session, org_id: str, threshold: float = NEAR_DUP) -> List[dict]:
     """Groups of submissions with near-duplicate wording (union-find)."""
     corpus = Corpus(db, org_id)
@@ -191,10 +225,8 @@ def clusters(db: Session, org_id: str, threshold: float = NEAR_DUP) -> List[dict
             i = parent[i]
         return i
 
-    for i in range(len(subs)):
-        for j in range(i + 1, len(subs)):
-            if subs[i]["sha"] == subs[j]["sha"] or _jaccard(subs[i]["shingles"], subs[j]["shingles"]) >= threshold:
-                parent[find(i)] = find(j)
+    for i, j in _similar_pairs(subs, threshold):
+        parent[find(i)] = find(j)
     groups: Dict[int, List[dict]] = {}
     for i, d in enumerate(subs):
         groups.setdefault(find(i), []).append(d)

@@ -46,7 +46,7 @@ export function PageHeader({ back, eyebrow, icon, title, description, actions, s
         <div aria-hidden className="pointer-events-none absolute inset-0 bv-grid opacity-[0.35]" />
         <HeroArt eyebrow={eyebrow} />
         <div className="relative flex flex-col lg:flex-row lg:items-center xl:flex-col xl:items-start justify-between gap-5 xl:pr-[320px]">
-          <div className="flex items-start gap-4 min-w-0">
+          <div className="flex items-start gap-4 min-w-0 lg:flex-1 xl:flex-none">
             <span className="hidden sm:flex w-12 h-12 shrink-0 rounded-2xl bg-slate-900 text-indigo-300 ring-1 ring-indigo-500/40 items-center justify-center shadow-lg shadow-slate-900/25 [&>svg]:w-5 [&>svg]:h-5">{icon}</span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -57,7 +57,8 @@ export function PageHeader({ back, eyebrow, icon, title, description, actions, s
               <p className="text-[13.5px] text-slate-500 mt-1.5 max-w-3xl leading-relaxed">{description}</p>
             </div>
           </div>
-          {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
+          {/* Buttons wrap instead of squeezing the title (at most half the width beside it). */}
+          {actions && <div className="flex flex-wrap items-center gap-2 min-w-0 lg:max-w-[50%] lg:justify-end xl:max-w-none xl:justify-start">{actions}</div>}
         </div>
         {stats && stats.length > 0 && (
           <dl className="relative mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">

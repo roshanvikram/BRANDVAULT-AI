@@ -66,6 +66,27 @@ const SCENES: Record<string, () => ReactNode> = {
     ))}
     <circle cx={155} cy={95} r={18} fill={A} /><circle cx={155} cy={95} r={28} fill="none" stroke={A2} strokeWidth="2" opacity="0.6" />
   </>),
+  // Bulk check: a stack of documents flowing through a scanner, each coming out scored.
+  bulk: () => (<>
+    <Panel x={40} y={70} w={96} h={118} rot={-8} /><Panel x={58} y={58} w={96} h={118} rot={-3} /><Panel x={76} y={46} w={96} h={118} />
+    <Bar x={90} y={70} w={60} /><Bar x={90} y={88} w={70} /><Bar x={90} y={106} w={50} />
+    <rect x={186} y={40} width={22} height={150} rx={11} fill={A} opacity="0.85" filter="url(#ha-shadow)" />
+    <path d="M150 116 h30" stroke={A2} strokeWidth="4" strokeDasharray="5 6" strokeLinecap="round" />
+    <Check x={250} y={72} s={1.2} /><Check x={276} y={112} s={1.2} />
+    <Cross x={250} y={152} />
+  </>),
+  // Bulk review: a checklist with several rows ticked at once.
+  bulkreview: () => (<>
+    <Panel x={60} y={36} w={210} h={156} />
+    {[66, 100, 134, 168].map((y, i) => (
+      <g key={y}>
+        <rect x={78} y={y - 9} width={18} height={18} rx={5} fill={i < 3 ? A : "white"} stroke={A} strokeWidth="2" />
+        {i < 3 && <path d={`M82 ${y} l3.5 3.5 l6.5 -7`} stroke="white" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
+        <Bar x={108} y={y} w={[120, 96, 132, 84][i]} />
+      </g>
+    ))}
+    <Check x={268} y={190} s={1.8} />
+  </>),
   approval: () => (<>
     <Panel x={70} y={58} w={170} h={100} rot={6} /><Panel x={58} y={46} w={170} h={100} rot={-2} />
     <Bar x={82} y={76} w={100} /><Bar x={82} y={96} w={130} /><Bar x={82} y={116} w={70} />
@@ -268,7 +289,9 @@ const PAGE: Record<string, [string, number, number, number, string]> = {
   "Agent Control": ["agents", 110, 50, 110, "from-[#2554D9] to-[#0D1626]"],
   "Approval Hub": ["approval", 40, 70, 140, "from-[#BFD5FD] to-[#2554D9]"],
   "Asset Lifecycle & Expiry": ["lifecycle", 20, 20, 120, "from-[#C3C8CF] to-[#3E4248]"],
-  "Brand Asset Forensics": ["forensics", 160, 10, 130, "from-[#6093F6] to-[#1E3894]"],
+  "Bulk Check": ["bulk", 140, 30, 130, "from-[#93B8FB] to-[#1E3375]"],
+  "Bulk Review": ["bulkreview", 60, 40, 140, "from-[#6EE7B7] to-[#1D42B8]"],
+  "Brand Asset Forensics":["forensics", 160, 10, 130, "from-[#6093F6] to-[#1E3894]"],
   "Brand Assistant": ["assistant", 60, 80, 120, "from-[#93B8FB] to-[#1C2C4B]"],
   "Brand Consistency Heatmap": ["heatmap", 230, 70, 110, "from-[#2554D9] to-[#152147]"],
   "Brand DNA Studio": ["dna", 120, 20, 150, "from-[#6093F6] to-[#1D42B8]"],

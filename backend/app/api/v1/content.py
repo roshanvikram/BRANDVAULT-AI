@@ -15,6 +15,7 @@ from backend.app.api.deps import get_current_user, resolve_org, ensure_same_org
 from backend.app.services.analyzer import ContentAnalyzerService
 from backend.app.services import jobs as jobs_svc
 from backend.app.models.job import Job
+from backend.app.db.eager import FINDINGS, CLAIMS
 
 router = APIRouter(prefix="/content", tags=["Content Intelligence"])
 
@@ -89,7 +90,21 @@ def analyze_content(payload: ContentAnalyzeRequest, db: Session = Depends(get_db
 def get_submissions(org_id: Optional[str] = None, db: Session = Depends(get_db),
                     current: User = Depends(get_current_user)):
     org_id = resolve_org(org_id, current)
-    return db.query(Submission).filter(Submission.org_id == org_id).order_by(Submission.updated_at.desc()).all()
+    return (db.query(Submission).options(FINDINGS, CLAIMS).filter(Submission.org_id == org_id)
+            .order_by(Submission.updated_at.desc()).all())
+
+
+@router.get("/submissions-summary")
+def get_submission_summaries(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    """Every campaign in a light form for dashboards: a 160-character preview, and only the
+    severity of each finding and the status of each claim. About 10x smaller than /submissions."""
+    subs = (db.query(Submission).options(FINDINGS, CLAIMS).filter(Submission.org_id == current.org_id)
+            .order_by(Submission.updated_at.desc()).all())
+    return [{"id": s.id, "title": s.title, "content": s.content[:160], "status": s.status, "version": s.version,
+             "overall_score": s.overall_score, "author_name": s.author_name, "department": s.department,
+             "created_at": s.created_at, "updated_at": s.updated_at,
+             "findings": [{"severity": f.severity} for f in s.findings],  # same set /submissions returns
+             "claim_verifications": [{"status": c.status} for c in s.claim_verifications]} for s in subs]
 
 @router.get("/submissions/{submission_id}", response_model=SubmissionResponse)
 def get_submission_detail(submission_id: str, db: Session = Depends(get_db),

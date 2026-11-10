@@ -66,6 +66,9 @@ app = FastAPI(
 from backend.app.core import observability
 observability.install(app)  # request IDs, logs, metrics, error capture, security headers
 
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=1024)  # big JSON lists shrink about 5-10x on the wire
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,

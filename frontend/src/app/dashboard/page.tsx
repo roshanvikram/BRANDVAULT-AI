@@ -9,7 +9,7 @@ import {
 import {
   fetchSubmissions, fetchRules, fetchAgentRuns, fetchOnboardingStatus, fetchPassports,
   runSampleNovaTest,
-  Submission, BrandRule, AgentRun, OnboardingStatus, BrandPassport,
+  Submission, SubmissionSummary, fetchSubmissionSummaries, BrandRule, AgentRun, OnboardingStatus, BrandPassport,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { CARD, Segmented } from "@/components/engines/ui";
@@ -42,7 +42,7 @@ function buildBuckets(period: Period, earliest: number | null): { cur: Bucket[];
   return { cur: mk(0), prior: period ? mk(count * size) : null };
 }
 
-function series(subs: Submission[], buckets: Bucket[]) {
+function series(subs: SubmissionSummary[], buckets: Bucket[]) {
   return buckets.map((b) => {
     const inB = subs.filter((s) => { const t = toDate(s.created_at).getTime(); return t >= b.start && t < b.end; });
     const crit = inB.reduce((a, s) => a + s.findings.filter((f) => f.severity === "CRITICAL").length, 0);
@@ -117,7 +117,7 @@ type Metric = "reviews" | "score" | "critical";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
   const [rules, setRules] = useState<BrandRule[]>([]);
   const [runs, setRuns] = useState<AgentRun[]>([]);
   const [passports, setPassports] = useState<BrandPassport[]>([]);
@@ -134,7 +134,7 @@ export default function Dashboard() {
 
   const loadData = () => {
     setFailed([]);
-    fetchSubmissions().then(setSubmissions).catch(fail("reviews")).finally(() => setLoaded(true));
+    fetchSubmissionSummaries().then(setSubmissions).catch(fail("reviews")).finally(() => setLoaded(true));
     fetchRules().then(setRules).catch(fail("brand rules"));
     fetchAgentRuns().then((r) => setRuns(r.slice(0, 5))).catch(fail("agent activity"));
     fetchPassports().then(setPassports).catch(fail("passports"));
@@ -158,8 +158,8 @@ export default function Dashboard() {
     const sp = prior ? series(submissions, prior) : null;
     const flat = (x: ReturnType<typeof series>) => x.flatMap((b) => b.subs);
     const curSubs = flat(sc), priorSubs = sp ? flat(sp) : [];
-    const avg = (xs: Submission[]) => (xs.length ? Math.round(xs.reduce((a, s) => a + s.overall_score, 0) / xs.length) : null);
-    const crit = (xs: Submission[]) => xs.reduce((a, s) => a + s.findings.filter((f) => f.severity === "CRITICAL").length, 0);
+    const avg = (xs: SubmissionSummary[]) => (xs.length ? Math.round(xs.reduce((a, s) => a + s.overall_score, 0) / xs.length) : null);
+    const crit = (xs: SubmissionSummary[]) => xs.reduce((a, s) => a + s.findings.filter((f) => f.severity === "CRITICAL").length, 0);
     const pending = submissions.filter((s) => s.status === "Pending Review" || s.status === "Analysed").length;
     const confirmed = rules.filter((r) => r.is_confirmed).length;
     const dist = new Map<string, number>();

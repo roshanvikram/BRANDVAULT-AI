@@ -309,11 +309,20 @@ def _compare(p: ParsedValue, f: ProductFact) -> Tuple[str, str]:
     return CONTRADICTED, f"The approved value is {f.value_text}; the copy states {p.text}."
 
 
-def verify_text(db: Session, org_id: str, text: str) -> dict:
-    bootstrap_products(db, org_id)
+def load_catalogue(db: Session, org_id: str) -> tuple:
+    """(products, facts) for checking many texts in a row without re-reading them each time."""
+    return (db.query(Product).filter(Product.org_id == org_id).all(),
+            db.query(ProductFact).filter(ProductFact.org_id == org_id).all())
+
+
+def verify_text(db: Session, org_id: str, text: str, catalogue: Optional[tuple] = None) -> dict:
+    """Check every figure in `text` against approved product facts. Pass `catalogue`
+    (from load_catalogue, after bootstrap_products) when checking many texts."""
+    if catalogue is None:
+        bootstrap_products(db, org_id)
+        catalogue = load_catalogue(db, org_id)
     now = _now()
-    products = db.query(Product).filter(Product.org_id == org_id).all()
-    facts = db.query(ProductFact).filter(ProductFact.org_id == org_id).all()
+    products, facts = catalogue
     lang = str(tg.detect_language(text)["code"])
     norm = tg.normalise_digits(text)
     lower = norm.lower()
