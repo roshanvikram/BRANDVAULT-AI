@@ -1193,5 +1193,5 @@ export interface ChannelReport {
 export const checkChannels = (body: { text: string; channels: string[]; region?: string; width?: number; height?: number }) =>
   postJSON<ChannelReport>("/channels/check", body, "Channel check failed.");
 export const API_BASE_URL = API_BASE;
-export interface Capabilities { database: string; pgvector: boolean; ocr: { available: boolean; engine: string | null; reason?: string }; embeddings: { available: boolean; provider: string | null; dim?: number; reason?: string }; retrieval_mode: string; email_notifications: boolean; demo_accounts: boolean }
+export interface Capabilities { database: string; persistent_storage?: boolean; keep_awake?: { enabled: boolean; window: string | null; last_ping: string | null }; pgvector: boolean; ocr: { available: boolean; engine: string | null; reason?: string }; embeddings: { available: boolean; provider: string | null; dim?: number; reason?: string }; retrieval_mode: string; email_notifications: boolean; demo_accounts: boolean }
 export const fetchCapabilities = () => getJSON<Capabilities>("/capabilities", "Could not load server capabilities.");

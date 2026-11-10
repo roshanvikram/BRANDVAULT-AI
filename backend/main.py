@@ -43,8 +43,12 @@ async def lifespan(app: FastAPI):
         resume_unfinished(db)
     finally:
         db.close()
+    from backend.app.services import keepawake
+    awake_task = keepawake.start(list(settings.BACKEND_CORS_ORIGINS))
     yield
     # Shutdown
+    if awake_task is not None:
+        awake_task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

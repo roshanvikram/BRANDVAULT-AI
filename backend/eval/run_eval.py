@@ -42,6 +42,8 @@ def predict_tags(sub) -> set:
         if c.status == "Needs Human Review":
             tags.add("needs_review")
     for f in sub.findings:
+        if f.severity == "SUGGESTION":  # AI suggestions for the reviewer are not violations
+            continue
         if f.issue_category == "Terminology":
             tags.add("terminology")
         if f.issue_category == "Tone & Voice":
@@ -51,7 +53,9 @@ def predict_tags(sub) -> set:
 
 def main():
     here = os.path.dirname(__file__)
-    name = sys.argv[1] if len(sys.argv) > 1 else "dataset.json"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    use_llm = "--llm" in sys.argv  # use the configured LLM (as on the live site) instead of rules only
+    name = args[0] if args else "dataset.json"
     with open(os.path.join(here, name), encoding="utf-8") as fh:
         data = json.load(fh)
     org_id = data["org_id"]
@@ -59,7 +63,16 @@ def main():
 
     engine, Session, path = make_seeded_db()
     db = Session()
-    svc = ContentAnalyzerService(db, llm_provider=llm_mod.NullProvider())
+    if use_llm:
+        from backend.app.core.config import settings
+        provider = llm_mod.get_llm_provider(settings)
+        if not provider.available:
+            print("No LLM is configured (set GROQ_API_KEY or ANTHROPIC_API_KEY).")
+            return 1
+        print(f"Engine: rules + LLM ({provider.name}: {provider.model})")
+    else:
+        provider = llm_mod.NullProvider()
+    svc = ContentAnalyzerService(db, llm_provider=provider)
 
     TP = FP = FN = 0
     per_tag = {t: {"tp": 0, "fp": 0, "fn": 0} for t in VIOLATION_TAGS}

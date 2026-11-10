@@ -43,9 +43,15 @@ def get_capabilities(db: Session = Depends(get_db)):
     """Which optional engines are live on this server (shown in Settings; never assumed)."""
     from backend.app.services import embeddings, events, ocr
     from backend.app.services import rag
+    import os
+    from backend.app.services import keepawake
     dialect = db.get_bind().dialect.name
+    # A SQLite file on a hosted container is wiped whenever the container restarts.
+    ephemeral = dialect == "sqlite" and bool(os.getenv("RENDER")) and os.getenv("STORAGE_PERSISTENT", "").lower() != "true"
     return {
         "database": dialect,
+        "persistent_storage": not ephemeral,
+        "keep_awake": {k: keepawake.state[k] for k in ("enabled", "window", "last_ping")},
         "pgvector": bool(dialect == "postgresql" and any(rag._PGV_READY.values())),
         "ocr": ocr.status(),
         "embeddings": embeddings.status(),

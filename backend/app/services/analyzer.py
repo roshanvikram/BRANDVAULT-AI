@@ -515,33 +515,43 @@ class ContentAnalyzerService:
         extra_deductions = 0
         added = 0
         engine_label = f"llm:{provider.name}"
+        dropped = 0
         for item in batch.findings:
             key = (item.issue_category.lower(), item.original_text.strip().lower())
             if key in existing:
                 continue
             existing.add(key)
+            # A finding must quote text that is really in the copy; anything else is unverifiable.
+            if not item.original_text.strip() or item.original_text.strip().lower() not in content_lower:
+                dropped += 1
+                continue
             # Evidence is retrieved by us, never taken from the model.
             ev = self._retrieve_evidence(org_id, f"{item.original_text} {item.explanation}")
-            verbatim = item.original_text.strip().lower() in content_lower
+            # Measured on 70 real-world inputs, the model also flags clean copy (greetings, plain
+            # descriptions), so AI-only findings are suggestions for the reviewer, not violations.
+            # The grounded rules above remain the authority.
             findings_list.append(Finding(
                 id=str(uuid.uuid4()), submission_id=submission_id,
-                issue_category=item.issue_category, severity=item.severity,
-                original_text=item.original_text, explanation=item.explanation,
+                issue_category=item.issue_category, severity="SUGGESTION",
+                original_text=item.original_text,
+                explanation=f"AI suggestion for the reviewer ({item.severity.lower()} in the model's view): {item.explanation}",
                 rule_reference=f"LLM-identified ({provider.model})",
                 evidence_source=ev["citation"] if ev else "LLM interpretation (no guideline passage retrieved)",
-                confidence=min(item.confidence, 0.9) if verbatim else min(item.confidence, 0.6),
+                confidence=min(item.confidence, 0.8),
                 suggested_correction=item.suggested_correction or "Revise to align with approved brand guidance.",
                 analysis_engine=engine_label,
             ))
             added += 1
-            extra_deductions += {"CRITICAL": 12, "WARNING": 6}.get(item.severity, 3)
+            extra_deductions += 2
 
-        extra_deductions = min(extra_deductions, 24)  # cap LLM influence on score
+        extra_deductions = min(extra_deductions, 8)  # suggestions only nudge the score
         self._record_agent_run(
             "LLM Analyst Agent", f"Generative review ({provider.model})",
             time.perf_counter() - start, content[:120],
-            f"Added {added} validated LLM findings (deduction {extra_deductions}).",
-            {"status": "COMPLETED", "added": added, "provider": provider.name, "model": provider.model},
+            f"Added {added} AI suggestions for the reviewer (deduction {extra_deductions}); "
+            f"dropped {dropped} that did not quote the copy.",
+            {"status": "COMPLETED", "added": added, "dropped_unverifiable": dropped, "provider": provider.name,
+             "model": provider.model},
             status="COMPLETED",
         )
         return extra_deductions

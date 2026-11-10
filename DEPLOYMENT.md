@@ -157,10 +157,27 @@ MCP: see Settings → MCP in the app, or the header of `backend/mcp_server.py`.
 
 ## 10. Keeping the free services awake
 
-Render puts a free service to sleep after 15 minutes without visitors. The free plan has 750 hours a month, shared by both services, so they cannot both stay awake 24/7.
+Render puts a free service to sleep after 15 minutes without visitors. The free plan has 750 hours a month, shared by both services, so they cannot both stay awake 24/7. Two things keep them awake from **9:00 AM to 8:30 PM IST** (about 730 of the 750 hours):
 
-`.github/workflows/keep-awake.yml` pings both sites every 10 minutes from **9:00 AM to 8:30 PM IST**. That is about 730 of the 750 free hours.
-- **Outside those hours:** the first visit takes about a minute to wake a site.
-- **To wake it on demand:** GitHub → Actions → "Keep Render awake" → Run workflow.
-- **To change the hours:** edit the `cron` lines. They are in UTC; IST is UTC + 5:30. More hours would use up the free quota.
-- **For always-on:** switch both services to Render's Starter plan.
+1. **The backend pings itself and the frontend** every 10 minutes during that window (`backend/app/services/keepawake.py`).
+   - It needs no setup: on Render it uses `RENDER_EXTERNAL_URL` and the https origins in `BACKEND_CORS_ORIGINS`.
+   - `KEEP_AWAKE=off` turns it off, and `KEEP_AWAKE_WINDOW=09:00-20:30` changes the hours.
+   - A sleeping server can't wake itself. Once a visit wakes it, it stays awake until the window ends.
+2. **GitHub Actions** (`.github/workflows/keep-awake.yml`) wakes the sites during the window. GitHub runs scheduled jobs late, about once an hour, so this alone is not enough.
+
+`GET /api/v1/capabilities` shows `keep_awake.last_ping`.
+
+For a site that is always on, switch both services to Render's Starter plan.
+
+## 11. Make data permanent (required for real use)
+
+On the free plan, `GET /api/v1/capabilities` reports `"database": "sqlite"` and `"persistent_storage": false`. The SQLite file is on a disk that resets whenever the server restarts or sleeps, so uploads, reviews and passports added on the live site are lost. The demo data is recreated on start. The app shows a "Temporary storage" notice while this is the case.
+
+To fix it, connect a free PostgreSQL database:
+1. Create a free project at neon.tech (PostgreSQL 16+; pgvector is supported).
+2. Copy its connection string (`postgresql://...?sslmode=require`).
+3. In Render, open **brandvault-ai → Environment**, add `DATABASE_URL` with that value, and save. Render redeploys.
+4. Check `GET /api/v1/capabilities`: it should say `"database": "postgresql"` and `"persistent_storage": true`, and the notice disappears.
+
+Uploaded files are stored in the database too, so nothing else is needed. Keep the connection string private: add it in Render yourself and never commit it.
+

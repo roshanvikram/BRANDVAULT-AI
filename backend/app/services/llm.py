@@ -21,6 +21,8 @@ from __future__ import annotations
 
 import json
 import logging
+import time
+import urllib.error
 import urllib.request
 from typing import List, Optional
 
@@ -260,9 +262,22 @@ class GroqProvider(LLMProvider):
                     "accept": "application/json",
                 },
             )
-            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            choices = data.get("choices") or []
+            data = None
+            for attempt in range(3):
+                try:
+                    with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                        data = json.loads(resp.read().decode("utf-8"))
+                    break
+                except urllib.error.HTTPError as he:
+                    # Free-tier rate limits (429) and brief overloads (503): wait as told, briefly, then retry.
+                    if he.code not in (429, 503) or attempt == 2:
+                        raise
+                    try:
+                        wait = float(he.headers.get("retry-after") or 0)
+                    except (TypeError, ValueError):
+                        wait = 0.0
+                    time.sleep(min(max(wait, 1.5 * (attempt + 1)), 8.0))
+            choices = (data or {}).get("choices") or []
             if not choices:
                 return None
             text = (choices[0].get("message") or {}).get("content", "").strip()

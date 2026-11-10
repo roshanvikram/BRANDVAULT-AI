@@ -2,7 +2,7 @@
 
 All numbers below were measured on the final code. Commands are run from the repository root.
 
-## 1. Automated test suite — 238 tests
+## 1. Automated test suite — 244 tests
 
 ```
 backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
@@ -27,11 +27,12 @@ backend/venv/Scripts/python -m unittest discover -s backend/tests -t .
 | Demo content seed | 5 |
 | Configuration | 5 |
 | **Round 3 end-to-end workflow** (one test, every step) | 1 |
-| **Total** | **238** |
+| Keep-awake, storage flag, AI suggestions and retry | 6 |
+| **Total** | **244** |
 
 Results:
-- **SQLite:** 238 run, all pass (1 skipped: the pgvector-only test).
-- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 15 newest tests were added; those are pure text tests with no database.
+- **SQLite:** 244 run, all pass (1 skipped: the pgvector-only test).
+- **PostgreSQL 18 + pgvector** (`BV_TEST_DATABASE_URL=postgresql://…`): 223 run, all pass (the pgvector test runs here too). Measured before the 21 newest tests were added; those are pure text tests with no database.
 
 The end-to-end test walks the whole product:
 1. A Word guideline is uploaded and an admin confirms the extracted rule.
@@ -85,6 +86,16 @@ Product problems found and fixed:
   - "1ox" was read in place of "10x", which hid a banned claim.
   - "75,0o0" hid a price.
   - A ₹ symbol was dropped after "alert:".
+
+## 2c. With the AI model on (as on the live site)
+
+`run_eval.py realworld_dataset.json --llm` uses the configured model (Groq, `openai/gpt-oss-120b`).
+- **First run:** recall 1.00, precision 0.92. 4 clean texts were flagged by the model, for example "Hi Priya, thanks…" for tone. Many calls also failed with HTTP 429 (free-tier rate limit) and fell back to rules only.
+- **Fixes:**
+  - AI-only findings are now *suggestions for the reviewer* (severity SUGGESTION, small score effect).
+  - Findings whose quote is not in the copy are dropped.
+  - Groq 429/503 replies are retried up to twice, waiting at most 8 s.
+- **After fixes:** 50/50 exact, precision 1.00, recall 1.00, 14/14 clean texts pass, 0 failed calls.
 
 ## 3. Creative Inspection evaluation (Improvement 1)
 
