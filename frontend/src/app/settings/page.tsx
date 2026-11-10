@@ -10,11 +10,14 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { PushToggle } from "@/components/layout/PushToggle";
+import { TeamPanel, SecurityPanel, PrivacyPanel, SystemPanel } from "@/components/settings/CompanyPanels";
 import { CARD, Badge, PageHeader, ErrorNote, Loading, Segmented, BTN_PRIMARY, BTN_SECONDARY, INPUT } from "@/components/engines/ui";
 
-type Tab = "workspace" | "channels" | "notifications" | "keys" | "webhooks" | "mcp";
-const TABS: { value: Tab; label: string }[] = [
-  { value: "workspace", label: "Workspace" }, { value: "channels", label: "Channels & disclaimers" },
+type Tab = "workspace" | "team" | "security" | "privacy" | "system" | "channels" | "notifications" | "keys" | "webhooks" | "mcp";
+const TABS: { value: Tab; label: string; admin?: boolean }[] = [
+  { value: "workspace", label: "Workspace" }, { value: "team", label: "Team" }, { value: "security", label: "Security" },
+  { value: "privacy", label: "Data & privacy" }, { value: "system", label: "System", admin: true },
+  { value: "channels", label: "Channels & disclaimers" },
   { value: "notifications", label: "Notifications" }, { value: "keys", label: "API keys" },
   { value: "webhooks", label: "Webhooks" }, { value: "mcp", label: "MCP" },
 ];
@@ -42,6 +45,11 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { fetchWorkspaceSettings().then((d) => { setData(d); setDraft(structuredClone(d.settings)); }).catch((e) => setError(e.message)); }, []);
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab") as Tab | null;
+    if (t && TABS.some((x) => x.value === t)) setTab(t);
+  }, []);
+  const tabs = TABS.filter((t) => !t.admin || isAdmin);
 
   const save = async (changes: Partial<WorkspaceSettings>) => {
     setSaving(true); setError(null); setNotice(null);
@@ -54,11 +62,12 @@ export default function SettingsPage() {
       <PageHeader eyebrow="Settings" icon={<Settings2 className="w-3.5 h-3.5" />} title="Workspace settings"
         description="Rules used by the engines, notifications and integrations for your organisation. Administrators can edit; everyone else sees the current values."
         actions={!isAdmin ? <Badge tone="neutral">Read-only for {user?.role}</Badge> : undefined} />
-      <div className="overflow-x-auto"><Segmented label="Settings section" value={tab} options={TABS} onChange={(t) => { setTab(t); setNotice(null); setError(null); }} /></div>
+      <div className="overflow-x-auto"><Segmented label="Settings section" value={tab} options={tabs} onChange={(t) => { setTab(t); setNotice(null); setError(null); }} /></div>
       <ErrorNote message={error} />
       {notice && <div className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">{notice}</div>}
 
-      {!draft ? <Loading /> : tab === "workspace" ? (
+      {tab === "team" ? <TeamPanel /> : tab === "security" ? <SecurityPanel /> : tab === "privacy" ? <PrivacyPanel />
+        : tab === "system" ? <SystemPanel /> : !draft ? <Loading /> : tab === "workspace" ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
         <ServerEngines />
         <div className={`${CARD} p-5 space-y-3`}>

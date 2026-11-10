@@ -7,6 +7,7 @@ import {
   FraudIncident, IncidentStatus,
 } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { DomainWatch } from "@/components/engines/DomainWatch";
 import { CARD, Badge, Tone, PageHeader, ErrorNote, ProtectedImage, BTN_PRIMARY, BTN_SECONDARY, INPUT } from "@/components/engines/ui";
 
 const RISK: Record<string, Tone> = { high: "bad", medium: "warn", low: "good" };
@@ -49,7 +50,7 @@ export default function FraudPage() {
         back={{ href: "/risk-radar", label: "Risk Radar" }}
         eyebrow="Brand Fraud Intelligence" icon={<ShieldAlert className="w-3.5 h-3.5" />}
         title="Investigate suspected impersonation"
-        description="Check a reported link, page text or screenshot for look-alike domains, unauthorised prices, phishing requests, copied campaigns and misuse of your logo. Only what you submit is analysed — BrandVault does not monitor the internet. Findings stay “suspected” until a reviewer confirms them."
+        description="Check a reported link, page text or screenshot for look-alike domains, unauthorised prices, phishing requests, copied campaigns and misuse of your logo. The domain watch below also searches public certificate logs for new look-alike sites. Findings stay “suspected” until a reviewer confirms them."
       />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         <div className="xl:col-span-5 space-y-4">
@@ -161,6 +162,7 @@ export default function FraudPage() {
           )}
         </div>
       </div>
+      <DomainWatch key={domains.map((d) => d.domain).join(",")} canDecide={canDecide} onIncident={load} />
     </div>
   );
 }

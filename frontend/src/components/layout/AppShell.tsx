@@ -25,7 +25,7 @@ export function useShell() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/legal");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Close the mobile drawer whenever the route changes.

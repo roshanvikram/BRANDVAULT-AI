@@ -12,10 +12,10 @@ Design contract (Milestone B):
 - Citations are NOT taken from the model; the analyzer attaches evidence it
   retrieved from `document_chunks`, so the LLM cannot invent a source.
 
-Only the Anthropic driver is fully implemented (official `anthropic` SDK,
-default model `claude-opus-5-5`). OpenAI and Gemini are present as interface
-stubs that honestly report themselves unavailable until implemented — the app
-reports the limitation rather than pretending the integration is live.
+Drivers: Anthropic (official SDK or plain HTTP), Groq, OpenAI and Gemini (the
+last three over their OpenAI-compatible Chat Completions APIs). Every configured
+provider joins a fallback chain, so one provider's rate limit or outage does not
+switch the AI layer off.
 """
 from __future__ import annotations
 
@@ -222,6 +222,7 @@ class GroqProvider(LLMProvider):
     OpenAI-compatible Chat Completions API serving fast open models (Llama etc.).
     Same honesty contract: any failure returns None -> heuristic fallback."""
     name = "groq"
+    url = "https://api.groq.com/openai/v1/chat/completions"
 
     def __init__(self, api_key: str, model: str, timeout: float, max_tokens: int):
         self._api_key = api_key
@@ -251,7 +252,7 @@ class GroqProvider(LLMProvider):
                 ],
             }).encode("utf-8")
             req = urllib.request.Request(
-                "https://api.groq.com/openai/v1/chat/completions",
+                self.url,
                 data=body, method="POST",
                 headers={
                     "content-type": "application/json",
@@ -283,65 +284,117 @@ class GroqProvider(LLMProvider):
             text = (choices[0].get("message") or {}).get("content", "").strip()
             return text or None
         except Exception as e:
-            logger.warning("Groq analyze failed: %s", e)
+            logger.warning("%s analyze failed: %s", self.name, e)
             return None
 
 
-class _UnimplementedProvider(LLMProvider):
-    """Honest placeholder: interface exists, driver not implemented yet."""
-    def __init__(self, name: str):
-        self.name = name
+class OpenAIProvider(GroqProvider):
+    """OpenAI Chat Completions (same request shape as Groq)."""
+    name = "openai"
+    url = "https://api.openai.com/v1/chat/completions"
+
+
+class GeminiProvider(GroqProvider):
+    """Google Gemini through its OpenAI-compatible endpoint."""
+    name = "gemini"
+    url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+
+
+class FallbackProvider(LLMProvider):
+    """Tries each configured provider in order until one answers.
+
+    A free-tier rate limit or an outage at one company no longer turns the AI layer
+    off: the next configured provider answers instead. Identical requests inside
+    LLM_CACHE_SECONDS reuse the earlier answer, which saves quota. `last_used`
+    names the provider that actually answered.
+    """
+
+    def __init__(self, providers: List[LLMProvider], cache_seconds: int = 0):
+        self.providers = providers
+        self.cache_seconds = cache_seconds
+        self.last_used: Optional[str] = None
+
+    @property
+    def name(self) -> str:  # type: ignore[override]
+        return self.providers[0].name
 
     @property
     def available(self) -> bool:
-        return False
+        return any(p.available for p in self.providers)
+
+    @property
+    def model(self) -> str:
+        return self.providers[0].model
+
+    @property
+    def chain(self) -> List[str]:
+        return [p.name for p in self.providers]
+
+    def analyze(self, system: str, user: str) -> Optional[str]:
+        key = None
+        if self.cache_seconds > 0:
+            import hashlib
+            key = hashlib.sha256(f"{self.chain}|{system}|{user}".encode("utf-8")).hexdigest()
+            hit = _CACHE.get(key)
+            if hit and hit[0] > time.time():
+                self.last_used = hit[2]
+                return hit[1]
+        for p in self.providers:
+            if not p.available:
+                continue
+            out = p.analyze(system, user)
+            if out:
+                self.last_used = p.name
+                if key:
+                    if len(_CACHE) >= _CACHE_MAX:
+                        _CACHE.pop(next(iter(_CACHE)))
+                    _CACHE[key] = (time.time() + self.cache_seconds, out, p.name)
+                return out
+            logger.info("LLM provider %s gave no answer; trying the next one", p.name)
+        return None
+
+
+_CACHE: dict = {}
+_CACHE_MAX = 512
 
 
 def get_llm_provider(settings) -> LLMProvider:
-    """Factory — pick a provider from settings. Never raises."""
+    """Factory — pick a provider (or a fallback chain) from settings. Never raises."""
     if not settings.LLM_ENABLED:
         return NullProvider()
 
     choice = (settings.LLM_PROVIDER or "auto").lower()
+    if choice == "none":
+        return NullProvider()
+    timeout, max_tokens = settings.LLM_TIMEOUT_SECONDS, settings.LLM_MAX_TOKENS
 
     def anthropic_driver() -> Optional[LLMProvider]:
         if not settings.ANTHROPIC_API_KEY:
             return None
-        kwargs = dict(
-            api_key=settings.ANTHROPIC_API_KEY,
-            model=settings.ANTHROPIC_MODEL,
-            timeout=settings.LLM_TIMEOUT_SECONDS,
-            max_tokens=settings.LLM_MAX_TOKENS,
-        )
+        kwargs = dict(api_key=settings.ANTHROPIC_API_KEY, model=settings.ANTHROPIC_MODEL,
+                      timeout=timeout, max_tokens=max_tokens)
         sdk = AnthropicProvider(**kwargs)
-        if sdk.available:  # official SDK installed
-            return sdk
         # SDK not installed — use the dependency-free HTTP driver instead.
-        return HttpAnthropicProvider(**kwargs)
+        return sdk if sdk.available else HttpAnthropicProvider(**kwargs)
 
-    def groq_driver() -> Optional[LLMProvider]:
-        if not settings.GROQ_API_KEY:
-            return None
-        return GroqProvider(
-            api_key=settings.GROQ_API_KEY,
-            model=settings.GROQ_MODEL,
-            timeout=settings.LLM_TIMEOUT_SECONDS,
-            max_tokens=settings.LLM_MAX_TOKENS,
-        )
+    def compat(cls, key: str, model: str) -> Optional[LLMProvider]:
+        return cls(api_key=key, model=model, timeout=timeout, max_tokens=max_tokens) if key else None
 
-    if choice == "none":
+    drivers = {
+        "anthropic": anthropic_driver,
+        "groq": lambda: compat(GroqProvider, settings.GROQ_API_KEY, settings.GROQ_MODEL),
+        "openai": lambda: compat(OpenAIProvider, settings.OPENAI_API_KEY, getattr(settings, "OPENAI_MODEL", "gpt-4.1-mini")),
+        "gemini": lambda: compat(GeminiProvider, settings.GEMINI_API_KEY, getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash")),
+    }
+    order = ["anthropic", "groq", "openai", "gemini"]
+    if choice in drivers:
+        order = [choice] + ([o for o in order if o != choice] if getattr(settings, "LLM_FALLBACK", True) else [])
+    providers = [p for p in (drivers[o]() for o in order) if p is not None]
+    if not providers:
         return NullProvider()
-    if choice == "anthropic":
-        return anthropic_driver() or NullProvider()
-    if choice == "groq":
-        return groq_driver() or NullProvider()
-    if choice == "openai":
-        return _UnimplementedProvider("openai") if settings.OPENAI_API_KEY else NullProvider()
-    if choice == "gemini":
-        return _UnimplementedProvider("gemini") if settings.GEMINI_API_KEY else NullProvider()
-
-    # auto: prefer any configured, fully-implemented driver — Anthropic, then Groq.
-    return anthropic_driver() or groq_driver() or NullProvider()
+    if choice == "auto" and not getattr(settings, "LLM_FALLBACK", True):
+        providers = providers[:1]
+    return FallbackProvider(providers, int(getattr(settings, "LLM_CACHE_SECONDS", 0) or 0))
 
 
 def parse_findings(raw: Optional[str]) -> Optional[LLMFindingBatch]:

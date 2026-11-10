@@ -24,6 +24,7 @@ def get_health(db: Session = Depends(get_db)):
         "available": getattr(provider, "available", False),
         "model": getattr(provider, "model", "") or None,
         "mode": "llm+heuristic" if getattr(provider, "available", False) else "heuristic-only",
+        "fallback_chain": getattr(provider, "chain", None),
     }
 
     return HealthResponse(

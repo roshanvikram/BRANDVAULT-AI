@@ -11,7 +11,9 @@ ad image) against the organisation's own records:
   phishing      requests for credentials, OTPs, card or bank details
   logo          official logos located in the screenshot (Asset Forensics)
 
-There is no internet-wide monitoring: only what is submitted is analysed.
+Submitted links, text and screenshots are analysed here. New look-alike domains are
+also found automatically from public Certificate Transparency logs (services/ctwatch.py);
+social media, ads and sites without HTTPS are not monitored.
 Fetching a URL from the server is OFF by default (FRAUD_URL_FETCH_ENABLED) to
 avoid server-side request forgery; when enabled it only fetches public http(s)
 hosts with size and time limits. Results are "suspected" until a person
@@ -143,10 +145,11 @@ def analyse_domain(host: str, official: List[str], tokens: List[str]) -> List[di
         elif 0 < d <= 2 and len(ol) >= 5:
             out.append({"type": "typosquat", "severity": "high", "title": f"Typo of the official domain {full}",
                         "evidence": f"{label} is {d} character(s) from {ol}", "confidence": 0.85})
-        elif label != ol and tld and full.endswith(tld) is False and norm.replace("-", "") == ol.replace("-", ""):
-            out.append({"type": "tld_swap", "severity": "high", "title": f"Official name on a different extension ({tld})",
+        elif d == 0 and tld and (label, tld) != registrable(full):
+            # Same name, other extension: brandvault.cc or brandvault.co.in copying brandvault.com.
+            out.append({"type": "tld_swap", "severity": "high", "title": f"Official name on a different extension (.{tld})",
                         "evidence": host, "confidence": 0.8})
-    sub_labels = host.split(".")[:-2]
+    sub_labels = host.split(".")[:-(1 + len(tld.split(".")))] if tld else []
     for t in tokens:
         if t in norm.replace("-", "") and not any(o.startswith(label) for o in off_labels):
             lure = [w for w in LURE_WORDS if w in label]

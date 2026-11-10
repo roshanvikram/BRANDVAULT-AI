@@ -29,6 +29,14 @@ _ADDITIVE_COLUMNS = [
     ("document_chunks", "section_label", "VARCHAR(120)"),
     ("brand_guidelines", "superseded_by_id", "VARCHAR(36)"),
     ("brand_guidelines", "superseded_at", "DATETIME"),
+    # Company readiness — session revocation, lockout and two-step sign-in.
+    ("users", "token_version", "INTEGER DEFAULT 0"),
+    ("users", "failed_logins", "INTEGER DEFAULT 0"),
+    ("users", "locked_until", "DATETIME"),
+    ("users", "mfa_secret", "VARCHAR(64)"),
+    ("users", "mfa_enabled", "BOOLEAN DEFAULT FALSE"),
+    ("users", "last_login_at", "DATETIME"),
+    ("users", "password_changed_at", "DATETIME"),
 ]
 
 

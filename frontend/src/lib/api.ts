@@ -12,6 +12,14 @@ export interface AuthUser {
   role: "Administrator" | "Creator" | "Reviewer";
   org_id: string;
   auth_provider?: "password" | "google";
+  mfa_enabled?: boolean;
+}
+
+/** Thrown by login() when the account has two-step sign-in and needs (or got a wrong) code. */
+export class MfaRequiredError extends Error {
+  constructor(public invalid: boolean) {
+    super(invalid ? "That code is not correct. Use the newest code from your authenticator app." : "Enter the 6-digit code from your authenticator app.");
+  }
 }
 
 // Demo credentials for the NOVA TECH judging workspace (not production secrets).
@@ -57,20 +65,26 @@ function orgQuery(orgId?: string, prefix: "?" | "&" = "?"): string {
   return orgId ? `${prefix}org_id=${encodeURIComponent(orgId)}` : "";
 }
 
-export async function login(email: string, password: string): Promise<AuthUser> {
+export async function login(email: string, password: string, mfaCode?: string): Promise<AuthUser> {
   let res: Response;
   try {
     res = await apiFetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(mfaCode ? { email, password, mfa_code: mfaCode } : { email, password }),
     });
   } catch {
     // fetch() rejects only on a network-level failure (server down, CORS, DNS).
     throw new Error(`Can't reach the server. Make sure the backend is running at ${API_BASE.replace(/\/api\/v1\/?$/, "")}.`);
   }
-  if (res.status === 401) throw new Error("Invalid email or password. Try a demo account below.");
-  if (!res.ok) throw new Error(`Sign-in failed (server error ${res.status}). Please try again.`);
+  if (!res.ok) {
+    const detail = await res.json().then((b) => (typeof b?.detail === "string" ? b.detail : "")).catch(() => "");
+    if (detail === "mfa_required") throw new MfaRequiredError(false);
+    if (detail === "mfa_invalid") throw new MfaRequiredError(true);
+    if (res.status === 401) throw new Error("Invalid email or password.");
+    if (res.status === 423 || res.status === 403) throw new Error(detail || "This account cannot sign in right now.");
+    throw new Error(`Sign-in failed (server error ${res.status}). Please try again.`);
+  }
   const data = await res.json();
   setToken(data.access_token);
   return data.user as AuthUser;
@@ -80,6 +94,9 @@ export async function register(payload: {
   full_name: string;
   email: string;
   password: string;
+  workspace?: "new" | "demo";
+  company_name?: string;
+  invite_token?: string;
 }): Promise<AuthUser> {
   const res = await apiFetch(`${API_BASE}/auth/register`, {
     method: "POST",
@@ -1201,3 +1218,72 @@ export const fetchPushKey = () => getJSON<{ public_key: string; subscriptions: n
 export const savePushSubscription = (sub: PushSubscriptionJSON) => postJSON<{ subscribed: boolean }>("/push/subscribe", sub, "Could not turn on browser notifications.");
 export const removePushSubscription = (sub: PushSubscriptionJSON) => postJSON<{ removed: number }>("/push/unsubscribe", sub, "Could not turn off browser notifications.");
 export const sendTestPush = () => postJSON<{ sent: number; devices: number }>("/push/test", {}, "Could not send a test notification.");
+
+// ------------------------------------------------- company readiness ----
+export interface SignupOptions { new_workspace: boolean; demo_workspace: boolean; password_min_length: number }
+export const fetchSignupOptions = () => getJSON<SignupOptions>("/auth/signup-options", "Could not load sign-up options.");
+export interface InviteInfo { email: string; role: string; workspace: string; expires_at: string }
+export const fetchInviteInfo = (token: string) => getJSON<InviteInfo>(`/auth/invite/${encodeURIComponent(token)}`, "This invitation link is invalid, used or expired.");
+
+type TokenOut = { access_token: string; user: AuthUser };
+async function tokenCall(path: string, body: unknown, fallback: string): Promise<AuthUser> {
+  const r = await postJSON<TokenOut>(path, body, fallback);
+  setToken(r.access_token); // the server ended older sessions; keep this one signed in
+  return r.user;
+}
+export const changePassword = (current_password: string, new_password: string) =>
+  tokenCall("/auth/password", { current_password, new_password }, "Could not change the password.");
+export const signOutEverywhere = () => tokenCall("/auth/logout-all", {}, "Could not sign out other sessions.");
+export const startMfaSetup = () => postJSON<{ secret: string; otpauth_uri: string }>("/auth/mfa/setup", {}, "Could not start two-step sign-in setup.");
+export const enableMfa = (code: string) => tokenCall("/auth/mfa/enable", { code }, "Could not turn on two-step sign-in.");
+export const disableMfa = (code: string, password: string) => tokenCall("/auth/mfa/disable", { code, password }, "Could not turn off two-step sign-in.");
+
+export interface TeamMember { id: string; email: string; full_name: string; role: string; active: boolean; auth_provider: string; mfa_enabled: boolean; last_login_at: string | null; created_at: string | null }
+export interface TeamInvite { id: string; email: string; role: string; status: "pending" | "accepted" | "revoked" | "expired"; created_by: string; created_at: string | null; expires_at: string | null; email_status: string }
+export interface SecurityEventOut { id: string; action: string; actor: string; target: string; detail: Record<string, unknown>; ip: string; created_at: string | null }
+export const fetchTeam = () => getJSON<{ members: TeamMember[]; can_manage: boolean }>("/team/members", "Could not load the team.");
+export async function updateMember(id: string, change: { role?: string; active?: boolean }): Promise<TeamMember> {
+  const res = await apiFetch(`${API_BASE}/team/members/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(change) });
+  if (!res.ok) return engineError(res, "Could not update the member.");
+  return res.json();
+}
+export const unlockMember = (id: string) => postJSON<TeamMember>(`/team/members/${id}/unlock`, {}, "Could not unlock the account.");
+export const fetchInvites = () => getJSON<{ invites: TeamInvite[]; email_configured: boolean }>("/team/invites", "Could not load invitations.");
+export const createInvite = (email: string, role: string) => postJSON<{ invite: TeamInvite; link: string }>("/team/invites", { email, role }, "Could not create the invitation.");
+export async function revokeInvite(id: string): Promise<TeamInvite> {
+  const res = await apiFetch(`${API_BASE}/team/invites/${id}`, { method: "DELETE" });
+  if (!res.ok) return engineError(res, "Could not cancel the invitation.");
+  return res.json();
+}
+export const fetchSecurityLog = () => getJSON<{ events: SecurityEventOut[] }>("/team/audit", "Could not load the security log.");
+
+export const fetchPrivacySummary = () => getJSON<{ tables: Record<string, number>; total_records: number; demo_workspace: boolean }>("/privacy/summary", "Could not load the data summary.");
+export async function downloadWorkspaceExport(includeFiles: boolean): Promise<void> {
+  const res = await apiFetch(`${API_BASE}/privacy/export?include_files=${includeFiles}`, { cache: "no-store" });
+  if (!res.ok) return engineError(res, "Export failed.");
+  const name = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") || "")?.[1] || "brandvault-export.zip";
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+export const deleteMyAccount = (password: string) => postJSON<{ deleted: boolean }>("/privacy/delete-account", { password, confirm: "DELETE" }, "Could not delete the account.");
+export const deleteWorkspace = (confirm: string, password: string) => postJSON<{ deleted: boolean; records_removed: number }>("/privacy/delete-workspace", { confirm, password }, "Could not delete the workspace.");
+
+export interface SystemStatus {
+  version: string; environment: string; database: { ok: boolean; engine: string };
+  ai: { available: boolean; chain: string[]; cache_seconds: number };
+  traffic: { uptime_seconds: number; requests: number; server_errors: number; client_errors: number; error_rate: number;
+    latency_ms: { p50: number | null; p95: number | null; p99: number | null };
+    busiest_routes: { route: string; requests: number }[]; slowest_routes: { route: string; avg_ms: number }[];
+    sentry: boolean; metrics_endpoint: boolean };
+  recent_errors: { id: string; request_id: string; method: string; path: string; error_type: string; message: string; at: string | null }[];
+  domain_watch: { enabled: boolean; every_hours: number; scheduled: boolean; last_scan?: string; last_error?: string | null; found?: number };
+}
+export const fetchSystemStatus = () => getJSON<SystemStatus>("/system/status", "Could not load system status.");
+
+export interface WatchHit { id: string; host: string; matched_term: string; issuer: string; cert_id: number | null; cert_url: string | null; not_before: string | null; findings: { type: string; severity: string; title: string; evidence: string }[]; risk: string; status: "new" | "dismissed" | "incident"; incident_id: string | null; first_seen: string | null }
+export interface WatchScanSummary { terms: string[]; certificates: number; domains_checked: number; new_hits: number; errors: string[] }
+export const fetchWatch = () => getJSON<{ hits: WatchHit[]; terms: string[]; official_domains: string[]; scan: { running?: boolean; last_scan?: string; last_error?: string | null; found?: number; summary?: WatchScanSummary } | null; source: string }>("/fraud/watch", "Could not load the domain watch.");
+export const runWatchScan = () => postJSON<{ started: boolean; already_running: boolean; terms: string[] }>("/fraud/watch/scan", {}, "Could not start the certificate log search.");
+export const setWatchStatus = (id: string, status: "new" | "dismissed" | "incident") => postJSON<WatchHit>(`/fraud/watch/${id}`, { status }, "Could not update the hit.");

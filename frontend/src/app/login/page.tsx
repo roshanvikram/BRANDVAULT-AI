@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { DEMO_CREDS, setToken } from "@/lib/api";
+import { DEMO_CREDS, MfaRequiredError, setToken } from "@/lib/api";
+import { KeyRound } from "lucide-react";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
+import { LegalLinks } from "@/components/legal/LegalLinks";
 
 const DEMO_ROLES: ("Administrator" | "Creator" | "Reviewer")[] = ["Administrator", "Creator", "Reviewer"];
 
@@ -28,6 +30,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [mfaNeeded, setMfaNeeded] = useState(false);
+  const [code, setCode] = useState("");
 
   // Google OAuth bounces back to /login with the token (or an error) in the URL
   // fragment — never a query string, so it stays out of server logs.
@@ -54,12 +58,17 @@ export default function LoginPage() {
     if (!email || !password) return;
     setBusy(true);
     setError(null);
+    if (mfaNeeded && code.replace(/\s/g, "").length !== 6) return;
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password, mfaNeeded ? code.replace(/\s/g, "") : undefined);
       router.push("/dashboard");
     } catch (err: any) {
-      // Surface the real reason (bad credentials vs. server unreachable vs.
-      // server error) rather than always blaming the credentials.
+      if (err instanceof MfaRequiredError) {
+        setMfaNeeded(true);
+        if (err.invalid) { setError(err.message); setCode(""); }
+        return;
+      }
+      // Surface the real reason (bad credentials vs. locked vs. server unreachable).
       setError(err?.message || "Sign-in failed. Please try again.");
     } finally {
       setBusy(false);
@@ -127,6 +136,27 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {mfaNeeded && (
+              <div>
+                <label htmlFor="mfa-code" className="text-[11px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Authenticator code</label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    id="mfa-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    autoFocus
+                    maxLength={7}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/[^\d ]/g, ""))}
+                    placeholder="6-digit code"
+                    className="w-full pl-9 pr-3 py-2 text-sm tracking-[0.3em] bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 placeholder:tracking-normal focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Two-step sign-in is on for this account. Open your authenticator app for the code.</p>
+              </div>
+            )}
+
             {error && (
               <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 font-medium">
                 {error}
@@ -135,7 +165,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={busy || !email || !password}
+              disabled={busy || !email || !password || (mfaNeeded && code.replace(/\s/g, "").length !== 6)}
               className="w-full py-2.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white disabled:opacity-50 transition-all flex items-center justify-center space-x-2 shadow-md shadow-indigo-500/20 active:scale-[0.99]"
             >
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : <ArrowRight className="w-3.5 h-3.5 text-indigo-200" />}
@@ -186,10 +216,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-center mt-5">
+        <div className="text-center mt-5 space-y-2">
           <Link href="/" className="text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors">
             ← Back to home
           </Link>
+          <LegalLinks />
         </div>
       </div>
     </AuthShell>

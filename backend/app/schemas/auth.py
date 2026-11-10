@@ -1,3 +1,5 @@
+from typing import Literal, Optional
+
 from pydantic import BaseModel, field_validator
 import datetime
 import re
@@ -8,6 +10,7 @@ _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 class LoginRequest(BaseModel):
     email: str
     password: str
+    mfa_code: Optional[str] = None  # required only when the account has two-step sign-in on
 
 
 class RegisterRequest(BaseModel):
@@ -18,6 +21,12 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     full_name: str
+    # "new": create a company workspace (you become its Administrator).
+    # "demo": join the shared NOVA TECH demo workspace as a Creator.
+    # Omitted: the server default (demo while demo content is on, otherwise new).
+    workspace: Optional[Literal["new", "demo"]] = None
+    company_name: Optional[str] = None
+    invite_token: Optional[str] = None  # joins the inviting workspace with the invited role
 
     @field_validator("email")
     @classmethod
@@ -30,8 +39,11 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def _password_strength(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters.")
+        from backend.app.core.config import settings
+        from backend.app.core.security import password_problem
+        problem = password_problem(v, "", settings.PASSWORD_MIN_LENGTH)
+        if problem:
+            raise ValueError(problem)
         return v
 
     @field_validator("full_name")
@@ -49,6 +61,7 @@ class UserResponse(BaseModel):
     role: str
     org_id: str
     auth_provider: str = "password"
+    mfa_enabled: Optional[bool] = False
     created_at: datetime.datetime
 
     class Config:

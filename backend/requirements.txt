@@ -28,3 +28,6 @@ pypdfium2>=4.30
 
 # Round 3 · Semantic evidence engine: local dense embeddings (BGE-small, ONNX, CPU)
 fastembed>=0.4
+
+# Optional error tracking: used only when SENTRY_DSN is set
+sentry-sdk>=2.0

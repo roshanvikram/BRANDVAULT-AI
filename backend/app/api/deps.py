@@ -1,6 +1,6 @@
 """Authentication / RBAC dependencies."""
 from typing import Optional
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import settings
@@ -16,6 +16,7 @@ def _unauthorized(detail: str = "Not authenticated") -> HTTPException:
 
 
 def get_current_user(
+    request: Request,
     authorization: Optional[str] = Header(default=None),
     db: Session = Depends(get_db),
 ) -> User:
@@ -29,6 +30,10 @@ def get_current_user(
     user = db.query(User).filter(User.id == payload["sub"]).first()
     if not user or not user.is_active:
         raise _unauthorized("User not found or inactive")
+    # Tokens minted before a password change, "sign out everywhere" or a role change are void.
+    if int(payload.get("tv", 0)) != int(user.token_version or 0):
+        raise _unauthorized("Session ended. Please sign in again.")
+    request.state.org_id = user.org_id  # for error reports and request logs
     set_tenant(db, user.org_id)  # database-level isolation (PostgreSQL Row-Level Security)
     return user
 

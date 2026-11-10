@@ -193,3 +193,51 @@ Uploaded files are stored in the database too, so nothing else is needed. Keep t
 | `REPUTATION_LLM_MAX_ROWS` | Most unrated feedback rows per upload that the AI model scores (default 300); the rest use the lexicon. |
 
 People turn on browser notifications themselves in **Settings → Notifications → Turn on**. The server is started with `--proxy-headers` so rate limits use each visitor's real IP behind Render's proxy.
+
+
+## 13. Running it for a real company
+
+### What each company gets
+- **Its own private workspace.** On the sign-up page, choose **My company** and enter the company name. That person becomes the workspace's Administrator. Data is separated from every other workspace (and, on PostgreSQL, by Row-Level Security).
+- **Team invitations.** Settings → Team → Invite someone (email + role). The link is valid for `INVITE_DAYS` days. It is emailed when SMTP is set, otherwise copy it from the screen.
+- **Security.** Settings → Security: two-step sign-in with any authenticator app, password change, "sign out everywhere", and (Administrators) the security log.
+- **Data rights.** Settings → Data & privacy: download everything as a ZIP, close your own account, or delete the whole workspace.
+- **System status** (Administrators): traffic, error rate, response times, AI fallback order, and the workspace's recent server errors with their reference IDs.
+
+### Settings
+
+| Setting | Default | What it does |
+|---|---|---|
+| `FRONTEND_URL` | `http://localhost:3000` | **Set it to the real frontend URL**: invitation links point here. |
+| `ALLOW_NEW_WORKSPACES` | `true` | `false` makes the server invite-only (no new company workspaces from sign-up). |
+| `SEED_DEMO_CONTENT` | `true` | Also decides the sign-up default. Set `false` for a company-only server. |
+| `DEMO_ACCOUNTS_ENABLED` | `true` | Set `false` so the published demo passwords stop working. |
+| `PASSWORD_MIN_LENGTH` | `10` | Passwords also need letters and numbers and must not be common. |
+| `LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES` | `5`, `15` | Lock an account after this many wrong passwords or codes in a row. An Administrator can unlock it in Settings → Team. |
+| `SESSION_HOURS` | `12` | How long a sign-in lasts. |
+| `INVITE_DAYS` | `7` | How long an invitation link works. |
+| `SENTRY_DSN` | empty | Send server errors to Sentry too (errors are always stored in the database). |
+| `METRICS_TOKEN` | empty | Turns on `GET /metrics` (Prometheus format) for scrapers that send `Authorization: Bearer <token>`. |
+| `LOG_FORMAT` | `json` in production | One JSON line per request with its `request_id`, for log search tools. |
+| `CT_MONITOR_ENABLED`, `CT_MONITOR_HOURS` | `true`, `24` | Daily look-alike domain search in certificate logs for every workspace with official domains (production only). |
+| `LLM_FALLBACK` | `true` | Use every configured AI provider in turn when one fails. Set any of `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`. |
+| `LLM_CACHE_SECONDS` | `3600` | Identical AI requests reuse the earlier answer within this time. |
+
+Health endpoints: `GET /api/v1/health` (details) and `GET /api/v1/ready` (200 only when the database answers, for load balancers). Every response has an `X-Request-ID` header; a customer quoting it lets you find the request in the logs and in Settings → System.
+
+### Backups
+
+`backend/scripts/backup.py` writes a portable, compressed copy of the whole database (works on SQLite and PostgreSQL):
+
+```bash
+python -m backend.scripts.backup create backups/brandvault.json.gz
+python -m backend.scripts.backup verify backups/brandvault.json.gz
+python -m backend.scripts.backup restore backups/brandvault.json.gz --url <EMPTY_DATABASE_URL>
+```
+
+It reads `DATABASE_URL`. Restore only writes into an empty database. Store backup files encrypted and away from the server: they contain customer data. On Neon, point-in-time restore is also available in its console.
+
+### Legal pages
+
+`/legal/privacy`, `/legal/terms`, `/legal/dpa` and `/legal/security` describe what the software really does, with the company-specific parts in [square brackets]. Fill those in and have a lawyer review them before customers rely on them.
+

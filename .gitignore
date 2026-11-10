@@ -53,3 +53,5 @@ backend/.secret_key
 
 # Uploaded brand assets and investigation evidence (local storage)
 backend/storage/
+.next-check/
+backups/

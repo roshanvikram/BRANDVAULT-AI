@@ -22,6 +22,9 @@ from backend.app.api.v1.governance import router as governance_router
 from backend.app.api.v1.intelligence import router as intelligence_router
 from backend.app.api.v1.creative import router as creative_router
 from backend.app.api.v1.integrations import router as integrations_router
+from backend.app.api.v1.team import router as team_router
+from backend.app.api.v1.privacy import router as privacy_router
+from backend.app.api.v1.system import router as system_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -47,4 +50,6 @@ api_router.include_router(governance_router)
 api_router.include_router(intelligence_router)
 api_router.include_router(creative_router)
 api_router.include_router(integrations_router)
-
+api_router.include_router(team_router)
+api_router.include_router(privacy_router)
+api_router.include_router(system_router)

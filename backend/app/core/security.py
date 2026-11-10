@@ -75,3 +75,57 @@ def decode_token(token: str, secret: str) -> Optional[dict]:
     if int(payload.get("exp", 0)) < int(time.time()):
         return None
     return payload
+
+
+# ----------------------------- two-step sign-in (TOTP) ---------------------- #
+def new_totp_secret() -> str:
+    """Random 160-bit secret, base32 (what authenticator apps expect)."""
+    return base64.b32encode(os.urandom(20)).decode("ascii").rstrip("=")
+
+
+def totp_code(secret: str, at: Optional[float] = None, step: int = 30, digits: int = 6) -> str:
+    """RFC 6238 time-based one-time password (HMAC-SHA1, 30 s, 6 digits)."""
+    key = base64.b32decode(secret + "=" * (-len(secret) % 8), casefold=True)
+    counter = int((time.time() if at is None else at) // step)
+    mac = hmac.new(key, counter.to_bytes(8, "big"), hashlib.sha1).digest()
+    off = mac[-1] & 0x0F
+    num = (int.from_bytes(mac[off:off + 4], "big") & 0x7FFFFFFF) % (10 ** digits)
+    return str(num).zfill(digits)
+
+
+def verify_totp(secret: str, code: str, window: int = 1, at: Optional[float] = None) -> bool:
+    """Accept the current code and one step either side (clock drift)."""
+    code = (code or "").replace(" ", "").strip()
+    if not secret or not code.isdigit() or len(code) != 6:
+        return False
+    now = time.time() if at is None else at
+    return any(hmac.compare_digest(totp_code(secret, now + k * 30), code) for k in range(-window, window + 1))
+
+
+def totp_uri(secret: str, email: str, issuer: str = "BrandVault AI") -> str:
+    import urllib.parse
+    label = urllib.parse.quote(f"{issuer}:{email}")
+    return f"otpauth://totp/{label}?secret={secret}&issuer={urllib.parse.quote(issuer)}&algorithm=SHA1&digits=6&period=30"
+
+
+# ----------------------------- password rules ------------------------------- #
+_COMMON = {"password", "password1", "password123", "123456789", "1234567890", "qwerty123", "letmein",
+           "welcome1", "admin123", "iloveyou", "brandvault", "changeme"}
+
+
+def password_problem(password: str, email: str = "", min_length: int = 10) -> Optional[str]:
+    """Return why a password is too weak, or None when it is acceptable."""
+    p = password or ""
+    if len(p) < min_length:
+        return f"Password must be at least {min_length} characters."
+    if len(p) > 256:
+        return "Password is too long."
+    if not any(c.isalpha() for c in p) or not any(c.isdigit() for c in p):
+        return "Use both letters and numbers in the password."
+    low = p.lower()
+    if low in _COMMON or low.rstrip("!@#$%") in _COMMON:
+        return "That password is too common. Choose another."
+    local = (email or "").split("@")[0].lower()
+    if local and len(local) >= 4 and local in low:
+        return "The password must not contain your email name."
+    return None

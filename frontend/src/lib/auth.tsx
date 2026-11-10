@@ -8,11 +8,14 @@ import { AuthUser, fetchCurrentUser, login as apiLogin, register as apiRegister,
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<AuthUser>;
-  register: (full_name: string, email: string, password: string) => Promise<AuthUser>;
+  login: (email: string, password: string, mfaCode?: string) => Promise<AuthUser>;
+  register: (full_name: string, email: string, password: string, extra?: SignUpExtra) => Promise<AuthUser>;
+  setUser: (u: AuthUser | null) => void;
   logout: () => void;
   refresh: () => Promise<void>;
 }
+
+export type SignUpExtra = { workspace?: "new" | "demo"; company_name?: string; invite_token?: string };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -35,14 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const u = await apiLogin(email, password);
+  const login = async (email: string, password: string, mfaCode?: string) => {
+    const u = await apiLogin(email, password, mfaCode);
     setUser(u);
     return u;
   };
 
-  const register = async (full_name: string, email: string, password: string) => {
-    const u = await apiRegister({ full_name, email, password });
+  const register = async (full_name: string, email: string, password: string, extra: SignUpExtra = {}) => {
+    const u = await apiRegister({ full_name, email, password, ...extra });
     setUser(u);
     return u;
   };
@@ -53,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -21,9 +21,10 @@ Set RLS_ENABLED=false to skip creating the policies.
 """
 from __future__ import annotations
 
+import contextvars
 import logging
 import os
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import event, inspect, text
 from sqlalchemy.engine import Engine
@@ -34,6 +35,8 @@ log = logging.getLogger("brandvault.rls")
 SETTING = "app.org_id"
 POLICY = "bv_tenant_isolation"
 _CTX = "current_setting('app.org_id', true)"
+# The organisation of the request being served (for error reports and logs).
+current_org: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("bv_current_org", default=None)
 
 
 def _condition(column: str) -> str:
@@ -73,6 +76,7 @@ def enable(engine: Engine) -> int:
 def set_tenant(db: Session, org_id: str) -> None:
     """Scope this session's database work to one organisation (no-op on SQLite)."""
     db.info["bv_org"] = org_id
+    current_org.set(org_id)
     bind = db.get_bind()
     if bind.dialect.name == "postgresql":
         db.execute(text("SELECT set_config(:k, :v, true)"), {"k": SETTING, "v": org_id})

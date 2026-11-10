@@ -9,7 +9,7 @@ All twelve limitations listed in the Round 2 report were rechecked against the c
 | 3 | Guidelines: PDF only | ✅ Done | PDF, DOCX, HTML, Markdown, TXT, CSV and XLSX | 70/70 input files upload |
 | 4 | Sparse TF-IDF evidence search | ✅ Done | Hybrid BM25 + TF-IDF + dense embeddings (bge-small, local), fused ranking | Retrieval recall@3 0.675 → 0.825 |
 | 5 | No MCP protocol transport | ✅ Done | MCP server (JSON-RPC over stdio) with read-only governance tools | MCP end-to-end test |
-| 6 | No internet-wide impersonation monitoring | ⚠️ Still a limit | Analyses submitted URLs, text and screenshots: lookalike domains, phishing requests, wrong prices | Needs external data feeds (domain registrations, ad libraries); out of scope |
+| 6 | No internet-wide impersonation monitoring | 🟡 Partly done | Submitted URLs, text and screenshots are analysed, **and** a look-alike domain watch searches public Certificate Transparency logs (crt.sh) daily for new HTTPS sites named like the brand | Real search found 149 certificates and 5 look-alikes for a test domain. Social media, ads and non-HTTPS sites still need paid feeds |
 | 7 | Lexicon sentiment, small test set | ✅ Done | AI-model sentiment for unrated feedback when a model is configured; improved lexicon as fallback; star ratings still take precedence | See below |
 | 8 | Reviewer intelligence limited by demo data | ⚠️ Still a limit | Engine is built and tested; its insight depends on real review history | Improves with real usage only |
 | 9 | No email or push notifications | ✅ Done | Email (SMTP), Slack, signed webhooks, and **browser push** (Web Push, works with the tab closed) | RFC 8291 test vector matches; delivery and role-filter tests |

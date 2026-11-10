@@ -95,6 +95,29 @@ class Settings(BaseSettings):
     # Groq — OpenAI-compatible API serving fast open models (Llama etc.).
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    # When the first provider fails (rate limit, outage), try the next configured one.
+    LLM_FALLBACK: bool = os.getenv("LLM_FALLBACK", "true").lower() != "false"
+    # Identical AI requests within this many seconds reuse the earlier answer (0 = off).
+    LLM_CACHE_SECONDS: int = int(os.getenv("LLM_CACHE_SECONDS", "3600"))
+
+    # --- Company readiness: accounts, security, operations ---
+    # Sign-up may create a brand-new company workspace (the person becomes its Administrator).
+    ALLOW_NEW_WORKSPACES: bool = os.getenv("ALLOW_NEW_WORKSPACES", "true").lower() != "false"
+    PASSWORD_MIN_LENGTH: int = int(os.getenv("PASSWORD_MIN_LENGTH", "10"))
+    LOGIN_MAX_FAILURES: int = int(os.getenv("LOGIN_MAX_FAILURES", "5"))
+    LOGIN_LOCK_MINUTES: int = int(os.getenv("LOGIN_LOCK_MINUTES", "15"))
+    SESSION_HOURS: int = int(os.getenv("SESSION_HOURS", "12"))
+    INVITE_DAYS: int = int(os.getenv("INVITE_DAYS", "7"))
+    # Error tracking (optional): Sentry-compatible DSN. Errors are always kept in the database too.
+    SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
+    # Prometheus scraping: /metrics answers only with this bearer token (unset = endpoint off).
+    METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
+    LOG_FORMAT: str = os.getenv("LOG_FORMAT", "")  # json | text (default: json in production)
+    # Certificate Transparency monitoring for lookalike domains (public crt.sh logs).
+    CT_MONITOR_ENABLED: bool = os.getenv("CT_MONITOR_ENABLED", "true").lower() != "false"
+    CT_MONITOR_HOURS: int = int(os.getenv("CT_MONITOR_HOURS", "24"))
     LLM_TIMEOUT_SECONDS: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "20"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1500"))
     

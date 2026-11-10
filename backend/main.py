@@ -48,10 +48,13 @@ async def lifespan(app: FastAPI):
     rls.enable(engine)
     from backend.app.services import keepawake
     awake_task = keepawake.start(list(settings.BACKEND_CORS_ORIGINS))
+    from backend.app.services import ctwatch
+    watch_task = ctwatch.start()
     yield
     # Shutdown
-    if awake_task is not None:
-        awake_task.cancel()
+    for task in (awake_task, watch_task):
+        if task is not None:
+            task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -59,6 +62,9 @@ app = FastAPI(
     version=settings.VERSION,
     lifespan=lifespan
 )
+
+from backend.app.core import observability
+observability.install(app)  # request IDs, logs, metrics, error capture, security headers
 
 app.add_middleware(
     CORSMiddleware,
@@ -68,9 +74,23 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID", "Content-Disposition"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+@app.get("/api/v1/ready", include_in_schema=False)
+def ready():
+    """Readiness for load balancers: 200 only when the database answers."""
+    from sqlalchemy import text as _t
+    from fastapi.responses import JSONResponse
+    try:
+        with engine.connect() as c:
+            c.execute(_t("SELECT 1"))
+        return {"ready": True}
+    except Exception:
+        return JSONResponse({"ready": False}, status_code=503)
+
 
 @app.get("/")
 def get_root():
