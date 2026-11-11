@@ -13,17 +13,26 @@ rn/m). Every correction is reported so a reviewer can see exactly what changed.
 from __future__ import annotations
 
 import io
+import os
 import re
 import threading
 import time
 from typing import Dict, Iterable, List, Optional, Tuple
 
 ENGINE_NAME = "rapidocr-onnx"
-MAX_SIDE = 2600          # downscale very large creatives for speed; boxes are mapped back
-UPSCALE_BELOW = 1300     # small creatives are enlarged 2x: OCR keeps word spacing much better
+MAX_SIDE = int(os.getenv("OCR_MAX_SIDE", "1600"))  # downscale very large creatives; boxes are mapped back
+UPSCALE_BELOW = int(os.getenv("OCR_UPSCALE_BELOW", "0"))  # small creatives are enlarged 2x: better word spacing
+DET_MAX_SIDE = int(os.getenv("OCR_DET_MAX_SIDE", "960"))  # memory cap for text detection (see _get_engine)
+# Run each OCR in a short-lived child process. If an image ever needs more memory than the
+# server has, only the child is stopped (the user gets a clear error) and the server keeps
+# running; when it finishes, all OCR memory (engine included) is returned at once.
+IN_SUBPROCESS = os.getenv("OCR_IN_SUBPROCESS", "true").lower() != "false"
+CHILD_TIMEOUT = int(os.getenv("OCR_TIMEOUT_SECONDS", "180"))
 MIN_CONFIDENCE = 0.5     # lines below this are kept but flagged as low confidence
 
 _lock = threading.Lock()
+# One OCR at a time: two at once would double the peak memory on a small server.
+_run_lock = threading.Lock()
 _engine = None
 _load_error: Optional[str] = None
 
@@ -40,7 +49,10 @@ def _get_engine():
         if _engine is None and _load_error is None:
             try:
                 from rapidocr_onnxruntime import RapidOCR  # heavy import, done once
-                _engine = RapidOCR()
+                # Text detection runs on a copy at most DET_MAX_SIDE on its longer side; text
+                # is still read from the full-size image. Without this cap one banner can need
+                # 0.5-1 GB at peak, which crashes a 512 MB server.
+                _engine = RapidOCR(det_model_path=None, det_limit_side_len=DET_MAX_SIDE, det_limit_type="max")
             except Exception as exc:  # pragma: no cover - depends on the host
                 _load_error = f"{type(exc).__name__}: {exc}"
     if _engine is None:
@@ -48,7 +60,14 @@ def _get_engine():
     return _engine
 
 
+def _installed() -> bool:
+    import importlib.util
+    return importlib.util.find_spec("rapidocr_onnxruntime") is not None
+
+
 def available() -> bool:
+    if IN_SUBPROCESS:
+        return _installed()
     try:
         _get_engine()
         return True
@@ -56,12 +75,40 @@ def available() -> bool:
         return False
 
 
+def _child_ocr(png: bytes, det_max_side: int) -> list:
+    """Runs in the child process: load the engine, read the image, return plain data."""
+    from rapidocr_onnxruntime import RapidOCR
+    engine = RapidOCR(det_model_path=None, det_limit_side_len=det_max_side, det_limit_type="max")
+    result, _ = engine(png)
+    return [([[float(x), float(y)] for x, y in box], str(text), float(conf)) for box, text, conf in (result or [])]
+
+
+def _run_in_child(png: bytes) -> list:
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+    from concurrent.futures.process import BrokenProcessPool
+    ctx = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=1, mp_context=ctx) as pool:
+        try:
+            return pool.submit(_child_ocr, png, DET_MAX_SIDE).result(timeout=CHILD_TIMEOUT)
+        except BrokenProcessPool:
+            raise OCRUnavailable("Reading the text in this image needed more memory than this server has. "
+                                 "Try a smaller image (under 1600 pixels on the longer side).")
+        except TimeoutError:
+            raise OCRUnavailable("Reading the text in this image took too long. Try a smaller image.")
+
+
 def status() -> Dict:
-    try:
-        _get_engine()
-        return {"available": True, "engine": ENGINE_NAME}
-    except OCRUnavailable as e:
-        return {"available": False, "engine": None, "reason": str(e)}
+    """Whether OCR can run, without loading the engine (it takes about 85 MB of memory,
+    which a small server should only spend when someone actually inspects a creative)."""
+    if _engine is not None:
+        return {"available": True, "engine": ENGINE_NAME, "loaded": True}
+    if _load_error is not None:
+        return {"available": False, "engine": None, "reason": f"OCR engine unavailable ({_load_error})."}
+    import importlib.util
+    if importlib.util.find_spec("rapidocr_onnxruntime") is None:
+        return {"available": False, "engine": None, "reason": "OCR engine unavailable (rapidocr_onnxruntime is not installed)."}
+    return {"available": True, "engine": ENGINE_NAME, "loaded": False}
 
 
 def _prepare(image_bytes: bytes) -> Tuple[bytes, float, int, int]:
@@ -88,10 +135,16 @@ def _prepare(image_bytes: bytes) -> Tuple[bytes, float, int, int]:
 
 def recognise(image_bytes: bytes) -> Dict:
     """OCR one image. Returns lines with text, confidence and box [x, y, w, h] in original pixels."""
-    engine = _get_engine()
-    png, scale, w, h = _prepare(image_bytes)
     t0 = time.perf_counter()
-    result, _ = engine(png)
+    with _run_lock:
+        png, scale, w, h = _prepare(image_bytes)
+        if IN_SUBPROCESS:
+            if not _installed():
+                raise OCRUnavailable("OCR engine unavailable (rapidocr_onnxruntime is not installed).")
+            result = _run_in_child(png)
+        else:
+            result, _ = _get_engine()(png)
+        del png
     lines = []
     for box, text, conf in (result or []):
         xs = [p[0] * scale for p in box]

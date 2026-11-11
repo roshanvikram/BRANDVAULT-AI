@@ -115,6 +115,9 @@ class Settings(BaseSettings):
     # Prometheus scraping: /metrics answers only with this bearer token (unset = endpoint off).
     METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
     LOG_FORMAT: str = os.getenv("LOG_FORMAT", "")  # json | text (default: json in production)
+    # Visual DNA also reads the text in an image (OCR). Off by default: OCR needs a lot of memory
+    # and Creative Inspection already reads and checks text. Turn on for servers with 1 GB+.
+    VISUAL_DNA_OCR: bool = os.getenv("VISUAL_DNA_OCR", "false").lower() == "true"
     # Certificate Transparency monitoring for lookalike domains (public crt.sh logs).
     CT_MONITOR_ENABLED: bool = os.getenv("CT_MONITOR_ENABLED", "true").lower() != "false"
     CT_MONITOR_HOURS: int = int(os.getenv("CT_MONITOR_HOURS", "24"))

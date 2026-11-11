@@ -222,6 +222,12 @@ People turn on browser notifications themselves in **Settings → Notifications 
 | `CT_MONITOR_ENABLED`, `CT_MONITOR_HOURS` | `true`, `24` | Daily look-alike domain search in certificate logs for every workspace with official domains (production only). |
 | `LLM_FALLBACK` | `true` | Use every configured AI provider in turn when one fails. Set any of `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`. |
 | `LLM_CACHE_SECONDS` | `3600` | Identical AI requests reuse the earlier answer within this time. |
+| `OCR_DET_MAX_SIDE` | `960` | Largest side (pixels) the text-finding step of OCR works at. It sets OCR's peak memory: about 250 MB at 960, 300-400 MB at 1280, up to 1 GB uncapped. Keep 960 on a 512 MB server; use 1280 on 1 GB or more for slightly better reading of small text. |
+| `OCR_MAX_SIDE`, `OCR_UPSCALE_BELOW` | `1600`, `0` | Larger images are shrunk to `OCR_MAX_SIDE` before OCR; images smaller than `OCR_UPSCALE_BELOW` are doubled first (0 = never, which saves memory). |
+| `OCR_IN_SUBPROCESS` | `true` | Each OCR runs in a short-lived helper process. If an image needs more memory than the server has, only the helper stops (the user sees "needs more memory, try a smaller image") and the server keeps running; afterwards all OCR memory is returned. |
+| `VISUAL_DNA_OCR` | `false` | Visual DNA checks colours and contrast; reading the text in an image is done by Creative Inspection. Set `true` (on 1 GB+ servers) to also show the text on the Visual DNA page. |
+
+**Memory on the free plan (512 MB).** The app uses about 300 MB once started (most of it the local search model). Reading text in images (OCR) is the only heavy step (about 200-250 MB at its peak with the settings above). It runs in a separate helper process, one image at a time, so it can never take the whole server down. If the server restarts with "out of memory" in Render's Events, lower `OCR_DET_MAX_SIDE` or move to a 1 GB instance.
 
 Health endpoints: `GET /api/v1/health` (details) and `GET /api/v1/ready` (200 only when the database answers, for load balancers). Every response has an `X-Request-ID` header; a customer quoting it lets you find the request in the logs and in Settings → System.
 

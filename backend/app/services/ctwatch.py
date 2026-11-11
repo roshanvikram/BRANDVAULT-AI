@@ -36,6 +36,7 @@ from backend.app.services import fraud
 log = logging.getLogger("brandvault.ctwatch")
 CRT_URL = "https://crt.sh/?q={q}&output=json&exclude=expired"
 MAX_ROWS = 3000
+MAX_BYTES = 6_000_000  # about 60-80 MB once parsed: safe on a 512 MB server
 state: Dict[str, dict] = {}  # org_id -> {"running", "last_scan", "last_error", "found", "summary"}
 _lock = threading.Lock()
 session_factory = None  # tests point background scans at their own database
@@ -63,14 +64,28 @@ def _fetch_crtsh(query: str, attempts: int = 2) -> List[dict]:
     for attempt in range(attempts):
         try:
             with urllib.request.urlopen(req, timeout=90) as resp:
-                raw = resp.read(25_000_000)
+                raw = resp.read(MAX_BYTES + 1)
+            if len(raw) > MAX_BYTES:
+                # A name this common returns more certificates than a small server should hold in memory.
+                raise TooManyResults(f"more than {MAX_BYTES // 1_000_000} MB of results; the name is too common to watch")
             data = json.loads(raw.decode("utf-8") or "[]")
-            return data[:MAX_ROWS] if isinstance(data, list) else []
+            del raw
+            if not isinstance(data, list):
+                return []
+            # Keep only what the watch uses, so the full records can be freed at once.
+            return [{"id": r.get("id"), "name_value": r.get("name_value", ""), "issuer_name": r.get("issuer_name", ""),
+                     "not_before": r.get("not_before")} for r in data[:MAX_ROWS] if isinstance(r, dict)]
+        except TooManyResults:
+            raise
         except Exception:  # noqa: BLE001
             if attempt == attempts - 1:
                 raise
             time.sleep(3)
     return []
+
+
+class TooManyResults(RuntimeError):
+    pass
 
 
 def start_scan(org_id: str) -> bool:
@@ -135,7 +150,8 @@ def scan(db: Session, org_id: str, fetch: Optional[Fetcher] = None) -> dict:
         try:
             rows = fetch(query)
         except Exception as exc:  # noqa: BLE001 - crt.sh is often slow; report, never invent
-            summary["errors"].append(f"{query}: certificate log search failed ({type(exc).__name__})")
+            summary["errors"].append(f"{query}: {exc}" if isinstance(exc, TooManyResults)
+                                     else f"{query}: certificate log search failed ({type(exc).__name__})")
             continue
         summary["certificates"] += len(rows)
         for r in rows:
@@ -185,14 +201,62 @@ def _scan_all() -> None:
         db.close()
 
 
+LAST_RUN_KEY = "ct_watch_last_run"
+
+
+def _last_run() -> Optional[datetime.datetime]:
+    from backend.app.db.session import SessionLocal
+    from backend.app.models.push import ServerSetting
+    db = SessionLocal()
+    try:
+        row = db.query(ServerSetting).filter(ServerSetting.key == LAST_RUN_KEY).first()
+        return datetime.datetime.fromisoformat(row.value) if row else None
+    except Exception:  # noqa: BLE001
+        return None
+    finally:
+        db.close()
+
+
+def _mark_run() -> None:
+    from backend.app.db.session import SessionLocal
+    from backend.app.models.push import ServerSetting
+    db = SessionLocal()
+    try:
+        row = db.query(ServerSetting).filter(ServerSetting.key == LAST_RUN_KEY).first()
+        now = datetime.datetime.utcnow().isoformat()
+        if row:
+            row.value = now
+        else:
+            db.add(ServerSetting(key=LAST_RUN_KEY, value=now))
+        db.commit()
+    except Exception:  # noqa: BLE001
+        db.rollback()
+    finally:
+        db.close()
+
+
+def seconds_until_due(last: Optional[datetime.datetime], now: datetime.datetime, every_hours: int,
+                      startup_delay: int = 900) -> float:
+    """Wait at least `startup_delay` after a (re)start, and never run more often than every `every_hours`.
+
+    The last run time is stored in the database, so restarts (deploys, a crash) never
+    start an extra search: a server that keeps restarting cannot keep re-running it.
+    """
+    due = (last + datetime.timedelta(hours=max(1, every_hours))) if last else now
+    return max(float(startup_delay), (due - now).total_seconds())
+
+
 async def _loop() -> None:
-    await asyncio.sleep(120)  # let startup finish first
     while True:
+        wait = await asyncio.to_thread(lambda: seconds_until_due(_last_run(), datetime.datetime.utcnow(), settings.CT_MONITOR_HOURS))
+        await asyncio.sleep(wait)
+        await asyncio.to_thread(_mark_run)  # recorded first: a crash during the search is not retried at once
         try:
             await asyncio.to_thread(_scan_all)
         except Exception as exc:  # noqa: BLE001
             log.warning("CT watch round failed: %s", exc)
-        await asyncio.sleep(max(1, settings.CT_MONITOR_HOURS) * 3600)
+        import gc
+        gc.collect()
 
 
 def start() -> Optional[asyncio.Task]:

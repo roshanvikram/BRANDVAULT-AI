@@ -212,8 +212,18 @@ class RapidOCRProvider(OCRProvider):
             return None
 
 
+class SkippedOCR(OCRProvider):
+    """Visual DNA measures colour and contrast; reading text is Creative Inspection's job.
+    Skipping it here keeps a small (512 MB) server from running out of memory."""
+    skipped = True
+    reason = "Text in images is read in Creative Inspection, which also checks the claims it finds."
+
+
 def get_ocr_provider() -> OCRProvider:
+    from backend.app.core.config import settings
     from backend.app.services import ocr as ocr_svc
+    if not settings.VISUAL_DNA_OCR:
+        return SkippedOCR()
     return RapidOCRProvider() if ocr_svc.available() else NullOCR()
 
 
@@ -313,7 +323,7 @@ def analyze_and_persist(db, org_id: str, filename: str, data: bytes, author_name
         "format": decoded["format"],
         "dimensions": {"width": decoded["width"], "height": decoded["height"]},
         "ocr": {"available": ocr.available, "text": ocr.extract_text(data) if ocr.available else None,
-                "reason": getattr(ocr, "reason", None), "engine": ocr.name,
+                "reason": getattr(ocr, "reason", None), "engine": ocr.name, "skipped": getattr(ocr, "skipped", False),
                 "note": "Use Creative Inspection to check the claims in this text against your Brand DNA."},
         "palette_rule": palette_rule.title if palette_rule else None,
     }

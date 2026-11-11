@@ -182,7 +182,10 @@ export default function VisualDNAInspector() {
                 <div>
                   <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">OCR Text Extraction</div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-700">
-                    {result?.ocr.available ? result?.ocr.text : `Unavailable — ${result?.ocr.reason || "no OCR engine configured"}`}
+                    {result?.ocr.available ? result?.ocr.text
+                      : (result?.ocr as { skipped?: boolean } | undefined)?.skipped
+                        ? <>{result?.ocr.reason} <Link href="/visual-dna/creative" className="font-semibold text-indigo-700 hover:underline">Open Creative Inspection →</Link></>
+                        : `Unavailable — ${result?.ocr.reason || "no OCR engine configured"}`}
                   </div>
                 </div>
               </div>
