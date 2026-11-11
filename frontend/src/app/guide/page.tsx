@@ -20,7 +20,7 @@ const VIDEO_URL = VIDEO_ENV === "none" ? "" : (VIDEO_ENV || "/demo/walkthrough.m
 function VideoEmbed({ url }: { url: string }) {
   const isFile = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
   return (
-    <div className="rounded-xl overflow-hidden border border-[#E5E5E5] bg-black aspect-video shadow-sm">
+    <div className="rounded-2xl overflow-hidden border-2 border-indigo-200/90 bg-slate-950 aspect-video shadow-[0_16px_50px_-10px_rgba(79,70,229,0.30)] ring-4 ring-indigo-500/15">
       {isFile ? (
         <video
           src={url}
@@ -28,7 +28,7 @@ function VideoEmbed({ url }: { url: string }) {
           playsInline
           preload="metadata"
           poster="/demo/03-content-intelligence.jpg"
-          className="w-full h-full object-contain bg-black"
+          className="w-full h-full object-contain bg-slate-950"
         />
       ) : (
         <iframe
@@ -260,16 +260,24 @@ export default function GuidePage() {
       <section className="max-w-5xl mx-auto px-6 pb-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { r: "Creator", d: "Submits content for review. Cannot approve.", bg: "bg-gradient-to-br from-indigo-50/80 via-white to-sky-50/50 border-indigo-200", badge: "bg-indigo-100 text-indigo-800 border-indigo-200" },
-            { r: "Reviewer", d: "Approves, rejects, or requests revision.", bg: "bg-gradient-to-br from-purple-50/80 via-white to-fuchsia-50/50 border-purple-200", badge: "bg-purple-100 text-purple-800 border-purple-200" },
-            { r: "Administrator", d: "Full access, incl. approvals & settings.", bg: "bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 border-emerald-200", badge: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-          ].map((x) => (
-            <div key={x.r} className={`${x.bg} rounded-2xl border shadow-soft p-5 hover:shadow-medium transition-all`}>
-              <span className={`inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${x.badge} mb-2`}>Role</span>
-              <div className="text-base font-bold tracking-tight text-slate-900">{x.r}</div>
-              <div className="text-xs text-slate-600 mt-1.5 leading-relaxed">{x.d}</div>
-            </div>
-          ))}
+            { r: "Creator", d: "Submits content for review. Cannot approve.", icon: UserPlus, bg: "bg-gradient-to-br from-indigo-50 via-white to-sky-50/70 border-indigo-200", badge: "bg-indigo-100 text-indigo-800 border-indigo-200", iconBg: "bg-indigo-600 text-white" },
+            { r: "Reviewer", d: "Approves, rejects, or requests revision.", icon: UserCheck, bg: "bg-gradient-to-br from-purple-50 via-white to-fuchsia-50/70 border-purple-200", badge: "bg-purple-100 text-purple-800 border-purple-200", iconBg: "bg-purple-600 text-white" },
+            { r: "Administrator", d: "Full access, incl. approvals & settings.", icon: ShieldCheck, bg: "bg-gradient-to-br from-emerald-50 via-white to-teal-50/70 border-emerald-200", badge: "bg-emerald-100 text-emerald-800 border-emerald-200", iconBg: "bg-emerald-600 text-white" },
+          ].map((x) => {
+            const RoleIcon = x.icon;
+            return (
+              <div key={x.r} className={`${x.bg} rounded-2xl border shadow-soft p-5 hover:shadow-medium transition-all group`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className={`inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${x.badge}`}>Role</span>
+                  <div className={`w-7 h-7 rounded-lg ${x.iconBg} flex items-center justify-center shadow-xs`}>
+                    <RoleIcon className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div className="text-base font-bold tracking-tight text-slate-900">{x.r}</div>
+                <div className="text-xs text-slate-600 mt-1.5 leading-relaxed">{x.d}</div>
+              </div>
+            );
+          })}
         </div>
       </section>
 

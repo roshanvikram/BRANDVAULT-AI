@@ -60,6 +60,13 @@ class SuggestionWordingTests(unittest.TestCase):
             text = replace_once(text, q, superlative_fix(q, []))
         self.assertEqual(text, "Strong performance at a competitive price")
 
+    def test_fixes_replace_whole_words_only(self):
+        from backend.app.services.analyzer import find_whole, replace_once
+        self.assertEqual(find_whole("Cheaper than ever", "Cheap"), -1)
+        self.assertEqual(replace_once("Cheaper than ever", "Cheap", "good value"), "Cheaper than ever")
+        self.assertEqual(replace_once("So cheap!", "cheap", "good value"), "So good value!")
+        self.assertEqual(find_whole("Price ₹69,999 now", "₹69,999"), 6)
+
 
 class SimilarityPairsTests(unittest.TestCase):
     def test_same_pairs_as_comparing_everything(self):

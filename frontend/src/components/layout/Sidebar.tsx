@@ -94,8 +94,8 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
         "relative flex items-center h-9 rounded-xl text-[13px] transition-all duration-150 group",
         collapsed ? "justify-center px-0" : "px-3 justify-between",
         active
-          ? "bg-slate-900 text-silver-100 font-semibold shadow-[0_6px_16px_-8px_rgba(34,36,39,0.55)] ring-1 ring-slate-900"
-          : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
+          ? "bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white font-semibold shadow-[0_4px_16px_-2px_rgba(79,70,229,0.45)] ring-1 ring-indigo-500/50"
+          : "text-slate-600 hover:text-indigo-700 hover:bg-indigo-50/70"
       )}
     >
       <div className="flex items-center min-w-0">
@@ -103,15 +103,15 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
           aria-hidden
           className={cn(
             "w-4 h-4 shrink-0 transition-colors",
-            active ? "text-indigo-400" : "text-slate-400 group-hover:text-slate-600"
+            active ? "text-white" : "text-slate-400 group-hover:text-indigo-600"
           )}
-          strokeWidth={active ? 2 : 1.75}
+          strokeWidth={active ? 2.2 : 1.75}
         />
         {!collapsed && <span className="ml-2.5 truncate">{item.name}</span>}
       </div>
 
       {!collapsed && item.badge && (
-        <span className={cn("text-[10px] font-semibold px-1.5 py-0.2 rounded-md border", item.badgeColor)}>
+        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full border shadow-2xs", item.badgeColor)}>
           {item.badge}
         </span>
       )}
@@ -171,7 +171,7 @@ export function Sidebar() {
         {/* Brand + organisation */}
         <div className={cn("h-16 flex items-center border-b border-slate-200/60 shrink-0", isCollapsed ? "justify-center" : "px-4 justify-between")}>
           <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0 group">
-            <div className="w-8 h-8 rounded-xl bg-slate-900 text-indigo-300 ring-1 ring-indigo-500/40 flex items-center justify-center text-xs font-bold shadow-md shadow-indigo-900/20 shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 text-white flex items-center justify-center text-xs font-bold shadow-md shadow-indigo-500/30 shrink-0 group-hover:scale-105 transition-transform">
               BV
             </div>
             {!isCollapsed && (

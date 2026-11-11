@@ -11,6 +11,12 @@ from backend.app.services.seed import seed_sample_brand, augment_integrity_demo,
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Tests use their own isolated seeded databases; skip startup migrations and seeding
+    import os, sys
+    if os.getenv("BV_TESTING") == "1" or getattr(app.state, "testing", False) or "unittest" in sys.modules:
+        yield
+        return
+
     # Startup: create tables, apply additive migrations, seed baseline brand
     Base.metadata.create_all(bind=ddl_engine)
     run_light_migrations(ddl_engine)

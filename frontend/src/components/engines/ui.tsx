@@ -40,32 +40,32 @@ export function PageHeader({ back, eyebrow, icon, title, description, actions, s
           <ArrowLeft className="w-3.5 h-3.5" /> {back.label}
         </Link>
       )}
-      <header className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/60 backdrop-blur-2xl backdrop-saturate-150 px-5 py-5 sm:px-7 sm:py-6 shadow-[0_1px_2px_rgba(34,36,39,0.04),0_16px_40px_-20px_rgba(34,36,39,0.25)]">
-        <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 w-72 h-72 rounded-full bg-violet-200/40 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-28 right-40 w-64 h-64 rounded-full bg-indigo-200/30 blur-3xl" />
+      <header className="relative overflow-hidden rounded-3xl border border-indigo-100/80 bg-white/80 backdrop-blur-2xl backdrop-saturate-150 px-5 py-5 sm:px-7 sm:py-6 shadow-[0_4px_24px_-4px_rgba(79,70,229,0.10)]">
+        <div aria-hidden className="pointer-events-none absolute -top-24 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-indigo-300/35 via-purple-300/30 to-pink-300/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-28 right-40 w-72 h-72 rounded-full bg-gradient-to-tr from-cyan-300/25 via-emerald-300/20 to-indigo-300/20 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bv-grid opacity-[0.35]" />
         <HeroArt eyebrow={eyebrow} />
         <div className="relative flex flex-col lg:flex-row lg:items-center xl:flex-col xl:items-start justify-between gap-5 xl:pr-[320px]">
           <div className="flex items-start gap-4 min-w-0 lg:flex-1 xl:flex-none">
-            <span className="hidden sm:flex w-12 h-12 shrink-0 rounded-2xl bg-slate-900 text-indigo-300 ring-1 ring-indigo-500/40 items-center justify-center shadow-lg shadow-slate-900/25 [&>svg]:w-5 [&>svg]:h-5">{icon}</span>
+            <span className="hidden sm:flex w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 text-white ring-1 ring-white/30 items-center justify-center shadow-lg shadow-indigo-500/30 [&>svg]:w-5 [&>svg]:h-5">{icon}</span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-indigo-600">{eyebrow}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-indigo-600 bg-indigo-50/80 px-2 py-0.5 rounded-full border border-indigo-200/80">{eyebrow}</span>
                 {status}
               </div>
-              <h2 className="text-[26px] sm:text-[28px] leading-tight font-semibold tracking-tight text-slate-900">{title}</h2>
-              <p className="text-[13.5px] text-slate-500 mt-1.5 max-w-3xl leading-relaxed">{description}</p>
+              <h2 className="text-[26px] sm:text-[28px] leading-tight font-bold tracking-tight text-slate-900">{title}</h2>
+              <p className="text-[13.5px] text-slate-600 mt-1.5 max-w-3xl leading-relaxed">{description}</p>
             </div>
           </div>
           {/* Buttons wrap instead of squeezing the title (at most half the width beside it). */}
           {actions && <div className="flex flex-wrap items-center gap-2 min-w-0 lg:max-w-[50%] lg:justify-end xl:max-w-none xl:justify-start">{actions}</div>}
         </div>
         {stats && stats.length > 0 && (
-          <dl className="relative mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          <dl className="relative mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {stats.map((s) => (
-              <div key={s.label} className="rounded-2xl bg-white/70 ring-1 ring-white/80 shadow-sm px-3.5 py-2.5">
-                <dt className="text-[11px] text-slate-500 truncate">{s.label}</dt>
-                <dd className={`text-lg font-semibold tabular-nums leading-tight ${s.tone === "bad" ? "text-rose-600" : s.tone === "warn" ? "text-amber-600" : s.tone === "good" ? "text-emerald-600" : "text-slate-900"}`}>{s.value}</dd>
+              <div key={s.label} className="rounded-2xl bg-white/90 ring-1 ring-indigo-100/90 shadow-soft px-3.5 py-2.5 hover:ring-indigo-300 transition-all">
+                <dt className="text-[11px] font-medium text-slate-500 truncate">{s.label}</dt>
+                <dd className={`text-lg font-bold tabular-nums leading-tight mt-0.5 ${s.tone === "bad" ? "text-rose-600" : s.tone === "warn" ? "text-amber-600" : s.tone === "good" ? "text-emerald-600" : "text-indigo-900"}`}>{s.value}</dd>
               </div>
             ))}
           </dl>

@@ -60,9 +60,23 @@ def superlative_fix(claim: str, facts) -> str:
     return "well-designed"
 
 
+def find_whole(content: str, quote: str) -> int:
+    """Index of `quote` in `content` as whole words only, or -1.
+    "Cheap" is not found inside "Cheaper", so a fix never breaks another word."""
+    if not quote:
+        return -1
+    pat = re.escape(quote)
+    if quote[0].isalnum():
+        pat = r"(?<![A-Za-z0-9])" + pat
+    if quote[-1].isalnum():
+        pat += r"(?![A-Za-z0-9])"
+    m = re.search(pat, content)
+    return m.start() if m else -1
+
+
 def replace_once(content: str, quote: str, fix: str) -> str:
-    """Replace the first `quote` with `fix`, correcting a/an right before it ("an unbeatable" -> "a competitive")."""
-    i = content.find(quote)
+    """Replace the first whole-word `quote` with `fix`, correcting a/an right before it ("an unbeatable" -> "a competitive")."""
+    i = find_whole(content, quote)
     if i < 0:
         return content
     before = content[:i]
@@ -661,6 +675,8 @@ class ContentAnalyzerService:
         quote, fix = (finding.original_text or "").strip(), (finding.suggested_correction or "").strip()
         if not quote or quote not in content:
             return None, "describes the whole text; edit it by hand"
+        if find_whole(content, quote) < 0:
+            return None, f"“{quote}” is part of a longer word here; edit it by hand"
         if not fix or fix == quote:
             return None, "no replacement wording"
         if self._INSTRUCTION.match(fix) or len(fix) > max(3 * len(quote), len(quote) + 120):
@@ -695,7 +711,7 @@ class ContentAnalyzerService:
         new_content = content
         for quote in sorted(chosen, key=len, reverse=True):
             c = chosen[quote]
-            if quote not in new_content:
+            if find_whole(new_content, quote) < 0:
                 # A longer fix already rewrote these words: nothing left to do for this finding.
                 for f in [c["finding"]] + c["also"]:
                     f.is_applied = True

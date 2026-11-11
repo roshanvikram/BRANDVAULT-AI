@@ -156,12 +156,13 @@ export default function Home() {
       `}</style>
 
       {/* ============================== HERO ============================== */}
-      <div className="p-3 sm:p-4">
-        <section className="relative overflow-hidden rounded-[32px] bg-white border border-slate-200/80 shadow-soft">
-          {/* Ambient Colorful Background Glow Orbs */}
-          <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-br from-indigo-200/50 via-purple-200/30 to-transparent blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -top-20 -right-40 w-96 h-96 rounded-full bg-gradient-to-bl from-indigo-200/50 via-purple-200/30 to-transparent blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-cyan-100/40 via-emerald-100/30 to-indigo-100/40 blur-3xl" />
+      <div className="p-3 sm:p-5">
+        <section className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-white via-indigo-50/25 to-white/95 border border-indigo-100/90 shadow-[0_20px_60px_-15px_rgba(79,70,229,0.12)]">
+          {/* Ambient Multi-Chromatic Background Glow Orbs */}
+          <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-indigo-300/45 via-purple-300/35 to-transparent blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -top-20 -right-40 w-[450px] h-[450px] rounded-full bg-gradient-to-bl from-rose-300/40 via-fuchsia-300/30 to-transparent blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-cyan-200/35 via-emerald-200/30 to-indigo-200/35 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute bottom-0 left-1/3 w-[500px] h-[350px] rounded-full bg-gradient-to-t from-amber-200/30 via-rose-200/20 to-transparent blur-3xl" />
 
           {/* Nav */}
           <nav className="relative z-20 max-w-6xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
@@ -198,47 +199,48 @@ export default function Home() {
           </nav>
 
           {/* Headline */}
-          <div className="relative z-20 max-w-4xl mx-auto px-5 text-center pt-8 sm:pt-12">
-            <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full border border-indigo-200 bg-indigo-50/70 text-[12px] font-semibold text-indigo-700 shadow-sm">
+          <div className="relative z-20 max-w-4xl mx-auto px-5 text-center pt-6 sm:pt-10">
+            <div className="inline-flex items-center gap-2 h-8 px-4 rounded-full border border-indigo-200 bg-indigo-50/80 text-[12px] font-semibold text-indigo-700 shadow-sm">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
               Protect every word. Preserve every identity.
             </div>
-            <h1 className="mt-5 text-[38px] leading-[1.08] sm:text-6xl lg:text-[72px] font-extrabold tracking-[-0.035em] text-slate-900">
+            <h1 className="mt-4 text-[38px] leading-[1.08] sm:text-6xl lg:text-[70px] font-extrabold tracking-[-0.035em] text-slate-900">
               Brand intelligence for{" "}
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-slate-900 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 modern enterprises
               </span>
             </h1>
-            <p className="mt-5 text-[15px] sm:text-[17px] leading-relaxed text-slate-600 max-w-2xl mx-auto font-normal">
+            <p className="mt-4 text-[15px] sm:text-[17px] leading-relaxed text-slate-600 max-w-2xl mx-auto font-normal">
               BrandVault AI checks every campaign against your approved Brand DNA, explains each issue with evidence,
               and routes the final decision to an authorised human reviewer.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-              <Link href={primaryHref} className="h-12 px-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white text-[15px] font-semibold transition-all shadow-lg shadow-indigo-500/30 active:scale-[0.99]">
+            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <Link href={primaryHref} className="h-12 px-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:opacity-95 text-white text-[15px] font-semibold transition-all shadow-lg shadow-indigo-500/30 active:scale-[0.99]">
                 {user ? "Open dashboard" : "Get started"} <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/guide" className="h-12 px-7 inline-flex items-center rounded-full border border-slate-300 text-slate-700 text-[15px] font-semibold hover:bg-slate-50 hover:border-indigo-300 transition-colors">
+              <Link href="/guide" className="h-12 px-7 inline-flex items-center rounded-full border border-indigo-200/90 bg-white/80 text-slate-700 text-[15px] font-semibold hover:bg-indigo-50/50 hover:border-indigo-400 transition-colors shadow-sm">
                 See how it works
               </Link>
             </div>
           </div>
 
-          {/* Visual Container: Full, Unclipped Flower with Orbit Rings */}
-          <div className="relative mt-8 sm:mt-10 h-[520px] sm:h-[660px] lg:h-[760px] flex items-center justify-center overflow-visible">
+          {/* Visual Container: Full, Centered, Perfectly Visible Chromatic Flower */}
+          <div className="relative mt-2 sm:mt-4 pb-14 sm:pb-20 min-h-[460px] sm:min-h-[560px] lg:min-h-[620px] flex items-center justify-center overflow-visible">
             {/* Colorful Orbit Rings */}
             <svg aria-hidden viewBox="0 0 1200 640" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-              <ellipse cx="600" cy="320" rx="540" ry="210" fill="none" stroke="rgba(59,111,239, 0.22)" strokeWidth="1.5" />
-              <ellipse cx="600" cy="340" rx="620" ry="260" fill="none" stroke="rgba(34,36,39, 0.28)" strokeWidth="1.8" strokeDasharray="3 9" strokeLinecap="round" />
-              <ellipse cx="600" cy="300" rx="460" ry="170" fill="none" stroke="rgba(154,161,170, 0.35)" strokeWidth="1.2" transform="rotate(-6 600 300)" />
+              <ellipse cx="600" cy="320" rx="550" ry="215" fill="none" stroke="rgba(99, 102, 241, 0.32)" strokeWidth="1.5" />
+              <ellipse cx="600" cy="340" rx="630" ry="260" fill="none" stroke="rgba(217, 70, 239, 0.30)" strokeWidth="1.8" strokeDasharray="4 10" strokeLinecap="round" />
+              <ellipse cx="600" cy="300" rx="470" ry="175" fill="none" stroke="rgba(6, 182, 212, 0.30)" strokeWidth="1.2" transform="rotate(-6 600 300)" />
               {/* Colorful orbital glow nodes */}
-              <circle cx="180" cy="240" r="4.5" fill="#3B6FEF" />
-              <circle cx="1020" cy="390" r="4.5" fill="#222427" />
-              <circle cx="850" cy="180" r="4" fill="#C9D1DB" />
-              <circle cx="340" cy="460" r="4" fill="#10B981" />
+              <circle cx="180" cy="240" r="5" fill="#6366F1" />
+              <circle cx="1020" cy="390" r="5" fill="#EC4899" />
+              <circle cx="850" cy="180" r="4.5" fill="#06B6D4" />
+              <circle cx="340" cy="460" r="4.5" fill="#10B981" />
+              <circle cx="680" cy="120" r="4" fill="#F59E0B" />
             </svg>
 
-            {/* FULL, Centered, Rich Chromatic Flower Sculpture */}
-            <div className="relative z-10 w-[540px] sm:w-[720px] lg:w-[820px] h-[500px] sm:h-[640px] lg:h-[720px] flex items-center justify-center">
+            {/* FULL Blooming Chromatic Dahlia Sculpture - 100% visible and unclipped */}
+            <div className="relative z-10 w-[420px] sm:w-[560px] lg:w-[660px] h-[400px] sm:h-[500px] lg:h-[580px] flex items-center justify-center">
               <HeroSculpture className="w-full h-full" />
             </div>
 
@@ -267,14 +269,25 @@ export default function Home() {
         </div>
 
         <ol className="mt-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
-          {WORKFLOW.map((step, i) => (
-            <li key={step} className="rounded-2xl bg-white border border-slate-200/80 p-4 shadow-soft hover:border-indigo-300 transition-all group">
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center text-xs font-bold tabular-nums group-hover:scale-105 transition-transform">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-              <div className="mt-5 text-[14px] font-bold text-slate-900 leading-snug">{step}</div>
-            </li>
-          ))}
+          {WORKFLOW.map((step, i) => {
+            const stepGradients = [
+              "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-indigo-500/25",
+              "bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-purple-500/25",
+              "bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white shadow-pink-500/25",
+              "bg-gradient-to-br from-rose-500 to-rose-700 text-white shadow-rose-500/25",
+              "bg-gradient-to-br from-amber-500 to-amber-700 text-white shadow-amber-500/25",
+              "bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-emerald-500/25",
+              "bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-cyan-500/25",
+            ];
+            return (
+              <li key={step} className="rounded-2xl bg-white border border-indigo-100/80 p-4 shadow-soft hover:shadow-medium hover:border-indigo-300 transition-all group">
+                <div className={`w-8 h-8 rounded-xl ${stepGradients[i % 7]} flex items-center justify-center text-xs font-bold tabular-nums shadow-sm group-hover:scale-110 transition-transform`}>
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div className="mt-4 text-[14px] font-bold text-slate-900 leading-snug">{step}</div>
+              </li>
+            );
+          })}
         </ol>
       </section>
 

@@ -1,0 +1,45 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "backend/venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "-m",
+        "uvicorn",
+        "backend.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload"
+      ],
+      "port": 8000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "dev"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "backend-check",
+      "runtimeExecutable": "backend/venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "env": { "BACKEND_CORS_ORIGINS": "http://localhost:3100,http://127.0.0.1:3100,http://localhost:3000", "RATE_LIMIT_ENABLED": "false", "DATABASE_URL": "sqlite:///./brandvault.db", "DATABASE_URL_UNPOOLED": "" },
+      "port": 8000
+    },
+    {
+      "name": "frontend-check",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--prefix", "frontend", "next", "start", "frontend", "-p", "3100"],
+      "env": { "NEXT_DIST_DIR": ".next-check" },
+      "port": 3100
+    }
+  ]
+}
