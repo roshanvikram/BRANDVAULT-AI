@@ -300,6 +300,15 @@ export async function fetchWorkspaces(): Promise<Organization[]> {
   return res.json();
 }
 
+export async function deleteGuideline(id: string): Promise<{ deleted: boolean; filename: string; passages_removed: number; unconfirmed_rules_removed: number; confirmed_rules_kept: number }> {
+  const res = await apiFetch(`${API_BASE}/brand/guidelines/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(typeof body?.detail === "string" ? body.detail : "Could not delete the document.");
+  }
+  return res.json();
+}
+
 export async function fetchGuidelines(orgId?: string): Promise<BrandGuideline[]> {
   const res = await apiFetch(`${API_BASE}/brand/guidelines${orgQuery(orgId)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load guidelines");

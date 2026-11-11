@@ -16,13 +16,16 @@ import {
   Shield,
   Layers,
   BookOpen,
-  DollarSign
+  DollarSign,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import {
   fetchRules,
   fetchFacts,
   fetchTerms,
   fetchGuidelines,
+  deleteGuideline,
   confirmRule,
   uploadGuideline,
   BrandRule,
@@ -56,6 +59,30 @@ export default function BrandDNAStudio() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const handleDeleteGuideline = async (g: BrandGuideline) => {
+    const ok = window.confirm(
+      `Delete "${g.filename}"?\n\n` +
+      "• Its text is removed and will no longer be cited as evidence.\n" +
+      "• Rules extracted from it that are still awaiting confirmation are removed.\n" +
+      "• Rules you already confirmed are kept.\n\nThis cannot be undone."
+    );
+    if (!ok) return;
+    setDeletingId(g.id);
+    setUploadError(null);
+    setUploadSuccess(null);
+    try {
+      const r = await deleteGuideline(g.id);
+      setUploadSuccess(`Deleted ${r.filename}: ${r.passages_removed} passages removed, ` +
+        `${r.unconfirmed_rules_removed} unconfirmed rule(s) removed, ${r.confirmed_rules_kept} confirmed rule(s) kept.`);
+      loadData();
+    } catch (err: any) {
+      setUploadError(err?.message || "Could not delete the document.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleConfirmRule = async (ruleId: string) => {
     try {
@@ -335,10 +362,22 @@ export default function BrandDNAStudio() {
                   <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <div className="truncate">
+                  <div className="truncate flex-1 min-w-0">
                     <div className="text-xs font-bold text-slate-900 truncate">{g.filename}</div>
                     <div className="text-[11px] text-slate-400">Total Pages: {g.total_pages}</div>
                   </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteGuideline(g)}
+                      disabled={deletingId === g.id}
+                      aria-label={`Delete ${g.filename}`}
+                      title="Delete this document"
+                      className="shrink-0 inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-[11px] font-semibold text-rose-700 border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-50 transition-colors"
+                    >
+                      {deletingId === g.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      Delete
+                    </button>
+                  )}
                 </div>
                 <div className="text-xs text-slate-500 pt-2 border-t border-slate-100 space-y-1">
                   <div className="flex justify-between">

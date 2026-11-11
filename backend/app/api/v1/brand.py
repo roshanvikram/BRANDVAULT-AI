@@ -174,6 +174,54 @@ async def upload_guideline(
     db.refresh(guideline)
     return guideline
 
+@router.delete("/guidelines/{guideline_id}")
+def delete_guideline(guideline_id: str, db: Session = Depends(get_db),
+                     current: User = Depends(require_roles(ROLE_ADMIN))):
+    """Delete an uploaded guideline document (Administrators only).
+
+    Removes the document, its passages and their search vectors, so it is no longer
+    cited as evidence, plus the rules extracted from it that were never confirmed.
+    Rules an administrator already confirmed are kept (they were approved on their own).
+    """
+    from backend.app.models.retrieval import ChunkEmbedding
+    g = db.query(BrandGuideline).filter(BrandGuideline.id == guideline_id,
+                                        BrandGuideline.org_id == current.org_id).first()
+    if not g:
+        raise HTTPException(status_code=404, detail="Document not found.")
+    chunk_ids = [c.id for c in db.query(DocumentChunk.id).filter(DocumentChunk.guideline_id == g.id)]
+    if chunk_ids:
+        db.query(ChunkEmbedding).filter(ChunkEmbedding.chunk_id.in_(chunk_ids)).delete(synchronize_session=False)
+        db.query(DocumentChunk).filter(DocumentChunk.id.in_(chunk_ids)).delete(synchronize_session=False)
+    # Only this document's unconfirmed rules; a newer upload of the same file name keeps its own.
+    others = db.query(BrandGuideline).filter(BrandGuideline.org_id == current.org_id, BrandGuideline.id != g.id,
+                                             BrandGuideline.filename == g.filename).count()
+    removed_rules = 0
+    if not others:
+        removed_rules = (db.query(BrandRule)
+                         .filter(BrandRule.org_id == current.org_id, BrandRule.source_document == g.filename,
+                                 BrandRule.is_confirmed == False)  # noqa: E712
+                         .delete(synchronize_session=False))
+    kept_rules = db.query(BrandRule).filter(BrandRule.org_id == current.org_id,
+                                            BrandRule.source_document == g.filename).count()
+    # A document that pointed to this one as its replacement stays as plain history.
+    for older in db.query(BrandGuideline).filter(BrandGuideline.superseded_by_id == g.id).all():
+        older.superseded_by_id = None
+    filename = g.filename
+    db.delete(g)
+    db.add(AuditLog(id=str(uuid.uuid4()), org_id=current.org_id, action="GUIDELINE_DELETED",
+                    actor=f"{current.full_name} ({current.role})",
+                    details=f"Deleted '{filename}': {len(chunk_ids)} passages, {removed_rules} unconfirmed rule(s) removed, "
+                            f"{kept_rules} confirmed rule(s) kept."))
+    db.commit()
+    try:  # rebuild the evidence search without this document
+        from backend.app.services.rag import RagRetriever
+        RagRetriever(db).index_org(current.org_id)
+    except Exception:
+        pass
+    return {"deleted": True, "filename": filename, "passages_removed": len(chunk_ids),
+            "unconfirmed_rules_removed": removed_rules, "confirmed_rules_kept": kept_rules}
+
+
 @router.get("/rules", response_model=List[BrandRuleResponse])
 def get_rules(org_id: Optional[str] = None, category: Optional[str] = None, db: Session = Depends(get_db),
               current: User = Depends(get_current_user)):
